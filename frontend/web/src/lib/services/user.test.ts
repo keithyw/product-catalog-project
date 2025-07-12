@@ -20,6 +20,60 @@ describe('userService', () => {
 	})
 
 	describe('userService', () => {
+		describe('createUser', () => {
+			it('should create a user successfully', async () => {
+				const mockResponse = {
+					id: 1,
+					username: 'testuser',
+					email: 'test@test.com',
+					first_name: 'test_first',
+					last_name: 'test_last',
+					is_active: true,
+					is_staff: false,
+					date_joined: '2025-07-12T18:08:35.770625Z',
+					last_login: null,
+				}
+				mock.onPost(API_USERS_URL).reply(201, mockResponse)
+				const response = await userService.createUser({
+					username: 'testuser',
+					password: 'test',
+					password_confirm: 'test',
+					first_name: 'test_first',
+					last_name: 'test_last',
+					email: 'test@test.com',
+				})
+				expect(response).toEqual(mockResponse)
+				expect(mock.history.post.length).toBe(1)
+				expect(mock.history.post[0].url).toBe(API_USERS_URL)
+				expect(mock.history.post[0].data).toEqual(
+					JSON.stringify({
+						username: 'testuser',
+						password: 'test',
+						password_confirm: 'test',
+						first_name: 'test_first',
+						last_name: 'test_last',
+						email: 'test@test.com',
+					}),
+				)
+			})
+
+			it('should handle errors gracefully', async () => {
+				mock.onPost(API_USERS_URL).reply(500)
+				await expect(
+					userService.createUser({
+						username: 'testuser',
+						password: 'test',
+						password_confirm: 'test',
+						first_name: 'test_first',
+						last_name: 'test_last',
+						email: 'test@test.com',
+					}),
+				).rejects.toThrow(axios.AxiosError)
+				expect(mock.history.post.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
 		describe('getUsers', () => {
 			it('should fetch users successfully', async () => {
 				const mockResponse = {

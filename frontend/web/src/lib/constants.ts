@@ -11,6 +11,12 @@ export const LOGIN_URL = '/login'
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
 export const USERS_URL = '/users'
+export const CREATE_USERS_URL = `${USERS_URL}/create`
 
 export const PROTECTED_ROUTES = [DASHBOARD_URL, PRODUCTS_URL, USERS_URL]
 export const PUBLIC_ROUTES = [LOGIN_URL]
+
+export const GENERIC_SERVER_ERROR =
+	'Network error or request failed. Please try again.'
+export const UNEXPECTED_SERVER_ERROR =
+	'Unexpected server error. Please try again.'

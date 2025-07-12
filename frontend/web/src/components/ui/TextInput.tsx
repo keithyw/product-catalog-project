@@ -3,11 +3,12 @@ import { forwardRef } from 'react'
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	id: string
 	label: string
+	type?: string
 	className?: string
 }
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-	({ id, label, className = '', ...rest }, ref) => {
+	({ id, label, type = 'text', className = '', ...rest }, ref) => {
 		return (
 			<div className='mb-4'>
 				<label
@@ -17,7 +18,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 					{label}
 				</label>
 				<input
-					type='text'
+					type={type}
 					id={id}
 					ref={ref}
 					{...rest}

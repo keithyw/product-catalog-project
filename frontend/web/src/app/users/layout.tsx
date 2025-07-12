@@ -1,4 +1,4 @@
-import { USERS_URL } from '@/lib/constants'
+import { CREATE_USERS_URL, USERS_URL } from '@/lib/constants'
 import CrudLayout from '@/components/layout/CrudLayout'
 import { SubnavBarLink } from '@/components/layout/Subnavbar'
 
@@ -13,7 +13,7 @@ export default function UsersPage({
 			label: 'User List',
 		},
 		{
-			href: `${USERS_URL}/create`,
+			href: `${CREATE_USERS_URL}`,
 			label: 'Create User',
 		},
 	]
