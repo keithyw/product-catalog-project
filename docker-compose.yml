@@ -1,0 +1,55 @@
+services:
+  product-catalog-mysql-service:
+    platform: linux/amd64
+    container_name: product-catalog-mysql-service
+    image: mysql
+    restart: always
+    ports:
+      - "33006:3306"
+    volumes:
+      - product-catalog-mysql-data:/var/lib/mysql
+      - ./product_catalog_app/db:/docker-entrypoint-initdb.d
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  product-catalog-app:
+    build:
+      context: ./product_catalog_app
+      dockerfile: Dockerfile
+    container_name: product-catalog-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - product-catalog-mysql-service
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - DJANGO_LOGLEVEL=${DJANGO_LOGLEVEL}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASS=${MYSQL_PASS}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+
+  product-catalog-web:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+    container_name: product-catalog-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - product-catalog-app
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+
+volumes:
+  product-catalog-mysql-data:
