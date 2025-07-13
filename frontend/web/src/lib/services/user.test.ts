@@ -74,6 +74,23 @@ describe('userService', () => {
 			})
 		})
 
+		describe('deleteUser', () => {
+			it('should delete a user successfully', async () => {
+				mock.onDelete(`${API_USERS_URL}1/`).reply(204) // 204 No Content for successful deletion
+				await userService.deleteUser(1)
+				expect(mock.history.delete.length).toBe(1)
+				expect(mock.history.delete[0].url).toBe(`${API_USERS_URL}1/`)
+			})
+
+			it('should handle deletion error', async () => {
+				mock.onDelete(`${API_USERS_URL}1/`).reply(404)
+				await expect(userService.deleteUser(1)).rejects.toThrow(
+					axios.AxiosError,
+				)
+				expect(mock.history.delete.length).toBe(1)
+			})
+		})
+
 		describe('getUser', () => {
 			it('should fetch a user successfully', async () => {
 				const mockResponse = {
@@ -99,6 +116,7 @@ describe('userService', () => {
 				await expect(userService.getUser(1)).rejects.toThrow(axios.AxiosError)
 			})
 		})
+
 		describe('getUsers', () => {
 			it('should fetch users successfully', async () => {
 				const mockResponse = {

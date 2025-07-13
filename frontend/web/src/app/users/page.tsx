@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { USERS_URL } from '@/lib/constants'
@@ -16,6 +17,20 @@ export default function UsersPage() {
 	const [searchTerm, setSearchTerm] = React.useState('')
 	const setUsers = useUserStore((state) => state.setUsers)
 	const users = useUserStore((state) => state.users)
+
+	const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false)
+	const [deleteUser, setDeleteUser] = React.useState<User | null>(null)
+	const [isDeleting, setIsDeleting] = React.useState(false)
+
+	const openConfirmModal = (user: User) => {
+		setDeleteUser(user)
+		setIsConfirmModalOpen(true)
+	}
+
+	const closeConfirmModal = () => {
+		setIsConfirmModalOpen(false)
+		setDeleteUser(null)
+	}
 
 	const userColumns: TableColumn<User>[] = [
 		{
@@ -68,9 +83,7 @@ export default function UsersPage() {
 		},
 		{
 			label: 'Delete',
-			onClick: (user) => {
-				console.log('Deleting ', user.id)
-			},
+			onClick: openConfirmModal,
 			className: 'bg-red-500 hover:bg-red-600',
 		},
 	]
@@ -98,6 +111,22 @@ export default function UsersPage() {
 		fetchUsers()
 	}, [])
 
+	const handleConfirmDelete = async () => {
+		if (deleteUser) {
+			try {
+				await userService.deleteUser(parseInt(deleteUser.id as string))
+				fetchUsers()
+				closeConfirmModal()
+			} catch (e: unknown) {
+				if (e instanceof Error) {
+					console.error(e.message)
+				}
+			} finally {
+				setIsDeleting(false)
+			}
+		}
+	}
+
 	const handleSearch = (term: string) => {
 		setSearchTerm(term)
 		console.log('Searching for:', term)
@@ -119,14 +148,34 @@ export default function UsersPage() {
 			{isLoading ? (
 				<SpinnerSection spinnerMessage='Loading users...' />
 			) : (
-				<DataTable
-					data={filteredUsers}
-					columns={userColumns}
-					rowKey='id'
-					actions={userActions}
-					searchTerm={searchTerm}
-					onSearch={handleSearch}
-				/>
+				<>
+					<DataTable
+						data={filteredUsers}
+						columns={userColumns}
+						rowKey='id'
+						actions={userActions}
+						searchTerm={searchTerm}
+						onSearch={handleSearch}
+					/>
+					<ConfirmationModal
+						isOpen={isConfirmModalOpen}
+						onClose={closeConfirmModal}
+						onConfirm={handleConfirmDelete}
+						title='Confirm Delete User'
+						message={`Are you sure you want to delete ${deleteUser?.username}`}
+						confirmButtonText={isDeleting ? 'Deleting...' : 'Delete'}
+						confirmButtonClass={
+							isDeleting
+								? 'bg-red-400 cursor-not-allowed'
+								: 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+						}
+						cancelButtonClass={
+							isDeleting
+								? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+								: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
+						}
+					/>
+				</>
 			)}
 		</>
 	)
