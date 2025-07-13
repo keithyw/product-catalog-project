@@ -17,6 +17,13 @@ export interface CreateUserRequest {
 	password: string
 	password_confirm: string
 }
+
+export interface UpdateUserRequest {
+	first_name?: string
+	last_name?: string
+	is_staff?: boolean
+	is_active?: boolean
+}
 export interface UsersResponse {
 	results: User[]
 	count: number

@@ -69,38 +69,27 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
         
 class UserUpdateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    password_confirm = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    
     class Meta:
         model = User
         fields = [
+            'id',
             'username',
             'email',
             'first_name',
             'last_name',
             'is_active',
             'is_staff',
-            'password',
-            'password_confirm',
+            'date_joined',
+            'last_login',
         ]
-        read_only_fields = ['date_joined', 'last_login']
-        
-    def validate(self, data):
-        if 'password' in data and data['password']:
-            if 'password_confirm' not in data or data['password'] != data['password_confirm']:
-                raise serializers.ValidationError({"password": "Password fields did not match"})
-        return data
+        read_only_fields = ['id', 'username', 'email', 'date_joined', 'last_login']
         
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
+        validated_data.pop('password', None)
         validated_data.pop('password_confirm', None)
             
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-                
-        if password:
-            instance.set_password(password)
         instance.save()
         return instance
             

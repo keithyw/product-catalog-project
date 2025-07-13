@@ -23,17 +23,7 @@ const DataTable = <T extends Record<string, any>>({
 	onSearch,
 	searchPlaceholder,
 }: DataTableProps<T>) => {
-	if (!data || data.length === 0) {
-		if (searchTerm && data.length === 0 && onSearch) {
-			return (
-				<p className='text-center text-gray-500 mt-8'>
-					No results for {searchTerm}
-				</p>
-			)
-		}
-		return <div className='text-center text-gray-500 mt-8'>{emptyMessage}</div>
-	}
-
+	const totalColumns = columns.length + (actions && actions.length > 0 ? 1 : 0)
 	return (
 		<div className='overflow-x-auto shadow-md sm:rounded-lg'>
 			{onSearch && (
@@ -62,42 +52,55 @@ const DataTable = <T extends Record<string, any>>({
 					</tr>
 				</thead>
 				<tbody>
-					{data.map((row) => (
-						<tr
-							key={String(row[rowKey])}
-							className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-						>
-							{columns.map((col, colIndex) => (
-								<td
-									className='px-6 py-4'
-									key={String(row[rowKey]) + '-' + colIndex}
-								>
-									{col.render
-										? col.render(row)
-										: col.accessor
-											? row[col.accessor as keyof T]
-											: null}
-								</td>
-							))}
-							{actions && actions.length > 0 && (
-								<td className='px-6 py-4 text-right whitespace-nowrap'>
-									{actions.map((action, actionIndex) => (
-										<button
-											key={`action-${String(row[rowKey])}-${actionIndex}`}
-											onClick={() => action.onClick(row)}
-											className={`
+					{data && data.length > 0 ? (
+						data.map((row) => (
+							<tr
+								key={String(row[rowKey])}
+								className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+							>
+								{columns.map((col, colIndex) => (
+									<td
+										className='px-6 py-4'
+										key={String(row[rowKey]) + '-' + colIndex}
+									>
+										{col.render
+											? col.render(row)
+											: col.accessor
+												? row[col.accessor as keyof T]
+												: null}
+									</td>
+								))}
+								{actions && actions.length > 0 && (
+									<td className='px-6 py-4 text-right whitespace-nowrap'>
+										{actions.map((action, actionIndex) => (
+											<button
+												key={`action-${String(row[rowKey])}-${actionIndex}`}
+												onClick={() => action.onClick(row)}
+												className={`
                                                 px-3 py-1 rounded-md text-white
                                                 ${action.className || 'bg-blue-500 hover:bg-blue-600'} 
                                                 ${actionIndex > 0 ? 'ml-2' : ''}
                                             `}
-										>
-											{action.label}
-										</button>
-									))}
-								</td>
-							)}
+											>
+												{action.label}
+											</button>
+										))}
+									</td>
+								)}
+							</tr>
+						))
+					) : (
+						<tr>
+							<td
+								colSpan={totalColumns}
+								className='text-center py-8 text-gray-500'
+							>
+								{searchTerm && onSearch
+									? `No results for "${searchTerm}"`
+									: emptyMessage}
+							</td>
 						</tr>
-					))}
+					)}
 				</tbody>
 			</table>
 		</div>

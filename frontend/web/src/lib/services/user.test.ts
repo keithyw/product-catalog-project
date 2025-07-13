@@ -74,6 +74,31 @@ describe('userService', () => {
 			})
 		})
 
+		describe('getUser', () => {
+			it('should fetch a user successfully', async () => {
+				const mockResponse = {
+					id: 1,
+					username: 'testuser',
+					email: 'test@test.com',
+					first_name: 'test_first',
+					last_name: 'test_last',
+					is_active: true,
+					is_staff: false,
+					date_joined: '2025-07-12T18:08:35.770625Z',
+					last_login: null,
+				}
+				mock.onGet(`${API_USERS_URL}1/`).reply(200, mockResponse)
+				const response = await userService.getUser(1)
+				expect(response).toEqual(mockResponse)
+				expect(mock.history.get.length).toBe(1)
+				expect(mock.history.get[0].url).toBe(`${API_USERS_URL}1/`)
+				expect(mock.history.get[0].params).toBeUndefined()
+			})
+			it('should not find a user', async () => {
+				mock.onGet(`${API_USERS_URL}1/`).reply(404)
+				await expect(userService.getUser(1)).rejects.toThrow(axios.AxiosError)
+			})
+		})
 		describe('getUsers', () => {
 			it('should fetch users successfully', async () => {
 				const mockResponse = {
@@ -114,6 +139,73 @@ describe('userService', () => {
 				mock.onGet(API_USERS_URL).reply(500)
 				await expect(userService.getUsers()).rejects.toThrow(axios.AxiosError)
 				expect(mock.history.get.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
+		describe('updateUser', () => {
+			it('should update a user successfully', async () => {
+				const mockResponse = {
+					id: 1,
+					username: 'testuser',
+					email: 'test@test.com',
+					first_name: 'test_first',
+					last_name: 'test_last',
+					is_active: true,
+					is_staff: false,
+					date_joined: '2025-07-12T18:08:35.770625Z',
+					last_login: null,
+				}
+				mock.onPut(`${API_USERS_URL}1/`).reply(200, mockResponse)
+				const response = await userService.updateUser(1, {
+					first_name: 'test_first',
+					last_name: 'test_last',
+					is_staff: false,
+					is_active: true,
+				})
+				expect({
+					...response,
+					id: 1,
+					username: 'testuser',
+					email: 'test@test.com',
+					date_joined: '2025-07-12T18:08:35.770625Z',
+					last_login: null,
+				}).toEqual(mockResponse)
+				expect(mock.history.put.length).toBe(1)
+				expect(mock.history.put[0].url).toBe(`${API_USERS_URL}1/`)
+				expect(mock.history.put[0].data).toEqual(
+					JSON.stringify({
+						first_name: 'test_first',
+						last_name: 'test_last',
+						is_staff: false,
+						is_active: true,
+					}),
+				)
+			})
+			it('should not find a user to update', async () => {
+				mock.onPut(`${API_USERS_URL}1/`).reply(404)
+				await expect(
+					userService.updateUser(1, {
+						first_name: 'test_first',
+						last_name: 'test_last',
+						is_staff: false,
+						is_active: true,
+					}),
+				).rejects.toThrow(axios.AxiosError)
+				expect(mock.history.put.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+			it('should handle errors gracefully', async () => {
+				mock.onPut(`${API_USERS_URL}1/`).reply(500)
+				await expect(
+					userService.updateUser(1, {
+						first_name: 'test_first',
+						last_name: 'test_last',
+						is_staff: false,
+						is_active: true,
+					}),
+				).rejects.toThrow(axios.AxiosError)
+				expect(mock.history.put.length).toBe(1)
 				expect(consoleErrorSpy).toHaveBeenCalled()
 			})
 		})

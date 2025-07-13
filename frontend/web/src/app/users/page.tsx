@@ -1,14 +1,17 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
+import { USERS_URL } from '@/lib/constants'
 import userService from '@/lib/services/user'
 import useUserStore from '@/stores/useUserStore'
 import { TableColumn, TableRowAction } from '@/types/table'
 import { User } from '@/types/user'
 
 export default function UsersPage() {
+	const router = useRouter()
 	const [isLoading, setIsLoading] = React.useState(true)
 	const [searchTerm, setSearchTerm] = React.useState('')
 	const setUsers = useUserStore((state) => state.setUsers)
@@ -49,6 +52,13 @@ export default function UsersPage() {
 	]
 
 	const userActions: TableRowAction<User>[] = [
+		{
+			label: 'View Details',
+			onClick: (user) => {
+				router.push(`${USERS_URL}/${user.id}`)
+			},
+			className: 'bg-gray-500 hover:bg-gray-600',
+		},
 		{
 			label: 'Edit',
 			onClick: (user) => {
@@ -93,20 +103,31 @@ export default function UsersPage() {
 		console.log('Searching for:', term)
 	}
 
-	if (isLoading) {
-		return <SpinnerSection spinnerMessage='Loading users...' />
-	}
+	const filteredUsers = users.filter(
+		(user) =>
+			user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			(user.first_name || '')
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ||
+			(user.last_name || '').toLowerCase().includes(searchTerm.toLowerCase()),
+	)
+
 	return (
 		<>
 			<h1>Users</h1>
-			<DataTable
-				data={users}
-				columns={userColumns}
-				rowKey='id'
-				actions={userActions}
-				searchTerm={searchTerm}
-				onSearch={handleSearch}
-			/>
+			{isLoading ? (
+				<SpinnerSection spinnerMessage='Loading users...' />
+			) : (
+				<DataTable
+					data={filteredUsers}
+					columns={userColumns}
+					rowKey='id'
+					actions={userActions}
+					searchTerm={searchTerm}
+					onSearch={handleSearch}
+				/>
+			)}
 		</>
 	)
 }
