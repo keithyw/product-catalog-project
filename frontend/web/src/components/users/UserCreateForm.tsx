@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
@@ -53,6 +54,7 @@ const UserCreateForm: React.FC = () => {
 		handleSubmit,
 		setError,
 		formState: { errors, isSubmitting },
+		reset,
 	} = useForm<UserCreateFormData>({
 		resolver: zodResolver(userCreateSchema),
 		defaultValues: {
@@ -68,10 +70,16 @@ const UserCreateForm: React.FC = () => {
 	const onSubmit = async (data: UserCreateFormData) => {
 		try {
 			const res = await userService.createUser(data)
+			toast.success(`User ${res.username} created successfully!`)
 			console.log(res)
+			reset()
 			router.push(USERS_URL)
 		} catch (e: unknown) {
-			handleFormErrors<UserCreateFormData>(e, setError)
+			handleFormErrors<UserCreateFormData>(
+				e,
+				setError,
+				'Failed to create user. Please review your input.',
+			)
 		}
 	}
 	return (

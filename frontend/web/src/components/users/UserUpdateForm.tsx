@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
 import FormInput from '@/components/ui/FormInput'
@@ -95,9 +96,14 @@ const UserUpdateForm: React.FC = () => {
 		try {
 			const res = await userService.updateUser(parseInt(userId as string), data)
 			console.log(res)
+			toast.success(`User ${res.username} updated successfully!`)
 			router.push(`${USERS_URL}/${userId}`)
 		} catch (e: unknown) {
-			handleFormErrors<UserUpdateFormData>(e, setError)
+			handleFormErrors<UserUpdateFormData>(
+				e,
+				setError,
+				'Failed to update user. Please review your input.',
+			)
 		}
 	}
 
