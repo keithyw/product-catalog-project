@@ -5,10 +5,11 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	label: string
 	type?: string
 	className?: string
+	readOnly?: boolean
 }
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-	({ id, label, type = 'text', className = '', ...rest }, ref) => {
+	({ id, label, type = 'text', className = '', readOnly, ...rest }, ref) => {
 		return (
 			<div className='mb-4'>
 				<label
@@ -21,20 +22,24 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 					type={type}
 					id={id}
 					ref={ref}
+					readOnly={readOnly}
 					{...rest}
-					className={`shadow 
-                    appearance-none
-                    border 
-                    rounded 
-                    w-full 
-                    py-2
-                    px-3
-                    text-gray-700
-                    leading-tight
-                    focus:outline-none
-                    focus:shadow-outline
-                    focus:border-blue-500 
-                    ${className || ''}`}
+					className={`
+						shadow 
+						appearance-none
+						border 
+						rounded 
+						w-full 
+						py-2
+						px-3
+						text-gray-700
+						leading-tight
+						focus:outline-none
+						focus:shadow-outline
+						focus:border-blue-500
+						${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}
+                    	${className || ''}
+					`}
 				/>
 			</div>
 		)

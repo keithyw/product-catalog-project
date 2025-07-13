@@ -18,6 +18,8 @@ export const CREATE_USERS_URL = `${USERS_URL}/create`
 export const PROTECTED_ROUTES = [DASHBOARD_URL, PRODUCTS_URL, USERS_URL]
 export const PUBLIC_ROUTES = [LOGIN_URL]
 
+export const FAILED_LOADING_USER_ERROR =
+	'Failed to load user. Please try again.'
 export const GENERIC_SERVER_ERROR =
 	'Network error or request failed. Please try again.'
 export const UNEXPECTED_SERVER_ERROR =

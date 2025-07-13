@@ -62,7 +62,7 @@ export default function UsersPage() {
 		{
 			label: 'Edit',
 			onClick: (user) => {
-				console.log('Editing ', user.id)
+				router.push(`${USERS_URL}/${user.id}/edit`)
 			},
 			className: 'bg-blue-500 hover:bg-blue-600',
 		},

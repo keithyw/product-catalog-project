@@ -7,7 +7,11 @@ import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import PageTitle from '@/components/ui/PageTitle'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
 import SpinnerSection from '@/components/ui/SpinnerSection'
-import { DATE_FORMAT_DISPLAY, USERS_URL } from '@/lib/constants'
+import {
+	DATE_FORMAT_DISPLAY,
+	FAILED_LOADING_USER_ERROR,
+	USERS_URL,
+} from '@/lib/constants'
 import userService from '@/lib/services/user'
 import { User } from '@/types/user'
 
@@ -49,7 +53,7 @@ const UserDetailsPage: React.FC = () => {
 				} catch (e: unknown) {
 					if (e instanceof Error) {
 						console.error(e.message)
-						setError(e.message)
+						setError(FAILED_LOADING_USER_ERROR)
 						router.push(USERS_URL)
 					}
 				} finally {
@@ -70,8 +74,8 @@ const UserDetailsPage: React.FC = () => {
 
 	return (
 		<div className='container mx-auto p-4'>
-			<PageTitle>User Details</PageTitle>
 			<div className='bg-white shadow overflow-hidden sm:rounded-lg max-w-2xl mx-auto'>
+				<PageTitle>User Details</PageTitle>
 				{user && <DetailSection rows={details} />}
 			</div>
 		</div>
