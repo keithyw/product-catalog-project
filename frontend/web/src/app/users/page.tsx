@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
@@ -115,11 +116,16 @@ export default function UsersPage() {
 		if (deleteUser) {
 			try {
 				await userService.deleteUser(parseInt(deleteUser.id as string))
+				toast.success(`User ${deleteUser.username} deleted successfully`)
 				fetchUsers()
 				closeConfirmModal()
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					console.error(e.message)
+					toast.error(
+						`Failed to delete user ${deleteUser.username}: {e.message}`,
+					)
+					closeConfirmModal()
 				}
 			} finally {
 				setIsDeleting(false)
