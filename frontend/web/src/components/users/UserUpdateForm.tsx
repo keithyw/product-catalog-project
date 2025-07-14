@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
+import CancelSubmitButton from '@/components/ui/CancelSubmitButton'
 import FormInput from '@/components/ui/FormInput'
 import SpinnerSection from '@/components//ui/SpinnerSection'
 import SubmitButton from '@/components/ui/SubmitButton'
@@ -134,6 +135,7 @@ const UserUpdateForm: React.FC = () => {
 				<SubmitButton disabled={isSubmitting}>
 					{isSubmitting ? 'Updating User...' : 'Update User'}
 				</SubmitButton>
+				<CancelSubmitButton cancelUrl={`${USERS_URL}/${userId}`} />
 			</form>
 		</>
 	)

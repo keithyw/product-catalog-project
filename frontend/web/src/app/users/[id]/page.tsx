@@ -1,8 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import moment from 'moment'
+import Button from '@/components/ui/Button'
+import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import PageTitle from '@/components/ui/PageTitle'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
@@ -24,6 +27,35 @@ const UserDetailsPage: React.FC = () => {
 	const [details, setDetails] = useState<DetailSectionRow[]>([])
 
 	const [isLoading, setIsLoading] = useState(true)
+	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+
+	const handleCloseDeleteModal = () => {
+		setShowConfirmationModal(false)
+	}
+
+	const handleDeleteClick = () => {
+		setShowConfirmationModal(true)
+	}
+
+	const handleEditClick = () => {
+		if (user) {
+			router.push(`${USERS_URL}/${user.id}/edit`)
+		}
+	}
+
+	const handleDeleteConfirm = async () => {
+		if (user) {
+			try {
+				await userService.deleteUser(parseInt(user.id as string))
+				toast.success(`User ${user.username} deleted successfully`)
+				router.push(USERS_URL)
+			} catch (e: unknown) {
+				console.error('Failed deleting user: ', e)
+				toast.error(`Failed to delete user ${user.username}`)
+				handleCloseDeleteModal()
+			}
+		}
+	}
 
 	useEffect(() => {
 		if (userId) {
@@ -74,10 +106,25 @@ const UserDetailsPage: React.FC = () => {
 
 	return (
 		<div className='container mx-auto p-4'>
-			<div className='bg-white shadow overflow-hidden sm:rounded-lg max-w-2xl mx-auto'>
+			<div className='bg-white p-8 shadow-md max-w-2xl mx-auto'>
 				<PageTitle>User Details</PageTitle>
 				{user && <DetailSection rows={details} />}
+				<div className='mt-6 flex justify-end space-x-3'>
+					<Button actionType='edit' onClick={handleEditClick}>
+						Edit User
+					</Button>
+					<Button actionType='delete' onClick={handleDeleteClick}>
+						Delete User
+					</Button>
+				</div>
 			</div>
+			<ConfirmationModal
+				isOpen={showConfirmationModal}
+				onClose={handleCloseDeleteModal}
+				onConfirm={handleDeleteConfirm}
+				title='Confirm Delete User'
+				message={`Are you sure you want to delete ${user?.username}`}
+			/>
 		</div>
 	)
 }
