@@ -8,14 +8,21 @@ export const API_REFRESH_URL = '/token/refresh/'
 
 export const API_PRODUCT_URL = '/products/'
 export const API_USERS_URL = '/users/'
+export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`
 
 export const LOGIN_URL = '/login'
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
+export const PROFILE_URL = '/profile'
 export const USERS_URL = '/users'
 export const CREATE_USERS_URL = `${USERS_URL}/create`
 
-export const PROTECTED_ROUTES = [DASHBOARD_URL, PRODUCTS_URL, USERS_URL]
+export const PROTECTED_ROUTES = [
+	DASHBOARD_URL,
+	PRODUCTS_URL,
+	PROFILE_URL,
+	USERS_URL,
+]
 export const PUBLIC_ROUTES = [LOGIN_URL]
 
 export const FAILED_LOADING_USER_ERROR =

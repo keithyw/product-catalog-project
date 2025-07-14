@@ -1,8 +1,8 @@
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import axiosClient from '@/lib/clients/axiosClient'
-import { API_USERS_URL } from '@/lib/constants'
-// import { UsersResponse } from '@/types/user'
+import { API_USERS_URL, API_CURRENT_USER_URL } from '@/lib/constants'
+import { User } from '@/types/user'
 import userService from '@/lib/services/user'
 
 const mock = new MockAdapter(axiosClient)
@@ -222,6 +222,83 @@ describe('userService', () => {
 						is_staff: false,
 						is_active: true,
 					}),
+				).rejects.toThrow(axios.AxiosError)
+				expect(mock.history.put.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
+		describe('getCurrentUser', () => {
+			it('should fetch the current user successfully', async () => {
+				const mockCurrentUser: User = {
+					id: '1',
+					username: 'loggedinuser',
+					email: 'loggedin@example.com',
+					first_name: 'Logged',
+					last_name: 'In',
+					is_active: true,
+					is_staff: false,
+					date_joined: '2025-01-01T00:00:00Z',
+					last_login: '2025-07-14T00:00:00Z',
+				}
+				mock.onGet(API_CURRENT_USER_URL).reply(200, mockCurrentUser)
+
+				const response = await userService.getCurrentUser()
+
+				expect(response).toEqual(mockCurrentUser)
+				expect(mock.history.get.length).toBe(1)
+				expect(mock.history.get[0].url).toBe(API_CURRENT_USER_URL)
+			})
+
+			it('should handle errors gracefully when fetching current user', async () => {
+				mock.onGet(API_CURRENT_USER_URL).reply(401) // e.g., unauthorized
+
+				await expect(userService.getCurrentUser()).rejects.toThrow(
+					axios.AxiosError,
+				)
+				expect(mock.history.get.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
+		describe('updateCurrentUser', () => {
+			it('should update the current user successfully', async () => {
+				const updatedData = {
+					first_name: 'UpdatedFirst',
+					last_name: 'UpdatedLast',
+					email: 'updated@example.com',
+				}
+				const mockUpdatedUser: User = {
+					id: '1',
+					username: 'loggedinuser',
+					email: 'updated@example.com',
+					first_name: 'UpdatedFirst',
+					last_name: 'UpdatedLast',
+					is_active: true,
+					is_staff: false,
+					date_joined: '2025-01-01T00:00:00Z',
+					last_login: '2025-07-14T00:00:00Z',
+				}
+				mock.onPut(API_CURRENT_USER_URL).reply(200, mockUpdatedUser)
+
+				const response = await userService.updateCurrentUser(updatedData)
+
+				expect(response).toEqual(mockUpdatedUser)
+				expect(mock.history.put.length).toBe(1)
+				expect(mock.history.put[0].url).toBe(API_CURRENT_USER_URL)
+				expect(mock.history.put[0].data).toEqual(JSON.stringify(updatedData))
+			})
+
+			it('should handle errors gracefully when updating current user', async () => {
+				const updatedData = {
+					first_name: 'UpdatedFirst',
+					last_name: 'UpdatedLast',
+					email: 'updated@example.com',
+				}
+				mock.onPut(API_CURRENT_USER_URL).reply(400) // e.g., bad request
+
+				await expect(
+					userService.updateCurrentUser(updatedData),
 				).rejects.toThrow(axios.AxiosError)
 				expect(mock.history.put.length).toBe(1)
 				expect(consoleErrorSpy).toHaveBeenCalled()

@@ -26,3 +26,11 @@ export const userUpdateSchema = z.object({
 })
 
 export type UserUpdateFormData = z.infer<typeof userUpdateSchema>
+
+export const userProfileUpdateSchema = z.object({
+	first_name: z.string().optional().or(z.literal('')), // Optional, can be empty string
+	last_name: z.string().optional().or(z.literal('')), // Optional, can be empty string
+	email: z.email('Invalid email address.'),
+})
+
+export type UserProfileUpdateFormData = z.infer<typeof userProfileUpdateSchema>

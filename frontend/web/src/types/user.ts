@@ -24,6 +24,12 @@ export interface UpdateUserRequest {
 	is_staff?: boolean
 	is_active?: boolean
 }
+
+export interface UpdateUserProfileRequest {
+	first_name?: string
+	last_name?: string
+	email?: string
+}
 export interface UsersResponse {
 	results: User[]
 	count: number

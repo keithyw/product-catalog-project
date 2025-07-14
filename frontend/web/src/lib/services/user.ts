@@ -1,8 +1,9 @@
 import axiosClient from '@/lib/clients/axiosClient'
-import { API_USERS_URL } from '@/lib/constants'
+import { API_CURRENT_USER_URL, API_USERS_URL } from '@/lib/constants'
 import {
 	CreateUserRequest,
 	UpdateUserRequest,
+	UpdateUserProfileRequest,
 	User,
 	UsersResponse,
 } from '@/types/user'
@@ -10,8 +11,10 @@ import {
 interface UserService {
 	createUser: (data: CreateUserRequest) => Promise<User>
 	deleteUser: (id: number) => Promise<void>
+	getCurrentUser: () => Promise<User>
 	getUser: (id: number) => Promise<User>
 	getUsers: () => Promise<UsersResponse>
+	updateCurrentUser: (data: UpdateUserProfileRequest) => Promise<User>
 	updateUser: (id: number, data: UpdateUserRequest) => Promise<User>
 }
 
@@ -24,6 +27,10 @@ const userService: UserService = {
 		await axiosClient.delete(`${API_USERS_URL}${id}/`)
 		return
 	},
+	getCurrentUser: async (): Promise<User> => {
+		const r = await axiosClient.get<User>(API_CURRENT_USER_URL)
+		return r.data || ({} as User)
+	},
 	getUser: async (id: number): Promise<User> => {
 		const r = await axiosClient.get<User>(`${API_USERS_URL}${id}/`)
 		return r.data || ({} as User)
@@ -31,6 +38,10 @@ const userService: UserService = {
 	getUsers: async (): Promise<UsersResponse> => {
 		const r = await axiosClient.get<UsersResponse>(API_USERS_URL)
 		return r.data || { results: [], count: 0, next: null, previous: null }
+	},
+	updateCurrentUser: async (data: UpdateUserProfileRequest): Promise<User> => {
+		const r = await axiosClient.put<User>(API_CURRENT_USER_URL, data)
+		return r.data || ({} as User)
 	},
 	updateUser: async (id: number, data: UpdateUserRequest): Promise<User> => {
 		const r = await axiosClient.put<User>(`${API_USERS_URL}${id}/`, data)

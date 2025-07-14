@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import ProfileDropdown from '@/components/layout/ProfileDropdown'
 import NavbarLink from '@/components/ui/NavbarLink'
 import {
 	DASHBOARD_URL,
@@ -12,13 +12,7 @@ import {
 import useAuthStore from '@/stores/useAuthStore'
 
 export default function Navbar() {
-	const { isAuthenticated, setLogoutStatus } = useAuthStore()
-	const router = useRouter()
-
-	const handleLogout = () => {
-		setLogoutStatus()
-		router.push(LOGIN_URL)
-	}
+	const { isAuthenticated } = useAuthStore()
 
 	return (
 		<nav className='bg-gray-800 p-4 text-white shadow-md'>
@@ -30,12 +24,7 @@ export default function Navbar() {
 							<NavbarLink href={DASHBOARD_URL}>Dashboard</NavbarLink>
 							<NavbarLink href={PRODUCTS_URL}>Products</NavbarLink>
 							<NavbarLink href={USERS_URL}>Users</NavbarLink>
-							<button
-								className='bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50'
-								onClick={handleLogout}
-							>
-								Logout
-							</button>
+							<ProfileDropdown />
 						</>
 					) : (
 						<Link
