@@ -1,11 +1,22 @@
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, generics, mixins, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserProfileSerializer, UserProfileUpdateSerializer, PasswordChangeSerializer
+from django.contrib.auth.models import Group, Permission
+from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserProfileSerializer, UserProfileUpdateSerializer, PasswordChangeSerializer, GroupSerializer, PermissionSerializer
 
 User = get_user_model()
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all().order_by('name')
+    serializer_class = GroupSerializer
+    permission_classes = [IsAdminUser]
+    
+class PermissionListView(generics.ListAPIView):
+    queryset = Permission.objects.all().order_by('content_type__app_label', 'codename')
+    serializer_class = PermissionSerializer
+    permission_classes = [IsAdminUser]
 
 class UserViewSet(
     mixins.RetrieveModelMixin,
