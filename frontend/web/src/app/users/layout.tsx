@@ -1,4 +1,4 @@
-import { GROUPS_URL, USERS_URL } from '@/lib/constants'
+import { GROUPS_URL, PERMISSIONS_URL, USERS_URL } from '@/lib/constants'
 import CrudLayout from '@/components/layout/CrudLayout'
 import { SubnavBarLink } from '@/components/layout/Subnavbar'
 
@@ -10,11 +10,15 @@ export default function UsersPage({
 	const links: SubnavBarLink[] = [
 		{
 			href: `${USERS_URL}`,
-			label: 'User List',
+			label: 'Users',
 		},
 		{
 			href: `${GROUPS_URL}`,
-			label: 'Group List',
+			label: 'Groups',
+		},
+		{
+			href: `${PERMISSIONS_URL}`,
+			label: 'Permissions',
 		},
 	]
 	return (
