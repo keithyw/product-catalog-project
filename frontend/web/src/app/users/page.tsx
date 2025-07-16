@@ -3,10 +3,17 @@
 import React, { useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import CreateItemSection from '@/components/layout/CreateItemSection'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
-import { USERS_URL } from '@/lib/constants'
+import {
+	CREATE_USERS_URL,
+	USERS_URL,
+	DELETE_LINK_STYLE,
+	EDIT_LINK_STYLE,
+	VIEW_LINK_STYLE,
+} from '@/lib/constants'
 import userService from '@/lib/services/user'
 import useUserStore from '@/stores/useUserStore'
 import { TableColumn, TableRowAction } from '@/types/table'
@@ -73,19 +80,19 @@ export default function UsersPage() {
 			onClick: (user) => {
 				router.push(`${USERS_URL}/${user.id}`)
 			},
-			className: 'bg-gray-500 hover:bg-gray-600',
+			className: VIEW_LINK_STYLE,
 		},
 		{
 			label: 'Edit',
 			onClick: (user) => {
 				router.push(`${USERS_URL}/${user.id}/edit`)
 			},
-			className: 'bg-blue-500 hover:bg-blue-600',
+			className: EDIT_LINK_STYLE,
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
-			className: 'bg-red-500 hover:bg-red-600',
+			className: DELETE_LINK_STYLE,
 		},
 	]
 
@@ -155,6 +162,9 @@ export default function UsersPage() {
 				<SpinnerSection spinnerMessage='Loading users...' />
 			) : (
 				<>
+					<CreateItemSection href={CREATE_USERS_URL}>
+						Create New User
+					</CreateItemSection>
 					<DataTable
 						data={filteredUsers}
 						columns={userColumns}

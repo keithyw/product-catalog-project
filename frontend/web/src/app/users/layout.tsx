@@ -1,4 +1,4 @@
-import { CREATE_USERS_URL, USERS_URL } from '@/lib/constants'
+import { GROUPS_URL, USERS_URL } from '@/lib/constants'
 import CrudLayout from '@/components/layout/CrudLayout'
 import { SubnavBarLink } from '@/components/layout/Subnavbar'
 
@@ -13,8 +13,8 @@ export default function UsersPage({
 			label: 'User List',
 		},
 		{
-			href: `${CREATE_USERS_URL}`,
-			label: 'Create User',
+			href: `${GROUPS_URL}`,
+			label: 'Group List',
 		},
 	]
 	return (
