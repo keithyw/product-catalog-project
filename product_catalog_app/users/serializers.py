@@ -6,9 +6,28 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 User = get_user_model()
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+# groups = serializers.RelatedField(many=True, read_only=True)
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
+        
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['id', 'name', 'codename', 'content_type']
+        
+class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(min_length=3)
     email = serializers.EmailField(required=True)
+       
+    groups = GroupSerializer(many=True, read_only=True)
+    
+    # groups  = serializers.PrimaryKeyRelatedField(
+    #     many=True,
+    #     queryset=Group.objects.all(),
+    #     required=False,
+    # )
 
     class Meta:
         model = User
@@ -21,7 +40,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'is_active',
             'is_staff',
             'date_joined',
-            'last_login',        
+            'last_login',
+            'groups',
         ]
         read_only_fields = [
             'is_staff',
@@ -72,6 +92,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
         
 class UserUpdateSerializer(serializers.ModelSerializer):
+    groups = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Group.objects.all(),
+        required=False,    
+    )
     class Meta:
         model = User
         fields = [
@@ -84,6 +109,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'is_staff',
             'date_joined',
             'last_login',
+            'groups',
         ]
         read_only_fields = ['id', 'username', 'email', 'date_joined', 'last_login']
         
@@ -160,13 +186,3 @@ class PasswordChangeSerializer(serializers.Serializer):
         if data['new_password'] != data['confirm_password']:
             raise serializers.ValidationError({"confirm_password": "New password does not match."})
         return data
-    
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = ['id', 'name']
-        
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
-        fields = ['id', 'name', 'codename', 'content_type']

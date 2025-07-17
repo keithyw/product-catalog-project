@@ -1,3 +1,5 @@
+import { Group } from '@/types/group'
+
 export interface User {
 	id: string
 	username: string
@@ -8,6 +10,7 @@ export interface User {
 	is_active: boolean
 	date_joined: string
 	last_login: string | null
+	groups: Group[]
 }
 export interface CreateUserRequest {
 	username: string

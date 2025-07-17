@@ -1,4 +1,5 @@
 from rest_framework import viewsets, generics, mixins, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
@@ -36,6 +37,35 @@ class UserViewSet(
             return UserUpdateSerializer
         return UserSerializer
     
+    @action(detail=True, methods=['get', 'put'], serializer_class=GroupSerializer, permission_classes=[IsAdminUser])
+    def groups(self, request, pk=None):
+        user = self.get_object()
+        if request.method == 'GET':
+            serializer = GroupSerializer(user.groups.all(), many=True)
+            return Response(serializer.data)
+        
+        elif request.method == 'PUT':
+            group_ids = request.data
+            if not isinstance(group_ids, list):
+                return Response(
+                    {"detail": "Group ids are not provided"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            existing_groups_queryset = Group.objects.filter(id__in=group_ids)
+            if len(existing_groups_queryset) != len(set(group_ids)):
+                found_ids = set(g.id for g in existing_groups_queryset)
+                missing_ids = [id for id in group_ids if id not in found_ids]
+                return Response(
+                    {"detail": f"One or more group IDs are invalid or do not exist: {missing_ids}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            user.groups.set(existing_groups_queryset)
+            serializer = GroupSerializer(user.groups.all(), many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+ 
+        
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

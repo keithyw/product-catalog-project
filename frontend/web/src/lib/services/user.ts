@@ -1,5 +1,6 @@
 import axiosClient from '@/lib/clients/axiosClient'
 import { API_CURRENT_USER_URL, API_USERS_URL } from '@/lib/constants'
+import { Group } from '@/types/group'
 import {
 	CreateUserRequest,
 	UpdateUserRequest,
@@ -14,8 +15,10 @@ interface UserService {
 	getCurrentUser: () => Promise<User>
 	getUser: (id: number) => Promise<User>
 	getUsers: () => Promise<UsersResponse>
+	getUserGroups: (id: number) => Promise<Group[]>
 	updateCurrentUser: (data: UpdateUserProfileRequest) => Promise<User>
 	updateUser: (id: number, data: UpdateUserRequest) => Promise<User>
+	updateUserGroups: (id: number, groupIds: number[]) => Promise<Group[]>
 }
 
 const userService: UserService = {
@@ -39,6 +42,10 @@ const userService: UserService = {
 		const r = await axiosClient.get<UsersResponse>(API_USERS_URL)
 		return r.data || { results: [], count: 0, next: null, previous: null }
 	},
+	getUserGroups: async (id: number): Promise<Group[]> => {
+		const r = await axiosClient.get<Group[]>(`${API_USERS_URL}${id}/groups/`)
+		return r.data
+	},
 	updateCurrentUser: async (data: UpdateUserProfileRequest): Promise<User> => {
 		const r = await axiosClient.put<User>(API_CURRENT_USER_URL, data)
 		return r.data || ({} as User)
@@ -46,6 +53,13 @@ const userService: UserService = {
 	updateUser: async (id: number, data: UpdateUserRequest): Promise<User> => {
 		const r = await axiosClient.put<User>(`${API_USERS_URL}${id}/`, data)
 		return r.data || ({} as User)
+	},
+	updateUserGroups: async (
+		id: number,
+		groupIds: number[],
+	): Promise<Group[]> => {
+		const r = await axiosClient.put(`${API_USERS_URL}${id}/groups/`, groupIds)
+		return r.data || []
 	},
 }
 

@@ -2,6 +2,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import axiosClient from '@/lib/clients/axiosClient'
 import { API_USERS_URL, API_CURRENT_USER_URL } from '@/lib/constants'
+import { Group } from '@/types/group'
 import { User } from '@/types/user'
 import userService from '@/lib/services/user'
 
@@ -300,6 +301,70 @@ describe('userService', () => {
 				await expect(
 					userService.updateCurrentUser(updatedData),
 				).rejects.toThrow(axios.AxiosError)
+				expect(mock.history.put.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
+		describe('getUserGroups', () => {
+			it('should fetch user groups successfully', async () => {
+				const userId = 1
+				const mockGroups: Group[] = [
+					{ id: 1, name: 'Admins' },
+					{ id: 2, name: 'Editors' },
+				]
+				mock.onGet(`${API_USERS_URL}${userId}/groups/`).reply(200, mockGroups)
+
+				const response = await userService.getUserGroups(userId)
+				expect(response).toEqual(mockGroups)
+				expect(mock.history.get.length).toBe(1)
+				expect(mock.history.get[0].url).toBe(
+					`${API_USERS_URL}${userId}/groups/`,
+				)
+			})
+
+			it('should handle errors gracefully when fetching user groups', async () => {
+				const userId = 1
+				mock.onGet(`${API_USERS_URL}${userId}/groups/`).reply(500)
+				await expect(userService.getUserGroups(userId)).rejects.toThrow()
+				expect(mock.history.get.length).toBe(1)
+				expect(consoleErrorSpy).toHaveBeenCalled()
+			})
+		})
+
+		describe('updateUserGroups', () => {
+			it('should update user groups successfully', async () => {
+				const userId = 1
+				const groupIdsToAssign = [1, 3]
+				const mockUpdatedGroups: Group[] = [
+					{ id: 1, name: 'Admins' },
+					{ id: 3, name: 'Viewers' },
+				]
+				mock
+					.onPut(`${API_USERS_URL}${userId}/groups/`)
+					.reply(200, mockUpdatedGroups)
+
+				const response = await userService.updateUserGroups(
+					userId,
+					groupIdsToAssign,
+				)
+				expect(response).toEqual(mockUpdatedGroups)
+				expect(mock.history.put.length).toBe(1)
+				expect(mock.history.put[0].url).toBe(
+					`${API_USERS_URL}${userId}/groups/`,
+				)
+				expect(mock.history.put[0].data).toEqual(
+					JSON.stringify(groupIdsToAssign),
+				)
+			})
+
+			it('should handle errors gracefully when updating user groups', async () => {
+				const userId = 1
+				const groupIdsToAssign = [1, 3]
+				mock.onPut(`${API_USERS_URL}${userId}/groups/`).reply(400)
+				await expect(
+					userService.updateUserGroups(userId, groupIdsToAssign),
+				).rejects.toThrow()
 				expect(mock.history.put.length).toBe(1)
 				expect(consoleErrorSpy).toHaveBeenCalled()
 			})

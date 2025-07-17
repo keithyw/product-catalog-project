@@ -4,19 +4,34 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import moment from 'moment'
+import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
 import Button from '@/components/ui/Button'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
+import DataTable from '@/components/ui/DataTable'
 import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import PageTitle from '@/components/ui/PageTitle'
-import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
 import SpinnerSection from '@/components/ui/SpinnerSection'
+import AssignGroupsModal from '@/components/users/AssignGroupsModal'
 import {
 	DATE_FORMAT_DISPLAY,
 	FAILED_LOADING_USER_ERROR,
 	USERS_URL,
 } from '@/lib/constants'
 import userService from '@/lib/services/user'
+import { Group } from '@/types/group'
+import { TableColumn } from '@/types/table'
 import { User } from '@/types/user'
+
+const groupColumns: TableColumn<Group>[] = [
+	{
+		header: 'ID',
+		accessor: 'id',
+	},
+	{
+		header: 'Name',
+		accessor: 'name',
+	},
+]
 
 const UserDetailsPage: React.FC = () => {
 	const params = useParams()
@@ -28,9 +43,18 @@ const UserDetailsPage: React.FC = () => {
 
 	const [isLoading, setIsLoading] = useState(true)
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+	const [showAssignGroupsModal, setShowAssignGroupsModal] = useState(false)
 
 	const handleCloseDeleteModal = () => {
 		setShowConfirmationModal(false)
+	}
+
+	const handleCloseAssignGroupsModal = () => {
+		setShowAssignGroupsModal(false)
+	}
+
+	const handleShowAssignGroupsModal = () => {
+		setShowAssignGroupsModal(true)
 	}
 
 	const handleDeleteClick = () => {
@@ -55,6 +79,10 @@ const UserDetailsPage: React.FC = () => {
 				handleCloseDeleteModal()
 			}
 		}
+	}
+
+	const handleGroupsAssigned = (updatedUser: User) => {
+		setUser(updatedUser)
 	}
 
 	useEffect(() => {
@@ -109,12 +137,25 @@ const UserDetailsPage: React.FC = () => {
 			<div className='bg-white p-8 shadow-md max-w-2xl mx-auto'>
 				<PageTitle>User Details</PageTitle>
 				{user && <DetailSection rows={details} />}
+				<div className='mt-8 pt-6 border-t border-gray-200'>
+					<h3 className='text-xl font-bold mb-4 text-gray-800'>
+						Assigned Groups
+					</h3>
+					{user && user.groups && user.groups.length > 0 ? (
+						<DataTable columns={groupColumns} data={user.groups} rowKey='id' />
+					) : (
+						<p className='text-gray-500 text-sm italic'>No Groups Assigned</p>
+					)}
+				</div>
 				<div className='mt-6 flex justify-end space-x-3'>
 					<Button actionType='edit' onClick={handleEditClick}>
 						Edit User
 					</Button>
 					<Button actionType='delete' onClick={handleDeleteClick}>
 						Delete User
+					</Button>
+					<Button actionType='edit' onClick={handleShowAssignGroupsModal}>
+						Assign Groups
 					</Button>
 				</div>
 			</div>
@@ -124,6 +165,12 @@ const UserDetailsPage: React.FC = () => {
 				onConfirm={handleDeleteConfirm}
 				title='Confirm Delete User'
 				message={`Are you sure you want to delete ${user?.username}`}
+			/>
+			<AssignGroupsModal
+				isOpen={showAssignGroupsModal}
+				onClose={handleCloseAssignGroupsModal}
+				onGroupsAssigned={handleGroupsAssigned}
+				user={user}
 			/>
 		</div>
 	)
