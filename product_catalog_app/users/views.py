@@ -1,6 +1,7 @@
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
@@ -8,6 +9,11 @@ from django.contrib.auth.models import Group, Permission
 from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserProfileSerializer, UserProfileUpdateSerializer, PasswordChangeSerializer, GroupSerializer, PermissionSerializer
 
 User = get_user_model()
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 20
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by('name')
@@ -17,6 +23,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class PermissionListView(generics.ListAPIView):
     queryset = Permission.objects.all().order_by('content_type__app_label', 'codename')
     serializer_class = PermissionSerializer
+    pagination_class = StandardResultsSetPagination
     permission_classes = [IsAdminUser]
 
 class UserViewSet(
@@ -29,6 +36,7 @@ class UserViewSet(
 ):
     queryset = User.objects.all().order_by('username')
     permission_classes = [IsAuthenticated, IsAdminUser]
+    pagination_class = StandardResultsSetPagination
     
     def get_serializer_class(self):
         if self.action == 'create':

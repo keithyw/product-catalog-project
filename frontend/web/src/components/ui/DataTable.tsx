@@ -1,4 +1,6 @@
+import React from 'react'
 import SearchInput from '@/components/ui/SearchInput'
+import SpinnerSection from '@/components/ui/SpinnerSection'
 import { TableColumn, TableRowAction } from '@/types/table'
 
 interface DataTableProps<T> {
@@ -10,10 +12,19 @@ interface DataTableProps<T> {
 	searchTerm?: string
 	onSearch?: (term: string) => void
 	searchPlaceholder?: string
+
+	// pagination
+	currentPage?: number
+	pageSize?: number
+	totalCount?: number
+	onPageChange?: (page: number) => void
+	onPageSizeChange?: (size: number) => void
+	pageSizes?: number[]
+	isLoadingRows?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const DataTable = <T extends Record<string, any>>({
+function DataTableComponent<T extends Record<string, any>>({
 	data,
 	columns,
 	rowKey,
@@ -22,18 +33,134 @@ const DataTable = <T extends Record<string, any>>({
 	searchTerm,
 	onSearch,
 	searchPlaceholder,
-}: DataTableProps<T>) => {
+
+	// pagination props
+	currentPage = 1,
+	pageSize = 10,
+	totalCount = 0,
+	onPageChange,
+	onPageSizeChange,
+	pageSizes = [10, 25, 50, 100],
+	isLoadingRows = false,
+}: DataTableProps<T>) {
 	const totalColumns = columns.length + (actions && actions.length > 0 ? 1 : 0)
+
+	const totalPages = Math.ceil(totalCount / pageSize)
+
+	const handlePreviousPage = () => {
+		if (onPageChange && currentPage > 1) {
+			onPageChange(currentPage - 1)
+		}
+	}
+
+	const handleNextPage = () => {
+		if (onPageChange && currentPage < totalPages) {
+			onPageChange(currentPage + 1)
+		}
+	}
+
+	const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		if (onPageSizeChange) {
+			onPageSizeChange(Number(e.target.value))
+			void onPageChange?.(1)
+		}
+	}
+
 	return (
 		<div className='overflow-x-auto shadow-md sm:rounded-lg'>
-			{onSearch && (
-				<div className='p-4 bg-white dark:bg-gray-800 rounded-t-lg border-b dark:border-gray-700'>
-					<SearchInput
-						value={searchTerm || ''}
-						onChange={onSearch}
-						placeholder={searchPlaceholder}
-						className='max-w-xs'
-					/>
+			{(onSearch || onPageChange) && (
+				<div className='p-4 bg-white dark:bg-gray-800 rounded-t-lg border-b dark:border-gray-700 flex justify-between items-center'>
+					{onSearch && (
+						<SearchInput
+							value={searchTerm || ''}
+							onChange={onSearch}
+							placeholder={searchPlaceholder}
+							className='max-w-xs'
+						/>
+					)}
+					{onPageChange && (
+						<div className='flex items-center space-x-4'>
+							<span className='text-gray-700 dark:text-gray-300 text-sm'>
+								Items per page:
+							</span>
+							<select
+								value={pageSize}
+								onChange={handlePageSizeChange}
+								className='
+									block
+									w-20
+									px-3
+									py-1
+									text-sm
+									text-gray-700
+									bg-white
+									border
+									border-gray-300
+									rounded-md
+									shadow-sm
+									focus:outline-none
+									focus:ring-blue-500
+									focus:border-blue-500
+									dark:bg-gray-700
+									dark:border-gray-600
+									dark:text-white
+								'
+							>
+								{pageSizes.map((s) => (
+									<option key={s} value={s}>
+										{s}
+									</option>
+								))}
+							</select>
+							<span className='text-sm text-gray-700 dark:text-gray-300'>
+								Page {currentPage} of {totalPages}
+							</span>
+							<button
+								onClick={handlePreviousPage}
+								disabled={currentPage === 1}
+								className='
+									px-3
+									py-1
+									text-sm
+									font-medium
+									text-blue-600
+									dark:text-blue-500
+									bg-gray-100
+									dark:bg-gray-700
+									rounded-md
+									hover:bg-gray-200
+									dark:hover:bg-gray-600
+									disabled:opacity-50
+									disabled:cursor-not-allowed
+									cursor-pointer
+								'
+							>
+								Previous
+							</button>
+							<button
+								onClick={handleNextPage}
+								disabled={currentPage === totalPages}
+								className='
+									px-3
+									py-1
+									text-sm
+									font-medium
+									text-blue-600
+									dark:text-blue-500
+									bg-gray-100
+									dark:bg-gray-700
+									rounded-md
+									hover:bg-gray-200
+									dark:hover:bg-gray-600
+									disabled:opacity-50
+									disabled:cursor-not-allowed
+									cursor-pointer
+								'
+							>
+								Next
+							</button>
+						</div>
+					)}
 				</div>
 			)}
 			<table className='w-full text-sm text-left text-gray-500 data:text-gray-400'>
@@ -52,7 +179,13 @@ const DataTable = <T extends Record<string, any>>({
 					</tr>
 				</thead>
 				<tbody>
-					{data && data.length > 0 ? (
+					{isLoadingRows ? (
+						<tr>
+							<td colSpan={totalColumns} className='text-center py-8'>
+								<SpinnerSection spinnerMessage='Loading data...' />
+							</td>
+						</tr>
+					) : data && data.length > 0 ? (
 						data.map((row) => (
 							<tr
 								key={String(row[rowKey])}
@@ -106,5 +239,6 @@ const DataTable = <T extends Record<string, any>>({
 		</div>
 	)
 }
+const DataTable = React.memo(DataTableComponent) as typeof DataTableComponent
 
 export default DataTable

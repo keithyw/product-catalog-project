@@ -14,7 +14,7 @@ interface UserService {
 	deleteUser: (id: number) => Promise<void>
 	getCurrentUser: () => Promise<User>
 	getUser: (id: number) => Promise<User>
-	getUsers: () => Promise<UsersResponse>
+	getUsers: (page?: number, pageSize?: number) => Promise<UsersResponse>
 	getUserGroups: (id: number) => Promise<Group[]>
 	updateCurrentUser: (data: UpdateUserProfileRequest) => Promise<User>
 	updateUser: (id: number, data: UpdateUserRequest) => Promise<User>
@@ -38,8 +38,13 @@ const userService: UserService = {
 		const r = await axiosClient.get<User>(`${API_USERS_URL}${id}/`)
 		return r.data || ({} as User)
 	},
-	getUsers: async (): Promise<UsersResponse> => {
-		const r = await axiosClient.get<UsersResponse>(API_USERS_URL)
+	getUsers: async (
+		page?: number,
+		pageSize?: number,
+	): Promise<UsersResponse> => {
+		const r = await axiosClient.get<UsersResponse>(
+			`${API_USERS_URL}?page=${page}&page_size=${pageSize}`,
+		)
 		return r.data || { results: [], count: 0, next: null, previous: null }
 	},
 	getUserGroups: async (id: number): Promise<Group[]> => {
