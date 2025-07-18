@@ -1,11 +1,13 @@
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserProfileSerializer, UserProfileUpdateSerializer, PasswordChangeSerializer, GroupSerializer, PermissionSerializer
 
 User = get_user_model()
@@ -21,11 +23,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
     
 class PermissionListView(generics.ListAPIView):
-    queryset = Permission.objects.all().order_by('content_type__app_label', 'codename')
+    queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]    
+    filterset_fields = ['name', 'codename']
+    search_fields = ['name', 'codename']
+    ordering_fields = ['id', 'name', 'codename']
+    ordering = ['name']
 
+# class UserViewSet(viewsets.ModelViewSet):
 class UserViewSet(
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
@@ -34,9 +42,15 @@ class UserViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = User.objects.all().order_by('username')
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
     permission_classes = [IsAuthenticated, IsAdminUser]
-    pagination_class = StandardResultsSetPagination
+    pagination_class = StandardResultsSetPagination    
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['username', 'email', 'first_name', 'last_name']
+    search_fields = ['username', 'email', 'first_name', 'last_name']
+    order_fields = ['id', 'username', 'date_joined', 'last_login']
+    # ordering = ['username']
     
     def get_serializer_class(self):
         if self.action == 'create':

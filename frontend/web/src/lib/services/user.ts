@@ -1,6 +1,8 @@
 import axiosClient from '@/lib/clients/axiosClient'
 import { API_CURRENT_USER_URL, API_USERS_URL } from '@/lib/constants'
 import { Group } from '@/types/group'
+import { ListResponse } from '@/types/list'
+import { PaginationParams } from '@/types/pagination'
 import {
 	CreateUserRequest,
 	UpdateUserRequest,
@@ -14,7 +16,12 @@ interface UserService {
 	deleteUser: (id: number) => Promise<void>
 	getCurrentUser: () => Promise<User>
 	getUser: (id: number) => Promise<User>
-	getUsers: (page?: number, pageSize?: number) => Promise<UsersResponse>
+	getUsers: (
+		page?: number,
+		pageSize?: number,
+		searchTerm?: string,
+		ordering?: string,
+	) => Promise<ListResponse<User>>
 	getUserGroups: (id: number) => Promise<Group[]>
 	updateCurrentUser: (data: UpdateUserProfileRequest) => Promise<User>
 	updateUser: (id: number, data: UpdateUserRequest) => Promise<User>
@@ -41,10 +48,13 @@ const userService: UserService = {
 	getUsers: async (
 		page?: number,
 		pageSize?: number,
-	): Promise<UsersResponse> => {
-		const r = await axiosClient.get<UsersResponse>(
-			`${API_USERS_URL}?page=${page}&page_size=${pageSize}`,
-		)
+		searchTerm?: string,
+		ordering?: string,
+	): Promise<ListResponse<User>> => {
+		const params: PaginationParams = { page, page_size: pageSize }
+		if (searchTerm) params.search = searchTerm
+		if (ordering) params.ordering = ordering
+		const r = await axiosClient.get<UsersResponse>(API_USERS_URL, { params })
 		return r.data || { results: [], count: 0, next: null, previous: null }
 	},
 	getUserGroups: async (id: number): Promise<Group[]> => {

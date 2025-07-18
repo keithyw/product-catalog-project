@@ -150,8 +150,10 @@ describe('userService', () => {
 				expect(response).toEqual(mockResponse)
 				expect(mock.history.get.length).toBe(1)
 				expect(mock.history.get[0].url).toBe(API_USERS_URL)
-				expect(mock.history.get[0].params).toBeUndefined()
-				expect(mock.history.get[0].params).toBeUndefined()
+				expect(mock.history.get[0].params).toStrictEqual({
+					page: undefined,
+					page_size: undefined,
+				})
 			})
 
 			it('should handle errors gracefully', async () => {
@@ -241,6 +243,7 @@ describe('userService', () => {
 					is_staff: false,
 					date_joined: '2025-01-01T00:00:00Z',
 					last_login: '2025-07-14T00:00:00Z',
+					groups: [],
 				}
 				mock.onGet(API_CURRENT_USER_URL).reply(200, mockCurrentUser)
 
@@ -279,6 +282,7 @@ describe('userService', () => {
 					is_staff: false,
 					date_joined: '2025-01-01T00:00:00Z',
 					last_login: '2025-07-14T00:00:00Z',
+					groups: [],
 				}
 				mock.onPut(API_CURRENT_USER_URL).reply(200, mockUpdatedUser)
 

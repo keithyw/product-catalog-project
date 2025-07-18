@@ -2,6 +2,7 @@ import React from 'react'
 import SearchInput from '@/components/ui/SearchInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { TableColumn, TableRowAction } from '@/types/table'
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
 
 interface DataTableProps<T> {
 	data: T[]
@@ -21,6 +22,12 @@ interface DataTableProps<T> {
 	onPageSizeChange?: (size: number) => void
 	pageSizes?: number[]
 	isLoadingRows?: boolean
+
+	// sorting
+	onSort?: (field: string) => void
+	// onSort?: (field: string) => void
+	currentSortField?: string
+	currentSortDirection?: 'asc' | 'desc'
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,9 +49,13 @@ function DataTableComponent<T extends Record<string, any>>({
 	onPageSizeChange,
 	pageSizes = [10, 25, 50, 100],
 	isLoadingRows = false,
+
+	// sorting props
+	onSort,
+	currentSortField,
+	currentSortDirection,
 }: DataTableProps<T>) {
 	const totalColumns = columns.length + (actions && actions.length > 0 ? 1 : 0)
-
 	const totalPages = Math.ceil(totalCount / pageSize)
 
 	const handlePreviousPage = () => {
@@ -167,8 +178,33 @@ function DataTableComponent<T extends Record<string, any>>({
 				<thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
 					<tr>
 						{columns.map((col, idx) => (
-							<th scope='col' className='px-6 py-3' key={col.header || idx}>
-								{col.header}
+							<th
+								scope='col'
+								className={`px-6 py-3 ${col.sortable ? 'cursor-pointer' : ''}`}
+								key={col.header || idx}
+								onClick={() => {
+									if (col.sortable && col.accessor) {
+										if (onSort) {
+											onSort(col.accessor as string)
+										}
+									}
+								}}
+							>
+								{col.sortable && onSort ? (
+									<span className='flex items-center gap-1 focus:outline-none'>
+										{col.header}
+										{currentSortField ===
+											(col.sortField ||
+												(col.accessor ? String(col.accessor) : '')) &&
+											(currentSortDirection === 'asc' ? (
+												<ChevronUpIcon className='w-4 h-4 text-gray-500' />
+											) : (
+												<ChevronDownIcon className='w-4 h-4 text-gray-500' />
+											))}
+									</span>
+								) : (
+									col.header
+								)}
 							</th>
 						))}
 						{actions && actions.length > 0 && (

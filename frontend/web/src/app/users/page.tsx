@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import CreateItemSection from '@/components/layout/CreateItemSection'
@@ -14,8 +14,8 @@ import {
 	EDIT_LINK_STYLE,
 	VIEW_LINK_STYLE,
 } from '@/lib/constants'
+import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import userService from '@/lib/services/user'
-import useUserStore from '@/stores/useUserStore'
 import { TableColumn, TableRowAction } from '@/types/table'
 import { User } from '@/types/user'
 
@@ -23,10 +23,12 @@ const USER_COLUMNS: TableColumn<User>[] = [
 	{
 		header: 'ID',
 		accessor: 'id',
+		sortable: true,
 	},
 	{
 		header: 'Username',
 		accessor: 'username',
+		sortable: true,
 	},
 	{
 		header: 'Full Name',
@@ -54,19 +56,31 @@ const USER_COLUMNS: TableColumn<User>[] = [
 
 export default function UsersPage() {
 	const router = useRouter()
-	const [isLoading, setIsLoading] = React.useState(true)
-	const [searchTerm, setSearchTerm] = React.useState('')
-	const setUsers = useUserStore((state) => state.setUsers)
-	const users = useUserStore((state) => state.users)
+
+	const {
+		data: users,
+		isLoading,
+		searchTerm,
+		totalCount,
+		currentPage,
+		pageSize,
+		sortField,
+		sortDirection,
+		handleSearch,
+		handlePageChange,
+		handlePageSizeChange,
+		handleSort,
+		loadData,
+	} = useDataTableController({
+		initialSortField: 'username',
+		defaultPageSize: DEFAULT_PAGE_SIZE,
+		fetchData: userService.getUsers,
+	})
 
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false)
 	const [deleteUser, setDeleteUser] = React.useState<User | null>(null)
 	const [isDeleting, setIsDeleting] = React.useState(false)
 	const userColumns = useMemo(() => USER_COLUMNS, [])
-
-	const [currentPage, setCurrentPage] = React.useState(1)
-	const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE)
-	const [totalCount, setTotalCount] = React.useState(0)
 
 	const openConfirmModal = (user: User) => {
 		setDeleteUser(user)
@@ -100,36 +114,12 @@ export default function UsersPage() {
 		},
 	]
 
-	const fetchUsers = useCallback(() => {
-		setIsLoading(true)
-		const loadUsers = async () => {
-			try {
-				const users = await userService.getUsers(currentPage, pageSize)
-				if (users) {
-					setUsers(users.results || [])
-					setTotalCount(users.count)
-				}
-			} catch (e: unknown) {
-				if (e instanceof Error) {
-					console.error(e.message)
-				}
-			} finally {
-				setIsLoading(false)
-			}
-		}
-		loadUsers()
-	}, [currentPage, pageSize, setUsers])
-
-	useEffect(() => {
-		fetchUsers()
-	}, [fetchUsers])
-
 	const handleConfirmDelete = async () => {
 		if (deleteUser) {
 			try {
 				await userService.deleteUser(parseInt(deleteUser.id as string))
 				toast.success(`User ${deleteUser.username} deleted successfully`)
-				fetchUsers()
+				loadData()
 				closeConfirmModal()
 			} catch (e: unknown) {
 				if (e instanceof Error) {
@@ -145,33 +135,6 @@ export default function UsersPage() {
 		}
 	}
 
-	const handleSearch = (term: string) => {
-		setSearchTerm(term)
-		console.log('Searching for:', term)
-	}
-
-	const handlePageChange = useCallback((page: number) => {
-		setCurrentPage(page)
-	}, [])
-
-	const handlePageSizeChange = useCallback(
-		(size: number) => {
-			setPageSize(size)
-			void handlePageChange(1)
-		},
-		[handlePageChange],
-	)
-
-	const filteredUsers = users.filter(
-		(user) =>
-			user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(user.first_name || '')
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase()) ||
-			(user.last_name || '').toLowerCase().includes(searchTerm.toLowerCase()),
-	)
-
 	return (
 		<>
 			<h1>Users</h1>
@@ -180,7 +143,7 @@ export default function UsersPage() {
 				Create New User
 			</CreateItemSection>
 			<DataTable
-				data={filteredUsers}
+				data={users}
 				columns={userColumns}
 				rowKey='id'
 				actions={userActions}
@@ -191,6 +154,9 @@ export default function UsersPage() {
 				totalCount={totalCount}
 				onPageChange={handlePageChange}
 				onPageSizeChange={handlePageSizeChange}
+				onSort={handleSort}
+				currentSortField={sortField}
+				currentSortDirection={sortDirection}
 				isLoadingRows={isLoading}
 			/>
 			<ConfirmationModal
