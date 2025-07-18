@@ -33,6 +33,8 @@ const USER_COLUMNS: TableColumn<User>[] = [
 	{
 		header: 'Full Name',
 		render: (user: User) => `${user.first_name || ''} ${user.last_name || ''}`,
+		sortable: true,
+		sortField: 'full_name',
 	},
 	{
 		header: 'Is Staff',
@@ -44,11 +46,15 @@ const USER_COLUMNS: TableColumn<User>[] = [
 	},
 	{
 		header: 'Date Joined',
+		sortable: true,
+		sortField: 'date_joined',
 		render: (user: User) =>
 			user.date_joined ? new Date(user.date_joined).toLocaleString() : '',
 	},
 	{
 		header: 'Last Login',
+		sortable: true,
+		sortField: 'last_login',
 		render: (user: User) =>
 			user.last_login ? new Date(user.last_login).toLocaleString() : '',
 	},

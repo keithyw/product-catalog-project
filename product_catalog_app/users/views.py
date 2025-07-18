@@ -49,8 +49,7 @@ class UserViewSet(
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['username', 'email', 'first_name', 'last_name']
     search_fields = ['username', 'email', 'first_name', 'last_name']
-    order_fields = ['id', 'username', 'date_joined', 'last_login']
-    # ordering = ['username']
+    ordering_fields = ['id', 'username', 'first_name', 'last_name', 'date_joined', 'last_login']    
     
     def get_serializer_class(self):
         if self.action == 'create':
@@ -58,6 +57,22 @@ class UserViewSet(
         elif self.action in ['update', 'partial_update']:
             return UserUpdateSerializer
         return UserSerializer
+    
+    def filter_queryset(self, queryset):
+        ordering = self.request.query_params.get('ordering')
+        if ordering:
+            fields = []
+            for field in ordering.split(','):
+                field = field.strip()
+                if field == 'full_name':
+                    fields.extend(['first_name', 'last_name'])
+                elif field == '-full_name':
+                    fields.extend(['-first_name', '-last_name'])
+                else:
+                    fields.append(field)
+            queryset = queryset.order_by(*fields)
+            return super().filter_queryset(queryset.none()) | queryset
+        return super().filter_queryset(queryset)
     
     @action(detail=True, methods=['get', 'put'], serializer_class=GroupSerializer, permission_classes=[IsAdminUser])
     def groups(self, request, pk=None):

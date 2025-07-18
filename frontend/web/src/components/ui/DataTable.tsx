@@ -183,9 +183,9 @@ function DataTableComponent<T extends Record<string, any>>({
 								className={`px-6 py-3 ${col.sortable ? 'cursor-pointer' : ''}`}
 								key={col.header || idx}
 								onClick={() => {
-									if (col.sortable && col.accessor) {
+									if (col.sortable && (col.sortField || col.accessor)) {
 										if (onSort) {
-											onSort(col.accessor as string)
+											onSort(col.sortField || (col.accessor as string))
 										}
 									}
 								}}
