@@ -55,11 +55,13 @@ export default function GroupListPage() {
 				router.push(`${GROUPS_URL}/${group.id}/edit`)
 			},
 			className: EDIT_LINK_STYLE,
+			actionType: 'edit',
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
 			className: DELETE_LINK_STYLE,
+			actionType: 'delete',
 		},
 	]
 

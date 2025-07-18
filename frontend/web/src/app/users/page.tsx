@@ -104,6 +104,7 @@ export default function UsersPage() {
 			onClick: (user) => {
 				router.push(`${USERS_URL}/${user.id}`)
 			},
+			actionType: 'view',
 			className: VIEW_LINK_STYLE,
 		},
 		{
@@ -111,11 +112,13 @@ export default function UsersPage() {
 			onClick: (user) => {
 				router.push(`${USERS_URL}/${user.id}/edit`)
 			},
+			actionType: 'edit',
 			className: EDIT_LINK_STYLE,
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
+			actionType: 'delete',
 			className: DELETE_LINK_STYLE,
 		},
 	]

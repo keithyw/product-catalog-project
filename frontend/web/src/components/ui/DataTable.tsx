@@ -1,4 +1,5 @@
 import React from 'react'
+import { RowActionsMenu } from '@/components/ui/RowActionsMenu'
 import SearchInput from '@/components/ui/SearchInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { TableColumn, TableRowAction } from '@/types/table'
@@ -78,7 +79,7 @@ function DataTableComponent<T extends Record<string, any>>({
 	}
 
 	return (
-		<div className='overflow-x-auto shadow-md sm:rounded-lg'>
+		<div className='shadow-md sm:rounded-lg'>
 			{(onSearch || onPageChange) && (
 				<div className='p-4 bg-white dark:bg-gray-800 rounded-t-lg border-b dark:border-gray-700 flex justify-between items-center'>
 					{onSearch && (
@@ -241,19 +242,7 @@ function DataTableComponent<T extends Record<string, any>>({
 								))}
 								{actions && actions.length > 0 && (
 									<td className='px-6 py-4 text-right whitespace-nowrap'>
-										{actions.map((action, actionIndex) => (
-											<button
-												key={`action-${String(row[rowKey])}-${actionIndex}`}
-												onClick={() => action.onClick(row)}
-												className={`
-                                                px-3 py-1 rounded-md text-white
-                                                ${action.className || 'bg-blue-500 hover:bg-blue-600'} 
-                                                ${actionIndex > 0 ? 'ml-2' : ''}
-                                            `}
-											>
-												{action.label}
-											</button>
-										))}
+										<RowActionsMenu actions={actions} row={row} />
 									</td>
 								)}
 							</tr>
