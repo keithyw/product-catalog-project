@@ -6,28 +6,21 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 User = get_user_model()
 
-# groups = serializers.RelatedField(many=True, read_only=True)
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = ['id', 'name']
-        
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
         fields = ['id', 'name', 'codename', 'content_type']
+class GroupSerializer(serializers.ModelSerializer):
+    permissions = PermissionSerializer(many=True, read_only=True)
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'permissions']
+
         
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(min_length=3)
     email = serializers.EmailField(required=True)
-       
     groups = GroupSerializer(many=True, read_only=True)
-    
-    # groups  = serializers.PrimaryKeyRelatedField(
-    #     many=True,
-    #     queryset=Group.objects.all(),
-    #     required=False,
-    # )
 
     class Meta:
         model = User

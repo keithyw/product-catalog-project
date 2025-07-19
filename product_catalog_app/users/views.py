@@ -22,6 +22,31 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [IsAdminUser]
     
+    @action(detail=True, methods=['get', 'put'], serializer_class=PermissionSerializer, permission_classes=[IsAdminUser])
+    def permissions(self, request, pk=None):
+        group = self.get_object()
+        if request.method == 'GET':
+            serializer = PermissionSerializer(group.permissions.all(), many=True)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            perm_ids = request.data
+            if not isinstance(perm_ids, list):
+                return Response(
+                    {"detail": "Permission ids are not provided"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            perms = Permission.objects.filter(id__in=perm_ids)
+            if len(perms) != len(set(perm_ids)):
+                found_ids = set(p.id for p in perms)
+                missing_ids = [id for id in perm_ids if id not in found_ids]
+                return Response (
+                    {"detail": f"One or more permission IDs are invalid or do not exist: {missing_ids}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            group.permissions.set(perms)
+            serializer = PermissionSerializer(group.permissions.all(), many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
 class PermissionListView(generics.ListAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
