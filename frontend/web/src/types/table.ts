@@ -6,7 +6,13 @@ export interface TableColumn<T> {
 	sortField?: string
 }
 
-export type TableRowActionType = 'view' | 'edit' | 'delete' | 'custom'
+export type TableRowActionType =
+	| 'view'
+	| 'edit'
+	| 'delete'
+	| 'userGroup'
+	| 'permissionGroup'
+	| 'custom'
 
 export interface TableRowAction<T> {
 	label: string

@@ -113,7 +113,7 @@ const AssignGroupsModal: React.FC<AssignGroupProps> = ({
 						</div>
 						<div className='flex justify-end gap-2 mt-4'>
 							<SubmitButton onClick={handleSubmit} disabled={isSubmitting}>
-								{isSubmitting ? 'Update...' : 'Update'}
+								{isSubmitting ? 'Updating...' : 'Update'}
 							</SubmitButton>
 							<button
 								className='

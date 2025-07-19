@@ -1,6 +1,9 @@
+import { Permission } from '@/types/permission'
+
 export interface Group {
 	id: number
 	name: string
+	permissions?: Permission[]
 }
 
 export interface CreateGroupRequest {

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import CreateItemSection from '@/components/layout/CreateItemSection'
+import AssignPermissionsModal from '@/components/users/AssignPermissionsModal'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
@@ -24,6 +25,9 @@ export default function GroupListPage() {
 	const router = useRouter()
 
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+	const [isAssignPermissionsModalOpen, setIsAssignPermissionsModalOpen] =
+		useState(false)
+	const [assignedGroup, setAssignedGroup] = useState<Group | null>(null)
 	const [deleteGroup, setDeleteGroup] = useState<Group | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
 
@@ -35,6 +39,15 @@ export default function GroupListPage() {
 	const closeConfirmModal = () => {
 		setIsConfirmModalOpen(false)
 		setDeleteGroup(null)
+	}
+
+	const openAssignPermissionsModal = (group: Group) => {
+		setAssignedGroup(group)
+		setIsAssignPermissionsModalOpen(true)
+	}
+
+	const closeAssignPermissionsModal = () => {
+		setIsAssignPermissionsModalOpen(false)
 	}
 
 	const groupColumns: TableColumn<Group>[] = [
@@ -56,6 +69,13 @@ export default function GroupListPage() {
 			},
 			className: EDIT_LINK_STYLE,
 			actionType: 'edit',
+		},
+		{
+			label: 'Assign Permissions',
+			onClick: (group) => {
+				openAssignPermissionsModal(group)
+			},
+			actionType: 'permissionGroup',
 		},
 		{
 			label: 'Delete',
@@ -108,6 +128,11 @@ export default function GroupListPage() {
 		}
 	}
 
+	const handlePermissionsAssigned = (updatedGroup: Group) => {
+		setAssignedGroup(updatedGroup)
+		fetchGroups()
+	}
+
 	const handleSearch = (term: string) => {
 		setSearchTerm(term)
 	}
@@ -153,6 +178,12 @@ export default function GroupListPage() {
 						? 'bg-gray-300 text-gray-500 cursor-not-allowed'
 						: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
 				}
+			/>
+			<AssignPermissionsModal
+				isOpen={isAssignPermissionsModalOpen}
+				onClose={closeAssignPermissionsModal}
+				group={assignedGroup}
+				onPermissionsAssigned={handlePermissionsAssigned}
 			/>
 		</>
 	)

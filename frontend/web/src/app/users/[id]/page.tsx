@@ -90,7 +90,6 @@ const UserDetailsPage: React.FC = () => {
 			const fetchUser = async () => {
 				try {
 					const u = await userService.getUser(parseInt(userId as string))
-					console.log(u)
 					setUser(u)
 					setDetails([
 						{ label: 'Username', value: u.username },

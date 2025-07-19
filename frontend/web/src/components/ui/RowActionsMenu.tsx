@@ -10,7 +10,9 @@ import {
 	Bars3Icon,
 	PencilIcon,
 	EyeIcon,
+	ShieldCheckIcon,
 	TrashIcon,
+	UserGroupIcon,
 } from '@heroicons/react/24/outline'
 import type { TableRowAction, TableRowActionType } from '@/types/table'
 
@@ -18,6 +20,8 @@ const ICON_MAP: Record<TableRowActionType, React.ReactNode> = {
 	view: <EyeIcon className='w-5 h-5 mr-2' />,
 	edit: <PencilIcon className='w-5 h-5 mr-2' />,
 	delete: <TrashIcon className='w-5 h-5 mr-2 text-red-500' />,
+	permissionGroup: <ShieldCheckIcon className='w-5 h-5 mr-2' />,
+	userGroup: <UserGroupIcon className='w-5 h-5 mr-2' />,
 	custom: null,
 }
 

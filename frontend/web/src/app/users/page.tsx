@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import AssignGroupsModal from '@/components/users/AssignGroupsModal'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
@@ -84,8 +85,14 @@ export default function UsersPage() {
 	})
 
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false)
+	const [isAssignGroupsModalOpen, setIsAssignGroupsModalOpen] =
+		React.useState(false)
+	const [assignGroupUser, setAssignGroupUser] = React.useState<User | null>(
+		null,
+	)
 	const [deleteUser, setDeleteUser] = React.useState<User | null>(null)
 	const [isDeleting, setIsDeleting] = React.useState(false)
+
 	const userColumns = useMemo(() => USER_COLUMNS, [])
 
 	const openConfirmModal = (user: User) => {
@@ -96,6 +103,21 @@ export default function UsersPage() {
 	const closeConfirmModal = () => {
 		setIsConfirmModalOpen(false)
 		setDeleteUser(null)
+	}
+
+	const openAssignGroupsModal = (user: User) => {
+		setAssignGroupUser(user)
+		setIsAssignGroupsModalOpen(true)
+	}
+
+	const closeAssignGroupsModal = () => {
+		setIsAssignGroupsModalOpen(false)
+		setAssignGroupUser(null)
+	}
+
+	const handleGroupsAssigned = (updatedUser: User) => {
+		setAssignGroupUser(updatedUser)
+		loadData()
 	}
 
 	const userActions: TableRowAction<User>[] = [
@@ -114,6 +136,13 @@ export default function UsersPage() {
 			},
 			actionType: 'edit',
 			className: EDIT_LINK_STYLE,
+		},
+		{
+			label: 'Assign Groups',
+			onClick: (user) => {
+				openAssignGroupsModal(user)
+			},
+			actionType: 'userGroup',
 		},
 		{
 			label: 'Delete',
@@ -185,6 +214,12 @@ export default function UsersPage() {
 						? 'bg-gray-300 text-gray-500 cursor-not-allowed'
 						: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
 				}
+			/>
+			<AssignGroupsModal
+				isOpen={isAssignGroupsModalOpen}
+				onClose={closeAssignGroupsModal}
+				user={assignGroupUser}
+				onGroupsAssigned={handleGroupsAssigned}
 			/>
 		</>
 	)
