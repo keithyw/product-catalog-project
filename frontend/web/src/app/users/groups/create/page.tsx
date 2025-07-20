@@ -5,9 +5,11 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import FormInput from '@/components/ui/FormInput'
 import { GROUPS_URL } from '@/lib/constants'
+import { GROUP_PERMISSIONS } from '@/lib/constants/permissions'
 import groupService from '@/lib/services/group'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import { groupCreateSchema, GroupCreateFormData } from '@/schemas/groupSchema'
@@ -54,7 +56,7 @@ export default function CreateGroupPage() {
 	}
 
 	return (
-		<>
+		<PermissionGuard requiredPermission={GROUP_PERMISSIONS.ADD}>
 			<CreateFormLayout
 				title='Create Group'
 				isSubmitting={isSubmitting}
@@ -71,6 +73,6 @@ export default function CreateGroupPage() {
 					/>
 				))}
 			</CreateFormLayout>
-		</>
+		</PermissionGuard>
 	)
 }

@@ -15,6 +15,7 @@ import {
 	UserGroupIcon,
 } from '@heroicons/react/24/outline'
 import type { TableRowAction, TableRowActionType } from '@/types/table'
+import { usePermissions } from '@/lib/hooks/usePermissions'
 
 const ICON_MAP: Record<TableRowActionType, React.ReactNode> = {
 	view: <EyeIcon className='w-5 h-5 mr-2' />,
@@ -34,6 +35,7 @@ export function RowActionsMenu<T>({
 }) {
 	const [openUpwards, setOpenUpwards] = React.useState(false)
 	const buttonRef = React.useRef<HTMLButtonElement>(null)
+	const { checkAccess } = usePermissions()
 
 	const handleOpen = () => {
 		if (buttonRef.current) {
@@ -44,7 +46,38 @@ export function RowActionsMenu<T>({
 		}
 	}
 
-	if (!actions || actions.length === 0) return null
+	// Filter actions based on permissions
+	const filteredActions = actions.filter((action) => {
+		// If no permission requirements, show the action
+		if (
+			!action.requiredPermission &&
+			!action.requiredPermissions &&
+			!action.anyPermission &&
+			!action.requiredGroup &&
+			!action.requiredGroups &&
+			!action.anyGroup &&
+			!action.requireStaff &&
+			!action.requireActive
+		) {
+			return true
+		}
+
+		console.log('action ', action)
+
+		// Check permissions using the checkAccess function
+		return checkAccess({
+			requiredPermission: action.requiredPermission,
+			requiredPermissions: action.requiredPermissions,
+			anyPermission: action.anyPermission,
+			requiredGroup: action.requiredGroup,
+			requiredGroups: action.requiredGroups,
+			anyGroup: action.anyGroup,
+			requireStaff: action.requireStaff,
+			requireActive: action.requireActive,
+		})
+	})
+
+	if (!filteredActions || filteredActions.length === 0) return null
 
 	return (
 		<Menu as='div' className='relative inline-block text-left'>
@@ -84,7 +117,7 @@ export function RowActionsMenu<T>({
                         ${openUpwards ? 'bottom-full mb-2' : 'mt-2'}
                     `}
 				>
-					{actions.map((action, idx) => (
+					{filteredActions.map((action, idx) => (
 						<MenuItem
 							key={idx}
 							as='button'

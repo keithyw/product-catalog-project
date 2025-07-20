@@ -16,6 +16,7 @@ import {
 	VIEW_LINK_STYLE,
 } from '@/lib/constants'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
+import { USER_PERMISSIONS } from '@/lib/constants/permissions'
 import userService from '@/lib/services/user'
 import { TableColumn, TableRowAction } from '@/types/table'
 import { User } from '@/types/user'
@@ -128,6 +129,7 @@ export default function UsersPage() {
 			},
 			actionType: 'view',
 			className: VIEW_LINK_STYLE,
+			requiredPermission: USER_PERMISSIONS.VIEW,
 		},
 		{
 			label: 'Edit',
@@ -136,6 +138,7 @@ export default function UsersPage() {
 			},
 			actionType: 'edit',
 			className: EDIT_LINK_STYLE,
+			requiredPermission: USER_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Assign Groups',
@@ -143,12 +146,14 @@ export default function UsersPage() {
 				openAssignGroupsModal(user)
 			},
 			actionType: 'userGroup',
+			requiredPermission: USER_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
 			actionType: 'delete',
 			className: DELETE_LINK_STYLE,
+			requiredPermission: USER_PERMISSIONS.DELETE,
 		},
 	]
 
@@ -177,7 +182,10 @@ export default function UsersPage() {
 		<>
 			<h1>Users</h1>
 
-			<CreateItemSection href={CREATE_USERS_URL}>
+			<CreateItemSection
+				href={CREATE_USERS_URL}
+				permission={USER_PERMISSIONS.ADD}
+			>
 				Create New User
 			</CreateItemSection>
 			<DataTable

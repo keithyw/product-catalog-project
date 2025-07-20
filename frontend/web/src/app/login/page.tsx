@@ -10,6 +10,7 @@ import PageTitle from '@/components/ui/PageTitle'
 import TextInput from '@/components/ui/TextInput'
 import { DASHBOARD_URL } from '@/lib/constants'
 import authService from '@/lib/services/auth'
+import userService from '@/lib/services/user'
 import useAuthStore from '@/stores/useAuthStore'
 import { AuthResponse } from '@/types/auth'
 
@@ -39,6 +40,13 @@ export default function LoginPage() {
 				data.password,
 			)
 			setLoginStatus(res)
+			const userDetails = await userService.getCurrentUser()
+			useAuthStore.getState().setUser(userDetails)
+			useAuthStore.getState().setUserGroups(userDetails.groups)
+			const userPerms = userDetails.groups.flatMap(
+				(group) => group.permissions || [],
+			)
+			useAuthStore.getState().setUserPermissions(userPerms)
 			router.push(process.env.NEXT_PUBLIC_AUTH_REDIRECT_URL || DASHBOARD_URL)
 		} catch (e: unknown) {
 			if (axios.isAxiosError(e)) {

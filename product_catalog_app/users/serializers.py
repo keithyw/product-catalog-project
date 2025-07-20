@@ -119,6 +119,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for authenticater user profile
     """
+    groups = GroupSerializer(many=True, read_only=True)
     class Meta:
         model = User
         fields = [
@@ -129,6 +130,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'last_name',
             'date_joined',
             'last_login',
+            'groups',
         ]
         read_only_fields = fields
         

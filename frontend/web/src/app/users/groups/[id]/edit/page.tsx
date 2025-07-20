@@ -5,10 +5,12 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import FormInput from '@/components/ui/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { FAILED_LOADING_GROUP_ERROR, GROUPS_URL } from '@/lib/constants'
+import { GROUP_PERMISSIONS } from '@/lib/constants/permissions'
 import groupService from '@/lib/services/group'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import { groupCreateSchema, GroupCreateFormData } from '@/schemas/groupSchema'
@@ -99,7 +101,7 @@ export default function EditGroupPage() {
 	}
 
 	return (
-		<>
+		<PermissionGuard requiredPermission={GROUP_PERMISSIONS.CHANGE}>
 			<CreateFormLayout
 				title='Edit Group'
 				isSubmitting={isSubmitting}
@@ -116,6 +118,6 @@ export default function EditGroupPage() {
 					/>
 				))}
 			</CreateFormLayout>
-		</>
+		</PermissionGuard>
 	)
 }

@@ -15,7 +15,7 @@ User = get_user_model()
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
-    max_page_size = 20
+    max_page_size = 500
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by('name')
@@ -51,7 +51,7 @@ class PermissionListView(generics.ListAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]    
     filterset_fields = ['name', 'codename']
     search_fields = ['name', 'codename']
@@ -69,7 +69,7 @@ class UserViewSet(
 ):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination    
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['username', 'email', 'first_name', 'last_name']

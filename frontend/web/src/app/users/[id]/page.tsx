@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import moment from 'moment'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
 import Button from '@/components/ui/Button'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
@@ -17,6 +18,7 @@ import {
 	FAILED_LOADING_USER_ERROR,
 	USERS_URL,
 } from '@/lib/constants'
+import { USER_PERMISSIONS } from '@/lib/constants/permissions'
 import userService from '@/lib/services/user'
 import { Group } from '@/types/group'
 import { TableColumn } from '@/types/table'
@@ -146,17 +148,19 @@ const UserDetailsPage: React.FC = () => {
 						<p className='text-gray-500 text-sm italic'>No Groups Assigned</p>
 					)}
 				</div>
-				<div className='mt-6 flex justify-end space-x-3'>
-					<Button actionType='edit' onClick={handleEditClick}>
-						Edit User
-					</Button>
-					<Button actionType='delete' onClick={handleDeleteClick}>
-						Delete User
-					</Button>
-					<Button actionType='edit' onClick={handleShowAssignGroupsModal}>
-						Assign Groups
-					</Button>
-				</div>
+				<PermissionGuard requiredPermission={USER_PERMISSIONS.CHANGE}>
+					<div className='mt-6 flex justify-end space-x-3'>
+						<Button actionType='edit' onClick={handleEditClick}>
+							Edit User
+						</Button>
+						<Button actionType='delete' onClick={handleDeleteClick}>
+							Delete User
+						</Button>
+						<Button actionType='edit' onClick={handleShowAssignGroupsModal}>
+							Assign Groups
+						</Button>
+					</div>
+				</PermissionGuard>
 			</div>
 			<ConfirmationModal
 				isOpen={showConfirmationModal}

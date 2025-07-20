@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import AssignPermissionsModal from '@/components/users/AssignPermissionsModal'
 import ConfirmationModal from '@/components/ui/ConfirmationModal'
@@ -14,6 +15,7 @@ import {
 	DELETE_LINK_STYLE,
 	EDIT_LINK_STYLE,
 } from '@/lib/constants'
+import { GROUP_PERMISSIONS } from '@/lib/constants/permissions'
 import groupService from '@/lib/services/group'
 import { Group } from '@/types/group'
 import { TableColumn, TableRowAction } from '@/types/table'
@@ -69,6 +71,7 @@ export default function GroupListPage() {
 			},
 			className: EDIT_LINK_STYLE,
 			actionType: 'edit',
+			requiredPermission: GROUP_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Assign Permissions',
@@ -76,12 +79,14 @@ export default function GroupListPage() {
 				openAssignPermissionsModal(group)
 			},
 			actionType: 'permissionGroup',
+			requiredPermission: GROUP_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
 			className: DELETE_LINK_STYLE,
 			actionType: 'delete',
+			requiredPermission: GROUP_PERMISSIONS.DELETE,
 		},
 	]
 
@@ -142,13 +147,16 @@ export default function GroupListPage() {
 	)
 
 	return (
-		<>
+		<PermissionGuard requiredPermission={GROUP_PERMISSIONS.VIEW}>
 			<h1>Group List Page</h1>
 			{isLoading ? (
 				<SpinnerSection spinnerMessage='Loading groups...' />
 			) : (
 				<>
-					<CreateItemSection href={CREATE_GROUPS_URL}>
+					<CreateItemSection
+						href={CREATE_GROUPS_URL}
+						permission={GROUP_PERMISSIONS.ADD}
+					>
 						Create New Group
 					</CreateItemSection>
 					<DataTable
@@ -185,6 +193,6 @@ export default function GroupListPage() {
 				group={assignedGroup}
 				onPermissionsAssigned={handlePermissionsAssigned}
 			/>
-		</>
+		</PermissionGuard>
 	)
 }

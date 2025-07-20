@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useMemo } from 'react'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 import DataTable from '@/components/ui/DataTable'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
+import { PERMISSION_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import permissionService from '@/lib/services/permission'
 import { Permission } from '@/types/permission'
@@ -44,7 +46,7 @@ export default function PermissionListPage() {
 	const permissionColumns = useMemo(() => PERMISSION_COLUMNS, [])
 
 	return (
-		<>
+		<PermissionGuard requiredPermission={PERMISSION_PERMISSIONS.VIEW}>
 			<h1>Permissions</h1>
 			<DataTable<Permission>
 				data={permissions}
@@ -62,6 +64,6 @@ export default function PermissionListPage() {
 				currentSortDirection={sortDirection}
 				isLoadingRows={isLoading}
 			/>
-		</>
+		</PermissionGuard>
 	)
 }
