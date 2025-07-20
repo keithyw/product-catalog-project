@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserProfileSerializer, UserProfileUpdateSerializer, PasswordChangeSerializer, GroupSerializer, PermissionSerializer
 
@@ -69,7 +70,7 @@ class UserViewSet(
 ):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Base authentication, specific permissions handled by decorators
     pagination_class = StandardResultsSetPagination    
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['username', 'email', 'first_name', 'last_name']
@@ -83,6 +84,30 @@ class UserViewSet(
             return UserUpdateSerializer
         return UserSerializer
     
+    def list(self, request, *args, **kwargs):
+        """List users - requires view_user permission"""
+        if not request.user.has_perm('users.view_user'):
+            raise PermissionDenied('You do not have permission to view users.')
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Retrieve a user - requires view_user permission"""
+        if not request.user.has_perm('users.view_user'):
+            raise PermissionDenied('You do not have permission to view users.')
+        return super().retrieve(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a user - requires change_user permission"""
+        if not request.user.has_perm('users.change_user'):
+            raise PermissionDenied('You do not have permission to change users.')
+        return super().update(request, *args, **kwargs)
+    
+    def partial_update(self, request, *args, **kwargs):
+        """Partially update a user - requires change_user permission"""
+        if not request.user.has_perm('users.change_user'):
+            raise PermissionDenied('You do not have permission to change users.')
+        return super().partial_update(request, *args, **kwargs)
+
     def filter_queryset(self, queryset):
         ordering = self.request.query_params.get('ordering')
         if ordering:
@@ -99,8 +124,10 @@ class UserViewSet(
             return super().filter_queryset(queryset.none()) | queryset
         return super().filter_queryset(queryset)
     
-    @action(detail=True, methods=['get', 'put'], serializer_class=GroupSerializer, permission_classes=[IsAdminUser])
+    @action(detail=True, methods=['get', 'put'], serializer_class=GroupSerializer)
     def groups(self, request, pk=None):
+        if not request.user.has_perm('users.change_user'):
+            raise PermissionDenied('You do not have permission to manage user groups.')
         user = self.get_object()
         if request.method == 'GET':
             serializer = GroupSerializer(user.groups.all(), many=True)
@@ -129,6 +156,9 @@ class UserViewSet(
  
         
     def create(self, request, *args, **kwargs):
+        """Create a user - requires add_user permission"""
+        if not request.user.has_perm('users.add_user'):
+            raise PermissionDenied('You do not have permission to create users.')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -136,6 +166,9 @@ class UserViewSet(
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def destroy(self, request, *args, **kwargs):
+        """Delete a user - requires delete_user permission"""
+        if not request.user.has_perm('users.delete_user'):
+            raise PermissionDenied('You do not have permission to delete users.')
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)

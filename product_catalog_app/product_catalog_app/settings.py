@@ -96,7 +96,8 @@ SIMPLE_JWT = {
     'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+    # Remove TOKEN_USER_CLASS to use the actual User model with groups/permissions
+    # 'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
 }
 
 TEMPLATES = [
