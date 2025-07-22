@@ -8,6 +8,7 @@ import {
 	REFRESH_TOKEN_KEY,
 } from '@/lib/constants'
 import useAuthStore from '@/stores/useAuthStore'
+import userService from '@/lib/services/user'
 
 let isRefreshing = false
 let failedQueue: Array<{
@@ -115,6 +116,23 @@ axiosClient.interceptors.response.use(
 						...originalRequest.headers,
 						Authorization: `Bearer ${newAccessToken}`,
 					}
+
+					// Refresh user data asynchronously in the background
+					// Don't await this to avoid blocking the original request
+					userService.getCurrentUser()
+						.then((userDetails) => {
+							useAuthStore.getState().setUser(userDetails)
+							useAuthStore.getState().setUserGroups(userDetails.groups)
+							const userPerms = userDetails.groups.flatMap(
+								(group) => group.permissions || [],
+							)
+							useAuthStore.getState().setUserPermissions(userPerms)
+						})
+						.catch((userError) => {
+							// Log error but don't fail the token refresh
+							console.warn('Failed to refresh user data after token refresh:', userError)
+						})
+
 					return axiosClient(originalRequest)
 				} catch (refreshError: unknown) {
 					// If refresh fails for any reason, log out and redirect

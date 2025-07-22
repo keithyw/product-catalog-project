@@ -4,11 +4,16 @@ import Link from 'next/link'
 import ProfileDropdown from '@/components/layout/ProfileDropdown'
 import NavbarLink from '@/components/ui/NavbarLink'
 import {
+	BRANDS_URL,
 	DASHBOARD_URL,
 	LOGIN_URL,
 	PRODUCTS_URL,
 	USERS_URL,
 } from '@/lib/constants'
+import {
+	BRAND_PERMISSIONS,
+	USER_PERMISSIONS,
+} from '@/lib/constants/permissions'
 import useAuthStore from '@/stores/useAuthStore'
 
 export default function Navbar() {
@@ -22,8 +27,19 @@ export default function Navbar() {
 					{isAuthenticated ? (
 						<>
 							<NavbarLink href={DASHBOARD_URL}>Dashboard</NavbarLink>
+							<NavbarLink
+								href={BRANDS_URL}
+								permission={`${BRAND_PERMISSIONS.VIEW}`}
+							>
+								Brands
+							</NavbarLink>
 							<NavbarLink href={PRODUCTS_URL}>Products</NavbarLink>
-							<NavbarLink href={USERS_URL}>Users</NavbarLink>
+							<NavbarLink
+								href={USERS_URL}
+								permission={`${USER_PERMISSIONS.VIEW}`}
+							>
+								Users
+							</NavbarLink>
 							<ProfileDropdown />
 						</>
 					) : (

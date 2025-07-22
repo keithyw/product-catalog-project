@@ -33,9 +33,3 @@ export interface UpdateUserProfileRequest {
 	last_name?: string
 	email?: string
 }
-export interface UsersResponse {
-	results: User[]
-	count: number
-	next: number | null
-	previous: number | null
-}

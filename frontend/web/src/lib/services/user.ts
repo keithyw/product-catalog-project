@@ -8,7 +8,6 @@ import {
 	UpdateUserRequest,
 	UpdateUserProfileRequest,
 	User,
-	UsersResponse,
 } from '@/types/user'
 
 interface UserService {
@@ -54,7 +53,9 @@ const userService: UserService = {
 		const params: PaginationParams = { page, page_size: pageSize }
 		if (searchTerm) params.search = searchTerm
 		if (ordering) params.ordering = ordering
-		const r = await axiosClient.get<UsersResponse>(API_USERS_URL, { params })
+		const r = await axiosClient.get<ListResponse<User>>(API_USERS_URL, {
+			params,
+		})
 		return r.data || { results: [], count: 0, next: null, previous: null }
 	},
 	getUserGroups: async (id: number): Promise<Group[]> => {

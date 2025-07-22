@@ -25,6 +25,14 @@ export const PERMISSION_PERMISSIONS = {
 	DELETE: 'delete_permission',
 } as const
 
+// Brand permissions
+export const BRAND_PERMISSIONS = {
+	VIEW: 'view_brand',
+	ADD: 'add_brand',
+	CHANGE: 'change_brand',
+	DELETE: 'delete_brand',
+} as const
+
 // Common group names (customize based on your groups)
 export const COMMON_GROUPS = {
 	ADMIN: 'Admin',
@@ -56,7 +64,9 @@ export const PERMISSION_SETS = {
 } as const
 
 // Helper function to check if a permission is a CRUD operation
-export function getPermissionAction(codename: string): 'view' | 'add' | 'change' | 'delete' | 'unknown' {
+export function getPermissionAction(
+	codename: string,
+): 'view' | 'add' | 'change' | 'delete' | 'unknown' {
 	if (codename.startsWith('view_')) return 'view'
 	if (codename.startsWith('add_')) return 'add'
 	if (codename.startsWith('change_')) return 'change'

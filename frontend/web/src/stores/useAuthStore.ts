@@ -5,6 +5,11 @@ import { User } from '@/types/user'
 import { Permission } from '@/types/permission'
 import { Group } from '@/types/group'
 
+// Constants for localStorage keys
+const USER_DATA_KEY = 'user_data'
+const USER_PERMISSIONS_KEY = 'user_permissions'
+const USER_GROUPS_KEY = 'user_groups'
+
 interface AuthStore {
 	accessToken: string
 	refreshToken: string
@@ -49,10 +54,20 @@ const useAuthStore = create<AuthStore>((set, get) => ({
 		const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
 
 		if (accessToken && refreshToken) {
+			// Restore user data from localStorage if available
+			const userData = localStorage.getItem(USER_DATA_KEY)
+			const userPermissions = localStorage.getItem(USER_PERMISSIONS_KEY)
+			const userGroups = localStorage.getItem(USER_GROUPS_KEY)
+
 			set({
+				accessToken,
+				refreshToken,
 				isAuthenticated: true,
 				isLoading: false,
 				error: null,
+				user: userData ? JSON.parse(userData) : null,
+				userPermissions: userPermissions ? JSON.parse(userPermissions) : [],
+				userGroups: userGroups ? JSON.parse(userGroups) : [],
 			})
 		} else {
 			set({
@@ -63,9 +78,18 @@ const useAuthStore = create<AuthStore>((set, get) => ({
 		}
 	},
 
-	setUser: (user: User) => set({ user }),
-	setUserPermissions: (permissions: Permission[]) => set({ userPermissions: permissions }),
-	setUserGroups: (groups: Group[]) => set({ userGroups: groups }),
+	setUser: (user: User) => {
+		set({ user })
+		localStorage.setItem(USER_DATA_KEY, JSON.stringify(user))
+	},
+	setUserPermissions: (permissions: Permission[]) => {
+		set({ userPermissions: permissions })
+		localStorage.setItem(USER_PERMISSIONS_KEY, JSON.stringify(permissions))
+	},
+	setUserGroups: (groups: Group[]) => {
+		set({ userGroups: groups })
+		localStorage.setItem(USER_GROUPS_KEY, JSON.stringify(groups))
+	},
 
 	hasPermission: (codename: string) => {
 		const { userPermissions } = get()
@@ -117,6 +141,9 @@ const useAuthStore = create<AuthStore>((set, get) => ({
 		})
 		localStorage.removeItem(ACCESS_TOKEN_KEY)
 		localStorage.removeItem(REFRESH_TOKEN_KEY)
+		localStorage.removeItem(USER_DATA_KEY)
+		localStorage.removeItem(USER_PERMISSIONS_KEY)
+		localStorage.removeItem(USER_GROUPS_KEY)
 	},
 }))
 
