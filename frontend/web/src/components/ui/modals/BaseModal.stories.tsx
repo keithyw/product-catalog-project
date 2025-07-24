@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import BaseModal from '@/components/ui/BaseModal'
+import BaseModal from '@/components/ui/modals/BaseModal'
 import React from 'react'
 
 const meta: Meta<typeof BaseModal> = {

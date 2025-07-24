@@ -33,3 +33,16 @@ export interface CreateCategoryRequest {
 	parent?: number
 	category_system_id: number
 }
+
+export interface CategoryTreeNode extends Category {
+	children: CategoryTreeNode[]
+}
+
+// might remove this later since it duplicates Catgegory
+// export interface FlatCategoryData {
+// 	id: number
+// 	name: string
+// 	parent: number | null
+// 	depth: number
+// 	path: string
+// }

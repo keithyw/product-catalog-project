@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react'
 import { DialogTitle } from '@headlessui/react'
-import BaseModal from '@/components/ui/BaseModal'
+import BaseModal from '@/components/ui/modals/BaseModal'
 
 interface ConfirmationModalProps {
 	isOpen: boolean

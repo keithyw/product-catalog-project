@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import AssignPermissionsModal from '@/components/users/AssignPermissionsModal'
-import ConfirmationModal from '@/components/ui/ConfirmationModal'
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import {

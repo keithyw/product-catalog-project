@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { DialogTitle } from '@headlessui/react'
-import BaseModel from '@/components/ui/BaseModal'
+import BaseModel from '@/components/ui/modals/BaseModal'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import SubmitButton from '@/components/ui/form/SubmitButton'
 import ToggleSwitch from '@/components/ui/form/ToggleSwitch'

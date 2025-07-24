@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
 import PermissionGuard from '@/components/auth/PermissionGuard'
-import ConfirmationModal from '@/components/ui/ConfirmationModal'
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
 	BRANDS_URL,
 	CREATE_BRANDS_URL,

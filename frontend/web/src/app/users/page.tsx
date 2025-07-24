@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import AssignGroupsModal from '@/components/users/AssignGroupsModal'
 import CreateItemSection from '@/components/layout/CreateItemSection'
-import ConfirmationModal from '@/components/ui/ConfirmationModal'
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import {
 	DEFAULT_PAGE_SIZE,

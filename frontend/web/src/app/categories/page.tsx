@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import CreateItemSection from '@/components/layout/CreateItemSection'
-import ConfirmationModal from '@/components/ui/ConfirmationModal'
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import {

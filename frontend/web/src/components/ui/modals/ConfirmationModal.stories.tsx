@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import ConfirmationModal from './ConfirmationModal' // Adjust path if necessary
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal' // Adjust path if necessary
 import React from 'react'
 
 const meta: Meta<typeof ConfirmationModal> = {
