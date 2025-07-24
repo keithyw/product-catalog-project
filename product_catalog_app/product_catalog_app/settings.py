@@ -52,6 +52,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
     'brands.apps.BrandsConfig',
+    'categories.apps.CategoriesConfig',
     'products.apps.ProductsConfig',
     'users.apps.UsersConfig',
     'corsheaders',

@@ -33,6 +33,13 @@ export const BRAND_PERMISSIONS = {
 	DELETE: 'delete_brand',
 } as const
 
+export const CATEGORY_PERMISSIONS = {
+	VIEW: 'view_category',
+	ADD: 'add_category',
+	CHANGE: 'change_category',
+	DELETE: 'delete_category',
+} as const
+
 // Common group names (customize based on your groups)
 export const COMMON_GROUPS = {
 	ADMIN: 'Admin',

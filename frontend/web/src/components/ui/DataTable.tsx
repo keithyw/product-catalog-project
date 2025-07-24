@@ -1,6 +1,6 @@
 import React from 'react'
 import { RowActionsMenu } from '@/components/ui/RowActionsMenu'
-import SearchInput from '@/components/ui/SearchInput'
+import SearchInput from '@/components/ui/form/SearchInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { TableColumn, TableRowAction } from '@/types/table'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
@@ -136,7 +136,7 @@ function DataTableComponent<T extends Record<string, any>>({
 									text-sm
 									font-medium
 									text-blue-600
-									dark:text-blue-500
+									dark:text-blue-300
 									bg-gray-100
 									dark:bg-gray-700
 									rounded-md
@@ -158,7 +158,7 @@ function DataTableComponent<T extends Record<string, any>>({
 									text-sm
 									font-medium
 									text-blue-600
-									dark:text-blue-500
+									dark:text-blue-300
 									bg-gray-100
 									dark:bg-gray-700
 									rounded-md

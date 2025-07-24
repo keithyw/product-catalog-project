@@ -4,21 +4,21 @@ import React, { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import CreateItemSection from '@/components/layout/CreateItemSection'
+import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
 import PermissionGuard from '@/components/auth/PermissionGuard'
-import ConfirmationModal from '@/components/ui/ConfirmationModal'
 import {
-	BRANDS_URL,
-	CREATE_BRANDS_URL,
+	CATEGORIES_URL,
+	CREATE_CATEGORIES_URL,
 	DEFAULT_PAGE_SIZE,
 } from '@/lib/constants'
-import { BRAND_PERMISSIONS } from '@/lib/constants/permissions'
+import { CATEGORY_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
-import brandService from '@/lib/services/brand'
+import categoryService from '@/lib/services/category'
+import { Category } from '@/types/category'
 import { TableColumn, TableRowAction } from '@/types/table'
-import { Brand } from '@/types/brand'
 
-const BRAND_COLUMNS: TableColumn<Brand>[] = [
+const CATEGORY_COLUMNS: TableColumn<Category>[] = [
 	{
 		header: 'ID',
 		accessor: 'id',
@@ -31,14 +31,15 @@ const BRAND_COLUMNS: TableColumn<Brand>[] = [
 	},
 ]
 
-export default function BrandsPage() {
+export default function CategoriesPage() {
 	const router = useRouter()
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-	const [deleteBrand, setDeleteBrand] = useState<Brand | null>(null)
+	const [deleteCategory, setDeleteCategory] = useState<Category | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
 
+	const cols = useMemo(() => CATEGORY_COLUMNS, [])
 	const {
-		data: brands,
+		data: categories,
 		isLoading,
 		searchTerm,
 		totalCount,
@@ -54,33 +55,31 @@ export default function BrandsPage() {
 	} = useDataTableController({
 		initialSortField: 'name',
 		defaultPageSize: DEFAULT_PAGE_SIZE,
-		fetchData: brandService.fetch,
+		fetchData: categoryService.fetch,
 	})
 
-	const cols = useMemo(() => BRAND_COLUMNS, [])
-
-	const openConfirmModal = (brand: Brand) => {
-		setDeleteBrand(brand)
+	const openConfirmModel = (cat: Category) => {
+		setDeleteCategory(cat)
 		setIsConfirmModalOpen(true)
 	}
 
 	const closeConfirmModal = () => {
 		setIsConfirmModalOpen(false)
-		setDeleteBrand(null)
+		setDeleteCategory(null)
 	}
 
 	const handleDelete = async () => {
-		if (deleteBrand) {
+		if (deleteCategory) {
 			try {
 				setIsDeleting(true)
-				await brandService.delete(deleteBrand.id)
-				toast.success(`Brand ${deleteBrand.name} deleted successfully`)
+				await categoryService.delete(deleteCategory.id)
+				toast.success(`Category ${deleteCategory.name} deleted successfully`)
 				loadData()
 				closeConfirmModal()
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					console.error(e.message)
-					toast.error(`Failed to delete brand: ${e.message}`)
+					toast.error(`Failed to delete category: ${e.message}`)
 					closeConfirmModal()
 				}
 			} finally {
@@ -89,42 +88,42 @@ export default function BrandsPage() {
 		}
 	}
 
-	const actions: TableRowAction<Brand>[] = [
+	const actions: TableRowAction<Category>[] = [
 		{
 			label: 'View Details',
-			onClick: (brand) => {
-				router.push(`${BRANDS_URL}/${brand.id}`)
+			onClick: (category) => {
+				router.push(`${CATEGORIES_URL}/${category.id}`)
 			},
 			actionType: 'view',
-			requiredPermission: BRAND_PERMISSIONS.VIEW,
+			requiredPermission: CATEGORY_PERMISSIONS.VIEW,
 		},
 		{
-			label: 'Edit',
-			onClick: (brand) => {
-				router.push(`${BRANDS_URL}/${brand.id}/edit`)
+			label: ' Edit',
+			onClick: (category) => {
+				router.push(`${CATEGORIES_URL}/${category.id}/edit`)
 			},
 			actionType: 'edit',
-			requiredPermission: BRAND_PERMISSIONS.CHANGE,
+			requiredPermission: CATEGORY_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Delete',
-			onClick: openConfirmModal,
+			onClick: openConfirmModel,
 			actionType: 'delete',
-			requiredPermission: BRAND_PERMISSIONS.DELETE,
+			requiredPermission: CATEGORY_PERMISSIONS.DELETE,
 		},
 	]
 
 	return (
-		<PermissionGuard requiredPermission={BRAND_PERMISSIONS.VIEW}>
-			<h1>Brands</h1>
+		<PermissionGuard requiredPermission={CATEGORY_PERMISSIONS.VIEW}>
+			<h1>Categories</h1>
 			<CreateItemSection
-				href={CREATE_BRANDS_URL}
-				permission={BRAND_PERMISSIONS.ADD}
+				href={CREATE_CATEGORIES_URL}
+				permission={CATEGORY_PERMISSIONS.ADD}
 			>
-				Create New Brand
+				Create New Category
 			</CreateItemSection>
 			<DataTable
-				data={brands}
+				data={categories}
 				columns={cols}
 				rowKey='id'
 				actions={actions}
@@ -144,18 +143,13 @@ export default function BrandsPage() {
 				isOpen={isConfirmModalOpen}
 				onClose={closeConfirmModal}
 				onConfirm={handleDelete}
-				title='Confirm Delete Brand'
-				message={`Are you sure you want to delete ${deleteBrand?.name}`}
+				title='Confirm Delete Category'
+				message={`Are you sure you want to delete ${deleteCategory?.name}`}
 				confirmButtonText={isDeleting ? 'Deleting...' : 'Delete'}
 				confirmButtonClass={
 					isDeleting
 						? 'bg-red-400 cursor-not-allowed'
 						: 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-				}
-				cancelButtonClass={
-					isDeleting
-						? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-						: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
 				}
 			/>
 		</PermissionGuard>

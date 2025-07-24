@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import PermissionGuard from '@/components/auth/PermissionGuard'
-import Button from '@/components/ui/Button'
+import Button from '@/components/ui/form/Button'
 
 interface CreateItemSectionProps {
 	href: string

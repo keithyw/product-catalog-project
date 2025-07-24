@@ -6,6 +6,7 @@ interface ToggleSwitchProps {
 	onChange: (checked: boolean) => void
 	label?: string
 	disabled?: boolean
+	required?: boolean
 }
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
@@ -14,6 +15,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 	onChange,
 	label,
 	disabled,
+	required,
 }) => {
 	return (
 		<div className='flex items-center space-x-2'>
@@ -36,6 +38,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 					checked={checked}
 					onChange={(e) => onChange(e.target.checked)}
 					disabled={disabled}
+					required={required}
 				/>
 				<div
 					className={`

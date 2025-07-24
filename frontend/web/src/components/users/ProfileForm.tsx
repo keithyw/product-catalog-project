@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
-import FormInput from '@/components/ui/FormInput'
+import FormInput from '@/components/ui/form/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
-import SubmitButton from '@/components/ui/SubmitButton'
+import SubmitButton from '@/components/ui/form/SubmitButton'
 import { FAILED_LOADING_USER_ERROR } from '@/lib/constants'
 import {
 	userProfileUpdateSchema,

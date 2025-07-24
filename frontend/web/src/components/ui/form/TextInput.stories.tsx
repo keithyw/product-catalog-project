@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs'
-import TextInput from '@/components/ui/TextInput'
+import TextInput from '@/components/ui/form/TextInput'
 
 const meta: Meta<typeof TextInput> = {
 	title: 'UI/TextInput',

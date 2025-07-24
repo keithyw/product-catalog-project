@@ -1,11 +1,13 @@
 import React from 'react'
-import SubmitButton from '@/components/ui/SubmitButton'
+import CancelSubmitButton from '@/components/ui/form/CancelSubmitButton'
+import SubmitButton from '@/components/ui/form/SubmitButton'
 
 interface CreateFormLayoutProps {
 	title: string
 	isSubmitting: boolean
 	submitText: string
 	submittingText: string
+	cancelUrl?: string
 	handleSubmit: React.FormEventHandler<HTMLFormElement>
 	children: React.ReactNode
 }
@@ -15,6 +17,7 @@ const CreateFormLayout: React.FC<CreateFormLayoutProps> = ({
 	isSubmitting,
 	submitText,
 	submittingText,
+	cancelUrl,
 	handleSubmit,
 	children,
 }) => {
@@ -26,6 +29,7 @@ const CreateFormLayout: React.FC<CreateFormLayoutProps> = ({
 				<SubmitButton disabled={isSubmitting}>
 					{isSubmitting ? submittingText : submitText}
 				</SubmitButton>
+				{cancelUrl && <CancelSubmitButton cancelUrl={cancelUrl} />}
 			</form>
 		</div>
 	)

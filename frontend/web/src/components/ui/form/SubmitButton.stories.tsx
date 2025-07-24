@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs'
-import SubmitButton from '@/components/ui/SubmitButton'
+import SubmitButton from '@/components/ui/form/SubmitButton'
 
 const meta: Meta<typeof SubmitButton> = {
 	title: 'UI/SubmitButton',

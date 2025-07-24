@@ -5,6 +5,7 @@ import ProfileDropdown from '@/components/layout/ProfileDropdown'
 import NavbarLink from '@/components/ui/NavbarLink'
 import {
 	BRANDS_URL,
+	CATEGORIES_URL,
 	DASHBOARD_URL,
 	LOGIN_URL,
 	PRODUCTS_URL,
@@ -12,6 +13,7 @@ import {
 } from '@/lib/constants'
 import {
 	BRAND_PERMISSIONS,
+	CATEGORY_PERMISSIONS,
 	USER_PERMISSIONS,
 } from '@/lib/constants/permissions'
 import useAuthStore from '@/stores/useAuthStore'
@@ -32,6 +34,12 @@ export default function Navbar() {
 								permission={`${BRAND_PERMISSIONS.VIEW}`}
 							>
 								Brands
+							</NavbarLink>
+							<NavbarLink
+								href={CATEGORIES_URL}
+								permission={`${CATEGORY_PERMISSIONS.VIEW}`}
+							>
+								Categories
 							</NavbarLink>
 							<NavbarLink href={PRODUCTS_URL}>Products</NavbarLink>
 							<NavbarLink

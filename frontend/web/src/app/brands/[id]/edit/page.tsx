@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
-import FormInput from '@/components/ui/FormInput'
+import FormInput from '@/components/ui/form/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { BRANDS_URL, FAILED_LOADING_BRANDS_ERROR } from '@/lib/constants'
 import { BRAND_PERMISSIONS } from '@/lib/constants/permissions'
@@ -135,6 +135,7 @@ export default function EditBrandPage() {
 				isSubmitting={isSubmitting}
 				submitText='Save'
 				submittingText='Saving...'
+				cancelUrl={`${BRANDS_URL}/${brandId}`}
 				handleSubmit={handleSubmit(onSubmit)}
 			>
 				{fields.map((f, idx) => (

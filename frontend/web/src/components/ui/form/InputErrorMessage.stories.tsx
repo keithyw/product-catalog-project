@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs'
-import InputErrorMessage from '@/components/ui/InputErrorMessage'
+import InputErrorMessage from '@/components/ui/form/InputErrorMessage'
 
 const meta: Meta<typeof InputErrorMessage> = {
 	title: 'UI/InputErrorMessage',
