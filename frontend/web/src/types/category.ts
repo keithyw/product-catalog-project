@@ -13,6 +13,7 @@ export interface Category {
 	created_at: string
 	updated_at: string
 	parent: number | null
+	parent_name?: string
 	category_system_id?: number
 	category_system_name?: string
 	category_system_slug?: string

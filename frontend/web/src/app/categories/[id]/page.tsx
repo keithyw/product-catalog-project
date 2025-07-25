@@ -64,6 +64,7 @@ const CategoryDetailsPage: React.FC = () => {
 					setCategory(res)
 					setDetails([
 						{ label: 'Name', value: res.name },
+						{ label: 'Parent Category', value: res.parent_name || 'None' },
 						{ label: 'Description', value: res.description || '' },
 						{ label: 'Image URL', value: res.image_url || '' },
 						{ label: 'Banner Image URL', value: res.banner_image_url || '' },

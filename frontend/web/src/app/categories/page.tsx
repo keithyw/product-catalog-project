@@ -29,6 +29,11 @@ const CATEGORY_COLUMNS: TableColumn<Category>[] = [
 		accessor: 'name',
 		sortable: true,
 	},
+	{
+		header: 'Parent Category',
+		accessor: 'parent_name',
+		sortable: false,
+	},
 ]
 
 export default function CategoriesPage() {

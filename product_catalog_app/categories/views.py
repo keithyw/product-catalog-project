@@ -35,6 +35,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['name', 'description', 'category_system_name']
+    ordering_fields = ['id', 'name']
 
     def get_queryset(self):
         queryset = super().get_queryset()

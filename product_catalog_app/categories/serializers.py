@@ -40,6 +40,8 @@ class CategorySerializer(serializers.ModelSerializer):
     category_system_name = serializers.CharField(source='category_system.name', read_only=True)
     category_system_slug = serializers.CharField(source='category_system.slug', read_only=True)
     
+    parent_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = [
@@ -57,6 +59,7 @@ class CategorySerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'parent',
+            'parent_name',
             'category_system_id',
             'category_system_name',
             'category_system_slug',
@@ -65,8 +68,14 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'slug', 'created_at', 'updated_at',
-            'depth', 'path', 'category_system_name', 'category_system_slug',
+            'depth', 'path', 'category_system_name', 'category_system_slug', 
+            'parent_name',
         ]
+
+    def get_parent_name(self, obj):
+        if obj.parent:
+            return obj.parent.name
+        return None
         
     def create(self, validated_data):
         parent_instance = validated_data.pop('parent', None)
