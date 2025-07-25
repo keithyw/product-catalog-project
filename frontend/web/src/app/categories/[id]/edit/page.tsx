@@ -9,6 +9,7 @@ import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import FormInput from '@/components/ui/form/FormInput'
+import ParentCategorySelector from '@/components/ui/form/ParentCategorySelector'
 import {
 	CATEGORIES_URL,
 	FAILED_LOADING_CATEGORIES_ERROR,
@@ -133,56 +134,65 @@ const EditCategoryPage: React.FC = () => {
 		},
 	})
 
+	const selectedCategorySystemId = watch('category_system_id')
+
 	useEffect(() => {
-		if (categoryId) {
-			const fetchCategory = async () => {
-				try {
-					const cs = await categorySystemService.fetch()
-					if (cs.count > 0) {
-						setCategorySystemOptions(
-							cs.results.map((cs) => ({
-								value: cs.id,
-								label: cs.name,
-							})),
-						)
-						if (watch('category_system_id') === null) {
-							setValue('category_system_id', cs.results[0].id)
-						} else {
-							setValue('category_system_id', watch('category_system_id'))
-						}
-					}
-					const res = await categoryService.get(parseInt(categoryId as string))
-					setCategory(res)
-					reset({
-						name: res.name,
-						description: res.description || '',
-						image_url: res.image_url || '',
-						banner_image_url: res.banner_image_url || '',
-						is_active: res.is_active,
-						meta_title: res.meta_title || '',
-						meta_description: res.meta_description || '',
-						meta_keywords: res.meta_keywords || '',
-						display_order: res.display_order,
-						category_system_id: res.category_system_id,
-					})
-				} catch (e: unknown) {
-					if (e instanceof Error) {
-						console.error(e.message)
-						setError('root.serverError', {
-							type: 'server',
-							message: FAILED_LOADING_CATEGORIES_ERROR,
-						})
-						setErrorCategorySystems(e.message)
-						toast.error(FAILED_LOADING_CATEGORIES_ERROR)
-						router.push(CATEGORIES_URL)
-					}
-				} finally {
-					setIsLoading(false)
-					setLoadingCategorySystems(false)
-				}
-			}
-			fetchCategory()
+		if (!categoryId) {
+			setIsLoading(false)
+			setError('root.serverError', {
+				type: 'server',
+				message: FAILED_LOADING_CATEGORIES_ERROR,
+			})
+			return
 		}
+		const fetchCategory = async () => {
+			try {
+				const cs = await categorySystemService.fetch()
+				if (cs.count > 0) {
+					setCategorySystemOptions(
+						cs.results.map((cs) => ({
+							value: cs.id,
+							label: cs.name,
+						})),
+					)
+					if (watch('category_system_id') === null) {
+						setValue('category_system_id', cs.results[0].id)
+					} else {
+						setValue('category_system_id', watch('category_system_id'))
+					}
+				}
+				const res = await categoryService.get(parseInt(categoryId as string))
+				setCategory(res)
+				reset({
+					name: res.name,
+					description: res.description || '',
+					image_url: res.image_url || '',
+					banner_image_url: res.banner_image_url || '',
+					is_active: res.is_active,
+					meta_title: res.meta_title || '',
+					meta_description: res.meta_description || '',
+					meta_keywords: res.meta_keywords || '',
+					display_order: res.display_order,
+					category_system_id: res.category_system_id,
+					parent: res.parent || undefined,
+				})
+			} catch (e: unknown) {
+				if (e instanceof Error) {
+					console.error(e.message)
+					setError('root.serverError', {
+						type: 'server',
+						message: FAILED_LOADING_CATEGORIES_ERROR,
+					})
+					setErrorCategorySystems(e.message)
+					toast.error(FAILED_LOADING_CATEGORIES_ERROR)
+					router.push(CATEGORIES_URL)
+				}
+			} finally {
+				setIsLoading(false)
+				setLoadingCategorySystems(false)
+			}
+		}
+		fetchCategory()
 	}, [categoryId, reset, router, setError, setValue, watch])
 
 	const onSubmit = async (data: CategoryCreateFormData) => {
@@ -242,6 +252,15 @@ const EditCategoryPage: React.FC = () => {
 						/>
 					)
 				})}
+				<ParentCategorySelector
+					name='parent'
+					control={control}
+					label='Parent Category'
+					placeholder='Select a parent category'
+					required={false}
+					selectedCategorySystemId={selectedCategorySystemId}
+					errorMessage={errors.parent?.message as string}
+				/>
 			</CreateFormLayout>
 		</PermissionGuard>
 	)

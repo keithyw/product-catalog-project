@@ -98,7 +98,7 @@ class CategorySerializer(serializers.ModelSerializer):
         if new_parent_instance is not None and new_parent_instance != instance.parent:
             if new_parent_instance.category_system != instance.category_system:
                 raise serializers.ValidationError({ "parent": "Parent category must belong to the same category system"})
-            instance.move(new_parent_instance, pos='last-child')
+            instance.move(new_parent_instance, pos='sorted-child')
             instance.parent = new_parent_instance
         elif new_parent_instance is None and instance.parent is not None:
             if not instance.is_root():
