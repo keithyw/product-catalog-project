@@ -17,7 +17,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 class CategorySystemViewSet(viewsets.ModelViewSet):
     queryset = CategorySystem.objects.all().order_by('name')
     serializer_class = CategorySystemSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['name']

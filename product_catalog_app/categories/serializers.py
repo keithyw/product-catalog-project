@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.db import transaction
 from .models import CategorySystem, Category
 
 class CategorySystemSerializer(serializers.ModelSerializer):

@@ -1,37 +1,48 @@
-from rest_framework import generics, permissions
-from .models import Product
-from .serializers import ProductSerializer
+from rest_framework import permissions, viewsets
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import Product, ProductAttribute, ProductAttributeSet
+from .serializers import ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
 
-class ProductList(generics.ListCreateAPIView):
-    """
-    List all products or create a new product
-    """
-    queryset = Product.objects.all().order_by('-created_at')
-    serializer_class = ProductSerializer
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    
+class ProductAttributeViewSet(viewsets.ModelViewSet):
+    queryset = ProductAttribute.objects.all().order_by('name')
+    serializer_class = ProductAttributeSerializer
+    pagination_class = StandardResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
-
-class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_fields = ['name', 'type']
+    search_fields = ['name', 'description']
+    ordering_fields = ['id', 'name']
+    ordering = ['id']
+    
+class ProductAttributeSetViewSet(viewsets.ModelViewSet):
+    queryset = ProductAttributeSet.objects.all().order_by('name')
+    serializer_class = ProductAttributeSetSerializer
+    pagination_class = StandardResultsSetPagination
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_fields = ['name', 'is_active']
+    search_fields = ['name', 'description']
+    ordering_fields = ['id', 'name']
+    ordering = ['id']
+            
+class ProductViewSet(viewsets.ModelViewSet):
     """
     API endpoint for viewing and editing product instances.
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-            
-# class ProductViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint for viewing and editing product instances.
-#     """
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-
-# def index(request):
-#     products = Product.objects.all()
-#     product_list = ', '.join([product.name for product in products])
-#     return HttpResponse(product_list or "No products available")
-
-# def detail(request, product_id):
-#     try:
-#         p = Product.objects.get(id=product_id)
-#     except Product.DoesNotExist:
-#         return HttpResponse(f"Product {product_id} not found", status=404)
-#     return HttpResponse(f"Name: {p.name} Description: {p.description}")
+    pagination_class = StandardResultsSetPagination
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_fields = ['name', 'description']
+    search_fields = ['name', 'description']
+    ordering_fields = ['id', 'name']
+    ordering = ['id']
