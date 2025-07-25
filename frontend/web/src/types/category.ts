@@ -12,7 +12,7 @@ export interface Category {
 	meta_keywords?: string
 	created_at: string
 	updated_at: string
-	parent?: number
+	parent: number | null
 	category_system_id?: number
 	category_system_name?: string
 	category_system_slug?: string
@@ -37,12 +37,3 @@ export interface CreateCategoryRequest {
 export interface CategoryTreeNode extends Category {
 	children: CategoryTreeNode[]
 }
-
-// might remove this later since it duplicates Catgegory
-// export interface FlatCategoryData {
-// 	id: number
-// 	name: string
-// 	parent: number | null
-// 	depth: number
-// 	path: string
-// }

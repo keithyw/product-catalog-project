@@ -14,6 +14,7 @@ interface CategoryService {
 		ordering?: string,
 	) => Promise<ListResponse<Category>>
 	get: (id: number) => Promise<Category>
+	getBySystemId: (systemId: number) => Promise<Category[]>
 	update: (id: number, data: CreateCategoryRequest) => Promise<Category>
 }
 
@@ -46,6 +47,12 @@ const categoryService: CategoryService = {
 	get: async (id: number): Promise<Category> => {
 		const r = await axiosClient.get<Category>(`${API_CATEGORIES_URL}${id}/`)
 		return r.data || ({} as Category)
+	},
+	getBySystemId: async (systemId: number): Promise<Category[]> => {
+		const r = await axiosClient.get<Category[]>(
+			`${API_CATEGORIES_URL}tree/?system_id=${systemId}`,
+		)
+		return r.data || []
 	},
 	update: async (
 		id: number,

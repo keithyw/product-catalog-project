@@ -9,19 +9,10 @@ import { FormField } from '@/types/form'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FormInputProps<T extends Record<string, any>> {
-	// field: {
-	// 	name: keyof T
-	// 	label: string
-	// 	type?: string
-	// 	required?: boolean
-	// 	placeholder?: string
-	// 	readOnly?: boolean
-	// }
 	field: FormField<T>
 	register: UseFormRegister<T>
 	errorMessage?: string
 	control?: Control<T>
-	// currentValue?: string | number | null
 }
 
 const FormInput = <
@@ -32,15 +23,7 @@ const FormInput = <
 	register,
 	errorMessage,
 	control,
-	// currentValue,
 }: FormInputProps<T>) => {
-	// const inputProps = {
-	// 	id: field.name as string,
-	// 	label: field.label,
-	// 	...register(field.name as Path<T>),
-	// 	readOnly: field.readOnly,
-	// }
-
 	const inputProps = {
 		id: field.name as string,
 		label: field.label,

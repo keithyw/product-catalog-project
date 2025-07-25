@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import FormInput from '@/components/ui/form/FormInput'
+import ParentCategorySelector from '@/components/ui/form/ParentCategorySelector'
 import { CATEGORIES_URL } from '@/lib/constants'
 import { CATEGORY_PERMISSIONS } from '@/lib/constants/permissions'
 import categoryService from '@/lib/services/category'
@@ -124,6 +125,8 @@ export default function CreateCategoryPage() {
 		string | null
 	>(null)
 
+	const selectedCategorySystemId = watch('category_system_id')
+
 	useEffect(() => {
 		const fetchSystems = async () => {
 			setLoadingCategorySystems(true)
@@ -136,7 +139,10 @@ export default function CreateCategoryPage() {
 							label: cs.name,
 						})),
 					)
-					if (watch('category_system_id') === null) {
+					if (
+						watch('category_system_id') === undefined &&
+						res.results.length > 0
+					) {
 						setValue('category_system_id', res.results[0].id)
 					}
 				}
@@ -198,6 +204,15 @@ export default function CreateCategoryPage() {
 						/>
 					)
 				})}
+				<ParentCategorySelector
+					name='parent'
+					control={control}
+					label='Parent Category'
+					placeholder='Select a parent category'
+					required={false}
+					selectedCategorySystemId={selectedCategorySystemId}
+					errorMessage={errors.parent?.message}
+				/>
 			</CreateFormLayout>
 		</PermissionGuard>
 	)

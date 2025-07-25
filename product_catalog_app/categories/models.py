@@ -67,6 +67,13 @@ class Category(MP_Node):
         on_delete=models.CASCADE,
         related_name='categories',
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+    )
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, blank=True)
     description = models.TextField(blank=True, null=True)
