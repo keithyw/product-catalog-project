@@ -108,7 +108,6 @@ export default function EditBrandPage() {
 	const onSubmit = async (data: BrandCreateFormData) => {
 		try {
 			const res = await brandService.update(parseInt(brandId as string), data)
-			console.log(res)
 			toast.success(`Brand ${res.name} updated successfully!`)
 			router.push(BRANDS_URL)
 		} catch (e: unknown) {
