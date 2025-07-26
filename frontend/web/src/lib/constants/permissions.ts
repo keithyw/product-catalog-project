@@ -47,6 +47,13 @@ export const PRODUCT_ATTIBUTE_PERMISSIONS = {
 	DELETE: 'delete_productattribute',
 } as const
 
+export const PRODUCT_ATTRIBUTE_SET_PERMISSIONS = {
+	VIEW: 'view_productattributeset',
+	ADD: 'add_productattributeset',
+	CHANGE: 'change_productattributeset',
+	DELETE: 'delete_productattributeset',
+}
+
 export const PRODUCT_PERMISSIONS = {
 	VIEW: 'view_product',
 	ADD: 'add_product',
