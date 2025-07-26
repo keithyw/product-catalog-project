@@ -12,6 +12,7 @@ export const API_CATEGORIES_URL = '/categories/'
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
 export const API_PERMISSIONS_URL = '/permissions/'
+export const API_PRODUCT_ATTIBUTES_URL = '/product-attributes/'
 export const API_PRODUCT_URL = '/products/'
 export const API_USERS_URL = '/users/'
 export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`
@@ -23,6 +24,8 @@ export const CATEGORIES_URL = '/categories'
 export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
+export const PRODUCT_ATTIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
+export const CREATE_PRODUCT_ATTIBUTES_URL = `${PRODUCT_ATTIBUTES_URL}/create`
 export const PROFILE_URL = '/profile'
 export const USERS_URL = '/users'
 export const CREATE_USERS_URL = `${USERS_URL}/create`
@@ -36,6 +39,7 @@ export const PROTECTED_ROUTES = [
 	CATEGORIES_URL,
 	DASHBOARD_URL,
 	PRODUCTS_URL,
+	PRODUCT_ATTIBUTES_URL,
 	PROFILE_URL,
 	USERS_URL,
 ]

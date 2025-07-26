@@ -40,6 +40,20 @@ export const CATEGORY_PERMISSIONS = {
 	DELETE: 'delete_category',
 } as const
 
+export const PRODUCT_ATTIBUTE_PERMISSIONS = {
+	VIEW: 'view_productattribute',
+	ADD: 'add_productattribute',
+	CHANGE: 'change_productattribute',
+	DELETE: 'delete_productattribute',
+} as const
+
+export const PRODUCT_PERMISSIONS = {
+	VIEW: 'view_product',
+	ADD: 'add_product',
+	CHANGE: 'change_product',
+	DELETE: 'delete_product',
+}
+
 // Common group names (customize based on your groups)
 export const COMMON_GROUPS = {
 	ADMIN: 'Admin',
