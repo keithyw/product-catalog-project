@@ -56,6 +56,8 @@ export const FAILED_LOADING_GROUP_ERROR =
 	'Failed to load groups. Please try again.'
 export const FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR =
 	'Failed to load product attributes. Please try again.'
+export const FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR =
+	'Failed to load product attribute set. Please try again.'
 export const FAILED_LOADING_USER_ERROR =
 	'Failed to load user. Please try again.'
 export const GENERIC_SERVER_ERROR =

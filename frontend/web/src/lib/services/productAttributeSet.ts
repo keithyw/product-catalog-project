@@ -10,7 +10,7 @@ import {
 	ProductAttributeSet,
 } from '@/types/product'
 
-interface ProductAttributeService {
+interface ProductAttributeSetService {
 	create: (
 		data: CreateProductAttributeSetRequest,
 	) => Promise<ProductAttributeSet>
@@ -28,7 +28,7 @@ interface ProductAttributeService {
 	) => Promise<ProductAttributeSet>
 }
 
-const productAttributeService: ProductAttributeService = {
+const productAttributeSetService: ProductAttributeSetService = {
 	create: async (
 		data: CreateProductAttributeSetRequest,
 	): Promise<ProductAttributeSet> => {
@@ -77,4 +77,4 @@ const productAttributeService: ProductAttributeService = {
 	},
 }
 
-export default productAttributeService
+export default productAttributeSetService
