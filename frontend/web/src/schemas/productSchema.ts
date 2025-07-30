@@ -1,0 +1,13 @@
+import { z } from 'zod'
+
+export const productCreateSchema = z.object({
+	name: z.string().min(1, 'Name is required.'),
+	description: z.string().nullable().optional(),
+	brand: z.number().int().positive().nullable().optional(),
+	category: z.number().int().positive().nullable().optional(),
+	attribute_set: z.number().int().positive().nullable().optional(),
+	attributes_data: z.record(z.string(), z.any()).nullable().optional(),
+	is_active: z.boolean().default(false).optional(),
+})
+
+export type ProductCreateFormData = z.infer<typeof productCreateSchema>

@@ -78,6 +78,29 @@ export interface Product {
 	id: string
 	name: string
 	description: string
+	brand: number | null
+	brand_name: string | null
+	category: number | null
+	category_name: string | null
+	attribute_set: number | null
+	attribute_set_name: string | null
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	attributes_data: Record<string, any> | null
+	uuid: string
+	is_active: boolean
+	created_at: string
+	updated_at: string
+}
+
+export interface CreateProductRequest {
+	name: string
+	description?: string | null
+	brand?: number | null
+	category?: number | null
+	attribute_set?: number | null
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	attributes_data?: Record<string, any> | null
+	is_active?: boolean
 }
 
 export interface ProductsResponse {

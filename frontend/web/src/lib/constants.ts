@@ -25,6 +25,7 @@ export const CATEGORIES_URL = '/categories'
 export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
+export const CREATE_PRODUCT_URL = `${PRODUCTS_URL}/create`
 export const PRODUCT_ATTIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
 export const CREATE_PRODUCT_ATTIBUTES_URL = `${PRODUCT_ATTIBUTES_URL}/create`
 export const PRODUCT_ATTRIBUTE_SETS_URL = `${PRODUCTS_URL}/product-attribute-sets`

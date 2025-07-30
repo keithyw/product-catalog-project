@@ -1,3 +1,5 @@
+import json
+from django.db import models
 from rest_framework import serializers
 from .models import Product, ProductAttribute, ProductAttributeSet
 from brands.models import Brand
@@ -108,7 +110,178 @@ class ProductSerializer(serializers.ModelSerializer):
     name = serializers.CharField(min_length=3)
     description = serializers.CharField(required=False, allow_null=True)
     
+    uuid = serializers.UUIDField(read_only=True,)
+
+    brand_name = serializers.CharField(source='brand.name', read_only=True, allow_null=True)
+    category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
+    attribute_set_name = serializers.CharField(source='attribute_set.name', read_only=True)
+
+    brand = serializers.PrimaryKeyRelatedField(
+        queryset=Brand.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+    attribute_set = serializers.PrimaryKeyRelatedField(
+        queryset=ProductAttributeSet.objects.all(),
+    )
+
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = [
+            'id',
+            'name',
+            'description',
+            'brand',
+            'brand_name',
+            'category',
+            'category_name',
+            'attribute_set',
+            'attribute_set_name',
+            'attributes_data',
+            'uuid',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = [
+            'brand_name',
+            'category_name',
+            'attribute_set_name',
+            'uuid',
+            'created_at',
+            'updated_at',
+        ]
+
+    def validate_attributes_data(self, value):
+        attribute_set_id = self.initial_data.get('attribute_set')
+        if self.instance and not attribute_set_id:
+            attribute_set_id = self.instance.attribute_set_id
+
+        if not attribute_set_id:
+            return value
+
+        try:
+            attribute_set = ProductAttributeSet.objects.get(pk=attribute_set_id)
+        except ProductAttributeSet.DoesNotExist:
+            raise serializers.ValidationError("Attribute set does not exist")
+
+        defined_attributes = attribute_set.attributes.all()
+
+        if value is None:
+            value = {}
+
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("attribute_data must be a JSON object.")
+
+        for attr in defined_attributes:
+            attr_code = attr.code
+            attr_value = value.get(attr_code)
+
+            if attr.is_required and (attr_value is None or (isinstance(attr_value, str) and not attr_value.strip())):
+                raise serializers.ValidationError(
+                    {attr_code: f"'{attr.name}' is required."}
+                )
+
+            if attr_value is None and not attr.is_required:
+                continue
+
+            if attr.type == 'number':
+                try:
+                    float(attr_value)
+                except (ValueError, TypeError):
+                    raise serializers.ValidationError(
+                        {attr_code: f"'{attr.name}' must be a valid number."}
+                    )
+
+                if attr.validation_rules and isinstance(attr_value, (int, float)):
+                    if 'min' in attr.validation_rules and attr_value < attr.validation_rules['min']:
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' must be at least {attr.validation_rules['min']}."}
+                        )
+                    if 'max' in attr.validation_rules and attr_value > attr.validation_rules['max']:
+                        raise serializers.ValdiationError(
+                            {attr_code: f"'{attr.name}' must be at most {attr.validation_rules['max']}'"}
+                        )
+            elif attr.type == 'boolean':
+                if not isinstance(attr_value, bool):
+                    raise serializers.ValidationError(
+                        {attr_code: f"'{attr.name}' must be a boolean"}
+                    )
+            elif attr.type in ['select', 'multiselect']:
+                valid_values = [opt['value'] for opt in attr.options] if attr.options else []
+                if attr.type == 'select':
+                    if attr_value not in valid_values:
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' value '{attr_value}' is not a valid option."}
+                        )
+                elif attr.type == 'multiselect':
+                    if not isinstance(attr_value, list):
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' must be a list of values."}
+                        )
+                    if not all(item in valid_values for item in attr_value):
+                        raise serializers.ValidationError(
+                            {attr_code: f"One or more values in '{attr.name}' are not valid options."}
+                        )
+
+            elif attr.type == 'json':
+                if not isinstance(attr_value, (dict, list)): # Basic check for JSON object/array
+                    try: # Attempt to parse if it's a string, as frontend might send stringified JSON
+                        json.loads(attr_value)
+                    except (json.JSONDecodeError, TypeError):
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' must be valid JSON."}
+                        )
+
+            elif attr.type == 'date':
+                try:
+                    # Basic date format check (e.g., 'YYYY-MM-DD')
+                    models.DateField().to_python(attr_value)
+                except (ValueError, TypeError):
+                    raise serializers.ValidationError(
+                        {attr_code: f"'{attr.name}' must be a valid date (YYYY-MM-DD)."}
+                    )
+
+            elif attr.type == 'datetime':
+                try:
+                    # Basic datetime format check (e.g., 'YYYY-MM-DDTHH:MM:SSZ')
+                    models.DateTimeField().to_python(attr_value)
+                except (ValueError, TypeError):
+                    raise serializers.ValidationError(
+                        {attr_code: f"'{attr.name}' must be a valid datetime (YYYY-MM-DDTHH:MM:SSZ)."}
+                    )
+
+            elif attr.type in ['text', 'textarea']:
+                if not isinstance(attr_value, str):
+                    raise serializers.ValidationError(
+                        {attr_code: f"'{attr.name}' must be a string."}
+                    )
+                # Add min_length/max_length/pattern validation from attr.validation_rules if needed
+                if attr.validation_rules and isinstance(attr_value, str):
+                    if 'min_length' in attr.validation_rules and len(attr_value) < attr.validation_rules['min_length']:
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' must be at least {attr.validation_rules['min_length']} characters long."}
+                        )
+                    if 'max_length' in attr.validation_rules and len(attr_value) > attr.validation_rules['max_length']:
+                        raise serializers.ValidationError(
+                            {attr_code: f"'{attr.name}' must be at most {attr.validation_rules['max_length']} characters long."}
+                        )
+                    if 'pattern' in attr.validation_rules:
+                        import re
+                        if not re.match(attr.validation_rules['pattern'], attr_value):
+                            raise serializers.ValidationError(
+                                {attr_code: f"'{attr.name}' does not match the required pattern."}
+                            )
+
+        return value
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)

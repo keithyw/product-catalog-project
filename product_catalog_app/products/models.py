@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
@@ -103,12 +104,58 @@ class ProductAttributeSet(models.Model):
         if self.brand:
             s += f" (Brand: {self.brand.name})"
         return s
-    
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True,
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products',
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products',
+    )
+    attribute_set = models.ForeignKey(
+        ProductAttributeSet,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products',
+    )
+
+    attributes_data = models.JSONField(blank=True, null=True, default=dict)
+
+    class Meta:
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
+        ordering = ['name']
+
+    def clean(self):
+        super().clean()
+        pass
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.name
+        return f"{self.name} (ID: {self.id})"
