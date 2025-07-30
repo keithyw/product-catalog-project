@@ -96,7 +96,9 @@ const AttributeSetStep: React.FC = () => {
 				<Fragment key={attr.id}>
 					{attr.type === 'multiselect' ? (
 						<Controller
-							name={`attributes_data.${attr.code}`}
+							name={
+								`attributes_data.${attr.code}` as keyof ProductCreateFormData
+							}
 							control={control}
 							rules={{ required: attr.is_required }}
 							render={({ field }) => (
@@ -121,7 +123,8 @@ const AttributeSetStep: React.FC = () => {
 					) : (
 						<FormInput
 							field={{
-								name: `attributes_data.${attr.code}`,
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								name: `attributes_data.${attr.code}` as any, // TODO: replace `any` with Path<ProductCreateFormData>
 								label: attr.name,
 								placeholder: `Enter ${attr.name} value`,
 								required: attr.is_required,
