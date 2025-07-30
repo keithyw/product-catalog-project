@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import ComboboxMultiSelect from '@/components/ui/form/ComboboxMultiSelect'
 import FormInput from '@/components/ui/form/FormInput'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
+import { createDynamicAttributeValidationRule } from '@/lib/utils/dynamicAttributeValidation'
 import { ProductCreateFormData } from '@/schemas/productSchema'
 import useProductStore from '@/stores/useProductStore'
 import {
@@ -92,53 +93,60 @@ const AttributeSetStep: React.FC = () => {
 	return (
 		<div className='space-y-4'>
 			<h2 className='text-xl font-bold text-gray-800 mb-4'>Attributes Setup</h2>
-			{fields.map((attr) => (
-				<Fragment key={attr.id}>
-					{attr.type === 'multiselect' ? (
-						<Controller
-							name={
-								`attributes_data.${attr.code}` as keyof ProductCreateFormData
-							}
-							control={control}
-							rules={{ required: attr.is_required }}
-							render={({ field }) => (
-								<ComboboxMultiSelect
-									id={attr.code}
-									label={attr.name}
-									options={
-										attr.options?.map((o) => ({
-											value: o.value,
-											label: o.label,
-										})) || []
-									}
-									selectedValues={(field.value as (string | number)[]) || []}
-									onSelect={(selectedIds) => field.onChange(selectedIds)}
-									placeholder={`Select ${attr.name}`}
-									errorMessage={
-										errors.attributes_data?.[attr.code]?.message as string
-									}
-								/>
-							)}
-						/>
-					) : (
-						<FormInput
-							field={{
-								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								name: `attributes_data.${attr.code}` as any, // TODO: replace `any` with Path<ProductCreateFormData>
-								label: attr.name,
-								placeholder: `Enter ${attr.name} value`,
-								required: attr.is_required,
-								type: attr.type as ProductAttributeType,
-							}}
-							register={register}
-							control={control}
-							errorMessage={
-								errors.attributes_data?.[attr.code]?.message as string
-							}
-						/>
-					)}
-				</Fragment>
-			))}
+			{fields.map((attr) => {
+				const fieldName =
+					`attributes_data.${attr.code}` as keyof ProductCreateFormData
+				const rule = createDynamicAttributeValidationRule(attr)
+				return (
+					<Fragment key={attr.id}>
+						{attr.type === 'multiselect' ? (
+							<Controller
+								name={fieldName}
+								control={control}
+								rules={{
+									required: attr.is_required
+										? `${attr.name} is required.`
+										: false,
+									validate: rule,
+								}}
+								render={({ field }) => (
+									<ComboboxMultiSelect
+										id={attr.code}
+										label={attr.name}
+										options={
+											attr.options?.map((o) => ({
+												value: o.value,
+												label: o.label,
+											})) || []
+										}
+										selectedValues={(field.value as (string | number)[]) || []}
+										onSelect={(selectedIds) => field.onChange(selectedIds)}
+										placeholder={`Select ${attr.name}`}
+										errorMessage={
+											errors.attributes_data?.[attr.code]?.message as string
+										}
+									/>
+								)}
+							/>
+						) : (
+							<FormInput
+								field={{
+									name: fieldName, // TODO: replace `any` with Path<ProductCreateFormData>
+									label: attr.name,
+									placeholder: `Enter ${attr.name} value`,
+									required: attr.is_required,
+									type: attr.type as ProductAttributeType,
+								}}
+								register={register}
+								control={control}
+								errorMessage={
+									errors.attributes_data?.[attr.code]?.message as string
+								}
+							/>
+						)}
+					</Fragment>
+				)
+			})}
 		</div>
 	)
 }
