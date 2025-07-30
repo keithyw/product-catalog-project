@@ -133,12 +133,15 @@ const ProductInfo: React.FC = () => {
 	useEffect(() => {
 		const currentAttributeSetId = watch('attribute_set')
 		if (
-			currentAttributeSetId &&
+			!loadingAttributeSets &&
+			currentAttributeSetId !== null &&
+			currentAttributeSetId !== undefined &&
+			filteredAttributeSets.length > 0 &&
 			!filteredAttributeSets.some((set) => set.value === currentAttributeSetId)
 		) {
 			setValue('attribute_set', null)
 		}
-	}, [filteredAttributeSets, watch, setValue])
+	}, [filteredAttributeSets, loadingAttributeSets, watch, setValue])
 
 	return (
 		<div className='space-y-4'>
