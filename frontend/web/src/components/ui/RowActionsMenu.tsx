@@ -62,8 +62,6 @@ export function RowActionsMenu<T>({
 			return true
 		}
 
-		console.log('action ', action)
-
 		// Check permissions using the checkAccess function
 		return checkAccess({
 			requiredPermission: action.requiredPermission,

@@ -1,11 +1,18 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
 import SpinnerSection from '@/components/ui/SpinnerSection'
-import { CREATE_PRODUCT_URL, DEFAULT_PAGE_SIZE } from '@/lib/constants'
+import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
+import {
+	CREATE_PRODUCT_URL,
+	PRODUCTS_URL,
+	DEFAULT_PAGE_SIZE,
+} from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import productService from '@/lib/services/product'
@@ -26,23 +33,10 @@ const COLS: TableColumn<Product>[] = [
 ]
 
 export default function ProductsPage() {
-	const productActions: TableRowAction<Product>[] = [
-		{
-			label: 'Edit',
-			onClick: (product) => {
-				console.log('Editing ', product.id)
-			},
-			className: 'bg-blue-500 hover:bg-blue-600',
-		},
-		{
-			label: 'Delete',
-			onClick: (product) => {
-				console.log('Deleting ', product.id)
-			},
-			className: 'bg-red-500 hover:bg-red-600',
-		},
-	]
-
+	const router = useRouter()
+	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+	const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
 	const {
 		data: products,
 		isLoading,
@@ -56,12 +50,67 @@ export default function ProductsPage() {
 		handlePageChange,
 		handlePageSizeChange,
 		handleSort,
-		// loadData,
+		loadData,
 	} = useDataTableController({
 		initialSortField: 'name',
 		defaultPageSize: DEFAULT_PAGE_SIZE,
 		fetchData: productService.fetch,
 	})
+
+	const openConfirmModal = (p: Product) => {
+		setDeleteProduct(p)
+		setIsConfirmModalOpen(true)
+	}
+
+	const closeConfirmModal = () => {
+		setIsConfirmModalOpen(false)
+		setDeleteProduct(null)
+	}
+
+	const handleDelete = async () => {
+		if (deleteProduct) {
+			try {
+				setIsDeleting(true)
+				await productService.delete(parseInt(deleteProduct.id))
+				toast.success(`Product ${deleteProduct.name} deleted successfully`)
+				loadData()
+				closeConfirmModal()
+			} catch (e: unknown) {
+				if (e instanceof Error) {
+					console.error(e)
+					toast.error(`Failed to delete product: ${e.message}`)
+					closeConfirmModal()
+				}
+			} finally {
+				setIsDeleting(false)
+			}
+		}
+	}
+
+	const productActions: TableRowAction<Product>[] = [
+		{
+			label: 'View Details',
+			onClick: (p) => {
+				router.push(`${PRODUCTS_URL}/${p.id}`)
+			},
+			actionType: 'view',
+			requiredPermission: PRODUCT_PERMISSIONS.VIEW,
+		},
+		{
+			label: 'Edit',
+			onClick: (p) => {
+				router.push(`${PRODUCTS_URL}/${p.id}/edit`)
+			},
+			actionType: 'edit',
+			requiredPermission: PRODUCT_PERMISSIONS.CHANGE,
+		},
+		{
+			label: 'Delete',
+			onClick: openConfirmModal,
+			actionType: 'delete',
+			requiredPermission: PRODUCT_PERMISSIONS.DELETE,
+		},
+	]
 
 	const cols = useMemo(() => COLS, [])
 
@@ -94,6 +143,24 @@ export default function ProductsPage() {
 				currentSortField={sortField}
 				currentSortDirection={sortDirection}
 				isLoadingRows={isLoading}
+			/>
+			<ConfirmationModal
+				isOpen={isConfirmModalOpen}
+				onClose={closeConfirmModal}
+				onConfirm={handleDelete}
+				title='Confirm Delete Product'
+				message={`Are you sure you want to delete ${deleteProduct?.name}`}
+				confirmButtonText={isDeleting ? 'Deleting...' : 'Delete'}
+				confirmButtonClass={
+					isDeleting
+						? 'bg-red-400 cursor-not-allowed'
+						: 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+				}
+				cancelButtonClass={
+					isDeleting
+						? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+						: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
+				}
 			/>
 		</PermissionGuard>
 	)
