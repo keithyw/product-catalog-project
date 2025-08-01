@@ -24,13 +24,21 @@ const MockStep4: React.FC = () => (
 	</div>
 )
 
-// Define the steps for our stories
+// Define the steps for our stories (no 'component' needed here anymore)
 const mockSteps = [
-	{ id: 'step1', title: 'Core Details', component: MockStep1 },
-	{ id: 'step2', title: 'Attribute Template', component: MockStep2 },
-	{ id: 'step3', title: 'Dynamic Attributes', component: MockStep3 },
-	{ id: 'step4', title: 'Review & Publish', component: MockStep4 },
+	{ id: 'step1', title: 'Core Details' },
+	{ id: 'step2', title: 'Attribute Template' },
+	{ id: 'step3', title: 'Dynamic Attributes' },
+	{ id: 'step4', title: 'Review & Publish' },
 ]
+
+// Map step IDs to their corresponding mock components
+const stepComponents: { [key: string]: React.ComponentType } = {
+	step1: MockStep1,
+	step2: MockStep2,
+	step3: MockStep3,
+	step4: MockStep4,
+}
 
 const meta: Meta<typeof WizardLayout> = {
 	title: 'Layout/WizardLayout',
@@ -51,6 +59,7 @@ const meta: Meta<typeof WizardLayout> = {
 		onNext: { action: 'next clicked' },
 		onPrevious: { action: 'previous clicked' },
 		onCancel: { action: 'cancel clicked' },
+		children: { control: false }, // Children are controlled by the render function
 	},
 	tags: ['autodocs'],
 }
@@ -83,7 +92,8 @@ const renderWizardLayout: Story['render'] = (args) => {
 
 	const handleCancel = () => {
 		args.onCancel() // Trigger the action for Storybook logs
-		alert('Cancel action triggered!') // Simple alert for demonstration
+		// Using a simple console log instead of alert for better Storybook compatibility
+		console.log('Cancel action triggered!')
 	}
 
 	// Update steps with completion status for sidebar visualization
@@ -92,6 +102,10 @@ const renderWizardLayout: Story['render'] = (args) => {
 		isCompleted: index < currentStepIndex, // Mark steps before current as completed
 		isDisabled: index > currentStepIndex, // Disable future steps
 	}))
+
+	// Get the component for the current step
+	const CurrentStepComponent =
+		stepComponents[stepsWithStatus[currentStepIndex].id]
 
 	return (
 		<WizardLayout
@@ -103,7 +117,14 @@ const renderWizardLayout: Story['render'] = (args) => {
 			onCancel={handleCancel}
 			canGoNext={currentStepIndex < mockSteps.length - 1} // Enable Next if not last step
 			canGoPrevious={currentStepIndex > 0} // Enable Previous if not first step
-		/>
+		>
+			{/* Render the current step component as children */}
+			{CurrentStepComponent ? (
+				<CurrentStepComponent />
+			) : (
+				<p>Step content not found.</p>
+			)}
+		</WizardLayout>
 	)
 }
 

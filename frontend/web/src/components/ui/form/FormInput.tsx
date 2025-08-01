@@ -13,6 +13,18 @@ interface FormInputProps<T extends Record<string, any>> {
 	register: UseFormRegister<T>
 	errorMessage?: string
 	control?: Control<T>
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	value?: any
+	onChange?: (
+		e: React.ChangeEvent<
+			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+		>,
+	) => void
+	onBlur?: (
+		e: React.FocusEvent<
+			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+		>,
+	) => void
 }
 
 const FormInput = <
@@ -23,6 +35,9 @@ const FormInput = <
 	register,
 	errorMessage,
 	control,
+	value,
+	onChange,
+	onBlur,
 }: FormInputProps<T>) => {
 	const inputProps = {
 		id: field.name as string,
@@ -30,11 +45,19 @@ const FormInput = <
 		readOnly: field.readOnly,
 	}
 
+	const dynamicInputProps = register
+		? register(field.name as Path<T>)
+		: { value, onChange, onBlur }
+
+	const dynamicCheckboxProps = register
+		? register(field.name as Path<T>)
+		: { checked: !!value, onChange, onBlur }
+
 	switch (field.type) {
 		case 'checkbox':
 			return (
 				<>
-					<CheckboxInput {...inputProps} {...register(field.name as Path<T>)} />
+					<CheckboxInput {...inputProps} {...dynamicCheckboxProps} />
 					<InputErrorMessage errorMessage={errorMessage as string} />
 				</>
 			)
@@ -70,7 +93,7 @@ const FormInput = <
 		case 'textarea':
 			return (
 				<>
-					<TextareaInput {...inputProps} {...register(field.name as Path<T>)} />
+					<TextareaInput {...inputProps} {...dynamicInputProps} />
 					<InputErrorMessage errorMessage={errorMessage as string} />
 				</>
 			)
@@ -86,7 +109,7 @@ const FormInput = <
 						placeholder={field.placeholder}
 						required={field.required}
 						{...inputProps}
-						{...register(field.name as Path<T>)}
+						{...dynamicInputProps}
 					/>
 					<InputErrorMessage errorMessage={errorMessage as string} />
 				</>

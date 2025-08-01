@@ -1,15 +1,23 @@
 import { create } from 'zustand'
+import { z } from 'zod'
 import { Product } from '@/types/product'
 
 interface ProductStore {
-	product: Partial<Product> | null
+	product: Product | null
 	products: Product[]
 	currentStep: number
-	isLoading: boolean
+	isCurrentStepValid: boolean
+	isSubmitting: boolean
 	error: string | null
-	setProduct: (p: Partial<Product> | null) => void
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	dynamicAttributeSchema: z.ZodObject<any> | null
+	setProduct: (p: Product) => void
 	setProducts: (products: Product[]) => void
 	setCurrentStep: (step: number) => void
+	setIsCurrentStepValid: (isValid: boolean) => void
+	setIsSubmitting: (loading: boolean) => void
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	setDynamicAttributeSchema: (schema: z.ZodObject<any> | null) => void
 	clearDraft: () => void
 }
 
@@ -17,12 +25,20 @@ const useProductStore = create<ProductStore>((set) => ({
 	product: null,
 	products: [],
 	currentStep: 1,
-	isLoading: false,
+	isCurrentStepValid: false,
+	isSubmitting: false,
 	error: null,
-	setProduct: (p) =>
-		set((state) => ({ product: p ? { ...state.product, ...p } : null })),
+	dynamicAttributeSchema: null,
+	setProduct: (p: Product) =>
+		set((state) => ({ product: { ...state.product, ...p } })),
 	setProducts: (products: Product[]) => set({ products }),
-	setCurrentStep: (step) => set({ currentStep: step }),
+	setCurrentStep: (step: number) => set({ currentStep: step }),
+	setIsCurrentStepValid: (isValid: boolean) =>
+		set({ isCurrentStepValid: isValid }),
+	setIsSubmitting: (submitting: boolean) => set({ isSubmitting: submitting }),
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	setDynamicAttributeSchema: (schema: z.ZodObject<any> | null) =>
+		set({ dynamicAttributeSchema: schema }),
 	clearDraft: () => set({ product: null, currentStep: 1 }),
 }))
 

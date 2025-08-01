@@ -1,15 +1,24 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import { zodResolver } from '@hookform/resolvers/zod'
 import ComboboxSingleSelect from '@/components/ui/form/ComboboxSingleSelect'
 import FormInput from '@/components/ui/form/FormInput'
 import brandService from '@/lib/services/brand'
 import categoryService from '@/lib/services/category'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
-import { ProductCreateFormData } from '@/schemas/productSchema'
+import productService from '@/lib/services/product'
+import { handleFormErrors } from '@/lib/utils/errorHandler'
+import {
+	productCreateSchema,
+	ProductCreateFormData,
+} from '@/schemas/productSchema'
+import useProductStore from '@/stores/useProductStore'
 import { FormField, OptionType } from '@/types/form'
-import { ProductAttributeSet } from '@/types/product'
+import { CreateProductRequest, ProductAttributeSet } from '@/types/product'
+import { StepComponentProps } from '@/types/wizard'
 
 const fields: FormField<ProductCreateFormData>[] = [
 	{
@@ -28,7 +37,7 @@ const fields: FormField<ProductCreateFormData>[] = [
 	{ name: 'is_active', label: 'Is Active', required: true, type: 'checkbox' },
 ]
 
-const ProductInfo: React.FC = () => {
+const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const [brands, setBrands] = useState<OptionType[]>([])
 	const [categories, setCategories] = useState<OptionType[]>([])
 	const [, setAttributeSets] = useState<OptionType[]>([])
@@ -44,16 +53,38 @@ const ProductInfo: React.FC = () => {
 		null,
 	)
 
+	const { product, setIsCurrentStepValid, setIsSubmitting, setProduct } =
+		useProductStore()
+
 	const {
 		register,
 		control,
-		formState: { errors },
+		setError,
+		formState: { errors, isValid, isSubmitting },
 		watch,
+		getValues,
 		setValue,
-	} = useFormContext<ProductCreateFormData>()
+		trigger,
+	} = useForm<ProductCreateFormData>({
+		resolver: zodResolver(productCreateSchema),
+		defaultValues: {
+			name: product ? product.name : '',
+			description: product ? product.description : null,
+			attribute_set: product ? product.attribute_set : null,
+			brand: product ? product.brand : null,
+			category: product ? product.category : null,
+			is_active: product ? product.is_active : false,
+		},
+		mode: 'onChange',
+	})
 
 	const watchedBrand = watch('brand')
 	const watchedCategory = watch('category')
+
+	useEffect(() => {
+		setIsCurrentStepValid(isValid)
+		setIsSubmitting(isSubmitting)
+	}, [isSubmitting, isValid, setIsCurrentStepValid, setIsSubmitting])
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -139,9 +170,59 @@ const ProductInfo: React.FC = () => {
 			filteredAttributeSets.length > 0 &&
 			!filteredAttributeSets.some((set) => set.value === currentAttributeSetId)
 		) {
-			setValue('attribute_set', null)
+			setValue('attribute_set', null, { shouldValidate: true })
 		}
 	}, [filteredAttributeSets, loadingAttributeSets, watch, setValue])
+
+	useEffect(() => {
+		const handleStepSubmit = async (): Promise<boolean> => {
+			const isFormValid = await trigger()
+			setIsSubmitting(true)
+			if (isFormValid) {
+				const data = getValues()
+				try {
+					const req: CreateProductRequest = {
+						name: data.name!,
+						description: data.description || null,
+						brand: data.brand,
+						category: data.category,
+						attribute_set: data.attribute_set,
+						is_active: data.is_active,
+					}
+
+					const updatedProduct = product
+						? await productService.patch(parseInt(product.id), req)
+						: await productService.create(req)
+					setProduct(updatedProduct)
+					toast.success(`Product ${updatedProduct.name} saved successfully!`)
+				} catch (e: unknown) {
+					handleFormErrors<ProductCreateFormData>(
+						e,
+						setError,
+						'Failed to create product. Please review your input.',
+					)
+				} finally {
+					setIsSubmitting(false)
+					return true
+				}
+			} else {
+				setIsSubmitting(false)
+				return false
+			}
+		}
+		setSubmitHandler(handleStepSubmit)
+		return () => {
+			setSubmitHandler(null)
+		}
+	}, [
+		product,
+		getValues,
+		setProduct,
+		setError,
+		setIsSubmitting,
+		setSubmitHandler,
+		trigger,
+	])
 
 	return (
 		<div className='space-y-4'>

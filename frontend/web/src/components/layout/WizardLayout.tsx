@@ -9,7 +9,6 @@ import Button from '@/components/ui/form/Button'
 interface WizardStep {
 	id: string
 	title: string
-	component: React.ComponentType<object>
 	isCompleted?: boolean
 	isDisabled?: boolean
 }
@@ -24,6 +23,7 @@ interface WizardLayoutProps {
 	isSubmitting?: boolean
 	canGoNext?: boolean
 	canGoPrevious?: boolean
+	children: React.ReactNode
 }
 
 const WizardLayout: React.FC<WizardLayoutProps> = ({
@@ -36,13 +36,11 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 	isSubmitting,
 	canGoNext,
 	canGoPrevious,
+	children,
 }) => {
 	const currentStepIndex = steps.findIndex((step) => step.id === currentStepId)
-	const CurrentStepComponent = steps[currentStepIndex]?.component
 	const isFirstStep = currentStepIndex === 0
 	const isLastStep = currentStepIndex === steps.length - 1
-
-	console.log('is last step ', isLastStep)
 
 	return (
 		<div className='min-h-screen bg-gray-100 p-4 font-sans'>
@@ -81,13 +79,7 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 				</div>
 				<div className='flex-1 p-8 flex flex-col'>
 					<h1 className='text-3xl font-bold text-gray-800 mb-6'>{title}</h1>
-					<div className='flex-grow'>
-						{CurrentStepComponent ? (
-							<CurrentStepComponent />
-						) : (
-							<p className='text-red-500'>Error: Step not found</p>
-						)}
-					</div>
+					<div className='flex-grow'>{children}</div>
 					<div className='mt-8 flex items-center'>
 						<Button
 							actionType='neutral'

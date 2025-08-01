@@ -93,9 +93,18 @@ export const createDynamicAttributeValidationRule = (
 				return `${attr.name} cannot exceed ${attr.validation_rules.max_length} characters.`
 			}
 			if (attr.validation_rules?.pattern !== undefined) {
-				const regex = new RegExp(attr.validation_rules.pattern)
-				if (!regex.test(value)) {
-					return `${attr.name} does not match the required pattern.`
+				try {
+					const regex = new RegExp(attr.validation_rules.pattern)
+					if (!regex.test(value)) {
+						return `${attr.name} does not match the required pattern.`
+					}
+				} catch (e) {
+					console.error(
+						'Invalid regex pattern in attribute validation rules:',
+						attr.validation_rules.pattern,
+						e,
+					)
+					return true
 				}
 			}
 		} else if (attr.type === 'select' || attr.type === 'multiselect') {

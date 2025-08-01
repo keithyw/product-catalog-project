@@ -1,33 +1,73 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, FieldError, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import ComboboxMultiSelect from '@/components/ui/form/ComboboxMultiSelect'
 import FormInput from '@/components/ui/form/FormInput'
+import productService from '@/lib/services/product'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
-import { createDynamicAttributeValidationRule } from '@/lib/utils/dynamicAttributeValidation'
-import { ProductCreateFormData } from '@/schemas/productSchema'
+import { createDynamicProductAttributeSchema } from '@/lib/utils/createDynamicProductAttributeSchema'
+import { handleFormErrors } from '@/lib/utils/errorHandler'
+import {
+	attributesDataSchema,
+	AttributesDataFormData,
+} from '@/schemas/productSchema'
 import useProductStore from '@/stores/useProductStore'
 import {
+	CreateProductRequest,
 	ProductAttribute,
-	// ProductAttributeSet,
 	ProductAttributeType,
 } from '@/types/product'
+import { StepComponentProps } from '@/types/wizard'
 
-const AttributeSetStep: React.FC = () => {
-	const { product } = useProductStore()
+type AttributeSetRequest = {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	attributes_data?: Record<string, any> | null
+}
+
+const AttributeSetStep: React.FC<StepComponentProps> = ({
+	setSubmitHandler,
+}) => {
+	const { product, setProduct, setIsCurrentStepValid, setIsSubmitting } =
+		useProductStore()
 	const selectedAttributeSetId = product?.attribute_set
 	const [fields, setFields] = useState<ProductAttribute[]>([])
 	const [isLoadingAttributes, setIsLoadingAttributes] = useState(false)
 	const [errorAttributes, setErrorAttributes] = useState<string | null>(null)
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const [schema, setSchema] = useState<z.ZodObject<any> | null>(null)
+
 	const {
 		control,
 		register,
 		setError,
-		formState: { errors },
+		formState: { errors, isValid, isSubmitting },
+		handleSubmit,
 		getValues,
 		setValue,
-	} = useFormContext<ProductCreateFormData>()
+		trigger,
+	} = useForm<AttributeSetRequest>({
+		resolver: (values, context, options) => {
+			if (!schema) {
+				return zodResolver(attributesDataSchema)(values, context, options)
+			}
+			const dynSchema = z.object({
+				attributes_data: schema.nullable().optional(),
+			})
+			return zodResolver(dynSchema)(values, context, options)
+		},
+		defaultValues: {
+			attributes_data: product?.attributes_data || {},
+		},
+		mode: 'onChange',
+	})
+
+	useEffect(() => {
+		setIsCurrentStepValid(isValid)
+		setIsSubmitting(isSubmitting)
+	}, [isSubmitting, isValid, setIsCurrentStepValid, setIsSubmitting])
 
 	useEffect(() => {
 		const fetchAttributes = async () => {
@@ -38,6 +78,7 @@ const AttributeSetStep: React.FC = () => {
 			) {
 				setFields([])
 				setIsLoadingAttributes(false)
+				setSchema(null)
 				return
 			}
 			setIsLoadingAttributes(true)
@@ -45,7 +86,11 @@ const AttributeSetStep: React.FC = () => {
 				const attributeSet = await productAttributeSetService.get(
 					selectedAttributeSetId,
 				)
-				setFields(attributeSet.attributes_detail || [])
+				const fields = attributeSet.attributes_detail || []
+				setFields(fields)
+				const dynamicSchema = createDynamicProductAttributeSchema(fields)
+				setSchema(dynamicSchema)
+
 				const currentAttributesData = getValues('attributes_data') || {}
 				const newAttributesData = { ...currentAttributesData }
 				attributeSet.attributes_detail.forEach((attr) => {
@@ -62,6 +107,7 @@ const AttributeSetStep: React.FC = () => {
 				if (e instanceof Error) {
 					setErrorAttributes(e.message)
 					toast.error(e.message)
+					setSchema(null)
 				}
 			} finally {
 				setIsLoadingAttributes(false)
@@ -69,6 +115,48 @@ const AttributeSetStep: React.FC = () => {
 		}
 		fetchAttributes()
 	}, [getValues, setError, setValue, selectedAttributeSetId])
+
+	useEffect(() => {
+		const handleStepSubmit = async (): Promise<boolean> => {
+			setIsSubmitting(true)
+			const isFormValid = await trigger()
+			if (!product || !isFormValid) {
+				setIsSubmitting(false)
+				return false
+			}
+			return await handleSubmit(async (data) => {
+				const partial: Partial<CreateProductRequest> = {
+					attributes_data: data.attributes_data,
+				}
+				try {
+					const res = await productService.patch(parseInt(product.id), partial)
+					setProduct(res)
+					toast.success(`Product ${res.name} attributes updated`)
+				} catch (e: unknown) {
+					handleFormErrors(e, setError, 'Failed to update attributes.')
+				} finally {
+					setIsSubmitting(false)
+					return
+				}
+				return false
+			})()
+				.then(() => true)
+				.catch(() => false)
+		}
+		setSubmitHandler(handleStepSubmit)
+		return () => {
+			setSubmitHandler(null)
+		}
+	}, [
+		handleSubmit,
+		isValid,
+		product,
+		setError,
+		setProduct,
+		setIsSubmitting,
+		setSubmitHandler,
+		trigger,
+	])
 
 	if (isLoadingAttributes) {
 		return (
@@ -90,25 +178,23 @@ const AttributeSetStep: React.FC = () => {
 		return <div className='text-center text-gray-600'>No attributes found</div>
 	}
 
+	const getNestedErrorMessage = (code: string): string | undefined => {
+		const error = errors.attributes_data?.[code] as FieldError | undefined
+		return error?.message
+	}
+
 	return (
 		<div className='space-y-4'>
 			<h2 className='text-xl font-bold text-gray-800 mb-4'>Attributes Setup</h2>
 			{fields.map((attr) => {
 				const fieldName =
-					`attributes_data.${attr.code}` as keyof ProductCreateFormData
-				const rule = createDynamicAttributeValidationRule(attr)
+					`attributes_data.${attr.code}` as keyof AttributesDataFormData
 				return (
 					<Fragment key={attr.id}>
 						{attr.type === 'multiselect' ? (
 							<Controller
 								name={fieldName}
 								control={control}
-								rules={{
-									required: attr.is_required
-										? `${attr.name} is required.`
-										: false,
-									validate: rule,
-								}}
 								render={({ field }) => (
 									<ComboboxMultiSelect
 										id={attr.code}
@@ -122,26 +208,31 @@ const AttributeSetStep: React.FC = () => {
 										selectedValues={(field.value as (string | number)[]) || []}
 										onSelect={(selectedIds) => field.onChange(selectedIds)}
 										placeholder={`Select ${attr.name}`}
-										errorMessage={
-											errors.attributes_data?.[attr.code]?.message as string
-										}
+										errorMessage={getNestedErrorMessage(attr.code)}
 									/>
 								)}
 							/>
 						) : (
-							<FormInput
-								field={{
-									name: fieldName, // TODO: replace `any` with Path<ProductCreateFormData>
-									label: attr.name,
-									placeholder: `Enter ${attr.name} value`,
-									required: attr.is_required,
-									type: attr.type as ProductAttributeType,
-								}}
-								register={register}
+							<Controller
+								name={fieldName}
 								control={control}
-								errorMessage={
-									errors.attributes_data?.[attr.code]?.message as string
-								}
+								render={({ field }) => (
+									<FormInput
+										field={{
+											name: fieldName, // TODO: replace `any` with Path<ProductCreateFormData>
+											label: attr.name,
+											placeholder: `Enter ${attr.name} value`,
+											required: attr.is_required,
+											type: attr.type as ProductAttributeType,
+										}}
+										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										register={register}
+										control={control}
+										errorMessage={getNestedErrorMessage(attr.code)}
+									/>
+								)}
 							/>
 						)}
 					</Fragment>
