@@ -23,6 +23,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/ai/', include('ai_tools.urls')),
     path('api/', include('brands.urls')),
     path('api/', include('categories.urls')),
     path('api/', include('products.urls')),

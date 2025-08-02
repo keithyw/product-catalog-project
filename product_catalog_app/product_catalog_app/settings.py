@@ -51,6 +51,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
+    'ai_tools.apps.AiToolsConfig',
     'brands.apps.BrandsConfig',
     'categories.apps.CategoriesConfig',
     'products.apps.ProductsConfig',
@@ -180,6 +181,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'users.User'
+
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+GEMINI_API_VERSION = 'v1alpha'
+GEMINI_MODEL = 'gemini-2.0-flash-001'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
