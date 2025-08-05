@@ -61,8 +61,9 @@ class BrandViewSet(viewsets.ModelViewSet):
             raise PermissionDenied('You do not have permission to bulk create brands')
         if not isinstance(request.data, list):
             return Response(
-                {"detail": "Expected a list of brand objects for bulk creation"},
+                message="Expected a list of brand objects for bulk creation",
                 status=status.HTTP_400_BAD_REQUEST,
+                created_brands=[]
             )
         serializer = self.get_serializer(data=request.data, many=True)
         if serializer.is_valid():
@@ -84,7 +85,7 @@ class BrandViewSet(viewsets.ModelViewSet):
                         created_brands.append(brand)
                 except Exception as e:
                     errors.append({
-                        "data": item_data,
+                        "data": b,
                         "error": str(e),
                     })
             response_serializer = self.get_serializer(created_brands, many=True)
@@ -99,7 +100,7 @@ class BrandViewSet(viewsets.ModelViewSet):
 
             if errors:
                 response_data['errors'] = errors
-                return Response(resposne_data, status=status.HTTP_207_MULTI_STATUS)
+                return Response(response_data, status=status.HTTP_207_MULTI_STATUS)
 
             return Response(response_data, status=status.HTTP_201_CREATED)
 

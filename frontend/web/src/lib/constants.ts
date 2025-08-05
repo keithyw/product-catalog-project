@@ -4,10 +4,16 @@ export const DEFAULT_PAGE_SIZE = 10
 export const ACCESS_TOKEN_KEY = 'access_token'
 export const REFRESH_TOKEN_KEY = 'refresh_token'
 
+export const ENTITY_BRAND = 'brand'
+export const ENTITY_CATEGORY = 'category'
+export const ENTITY_PRODUCT_ATTIBUTE = 'product_attribute'
+
 export const API_TOKEN_URL = '/token/'
 export const API_REFRESH_URL = '/token/refresh/'
 
+export const API_AI_TOOLS_GENERATE_URL = '/ai/generate/'
 export const API_BRANDS_URL = '/brands/'
+export const API_BRANDS_BULK_URL = `${API_BRANDS_URL}bulk/`
 export const API_CATEGORIES_URL = '/categories/'
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
@@ -19,6 +25,7 @@ export const API_USERS_URL = '/users/'
 export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`
 
 export const LOGIN_URL = '/login'
+export const AI_TOOLS_URL = '/ai-tools'
 export const BRANDS_URL = '/brands'
 export const CREATE_BRANDS_URL = `${BRANDS_URL}/create`
 export const CATEGORIES_URL = '/categories'
@@ -39,6 +46,7 @@ export const CREATE_GROUPS_URL = `${GROUPS_URL}/create`
 export const PERMISSIONS_URL = `${USERS_URL}/permissions`
 
 export const PROTECTED_ROUTES = [
+	AI_TOOLS_URL,
 	BRANDS_URL,
 	CATEGORIES_URL,
 	DASHBOARD_URL,

@@ -1,7 +1,13 @@
 import React from 'react'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
-type ButtonActionType = 'edit' | 'delete' | 'view' | 'neutral' | 'submit'
+type ButtonActionType =
+	| 'edit'
+	| 'delete'
+	| 'view'
+	| 'neutral'
+	| 'submit'
+	| 'danger'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	actionType: ButtonActionType
@@ -45,6 +51,9 @@ const Button: React.FC<ButtonProps> = ({
 			break
 		case 'view':
 			colorClasses = 'bg-gray-500 hover:bg-gray-600 focus:ring-gray-500'
+			break
+		case 'danger':
+			colorClasses = 'bg-red-500 hover:bg-red-600 focus:ring-red-600'
 			break
 		case 'neutral':
 			colorClasses =

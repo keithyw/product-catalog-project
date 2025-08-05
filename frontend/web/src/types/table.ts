@@ -4,6 +4,8 @@ export interface TableColumn<T> {
 	render?: (row: T) => React.ReactNode
 	sortable?: boolean
 	sortField?: string
+	isEditable?: boolean
+	inputType?: 'text' | 'textarea'
 }
 
 export type TableRowActionType =

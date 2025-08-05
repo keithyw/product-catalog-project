@@ -23,6 +23,7 @@ interface WizardLayoutProps {
 	isSubmitting?: boolean
 	canGoNext?: boolean
 	canGoPrevious?: boolean
+	error?: string | null
 	children: React.ReactNode
 }
 
@@ -36,15 +37,17 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 	isSubmitting,
 	canGoNext,
 	canGoPrevious,
+	error,
 	children,
 }) => {
 	const currentStepIndex = steps.findIndex((step) => step.id === currentStepId)
 	const isFirstStep = currentStepIndex === 0
 	const isLastStep = currentStepIndex === steps.length - 1
+	console.log('wzi error ' + error)
 
 	return (
 		<div className='min-h-screen bg-gray-100 p-4 font-sans'>
-			<div className='max-w-6xl mx-auto mg-white shadow-lg rounded-lg flex flex-col md:flex-row'>
+			<div className='max-w-6xl mx-auto bg-white shadow-lg rounded-lg flex flex-col md:flex-row'>
 				<div className='w-full md:w-1/4 bg-blue-700 text-white p-6 rounded-t-lg md:rounded-l-lg md:rounded-tr-none'>
 					<h2 className='text-2xl font-bold mb-6'>{title}</h2>
 					<nav>
@@ -80,6 +83,15 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 				<div className='flex-1 p-8 flex flex-col'>
 					<h1 className='text-3xl font-bold text-gray-800 mb-6'>{title}</h1>
 					<div className='flex-grow'>{children}</div>
+					{error && (
+						<div
+							className='mt-4 p-3 bg-red-100 border border-red-00 text-red-700 rounded-md'
+							role='alert'
+						>
+							<p className='font-bold'>Error:</p>
+							<p>{error}</p>
+						</div>
+					)}
 					<div className='mt-8 flex items-center'>
 						<Button
 							actionType='neutral'
