@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -47,6 +48,45 @@ class CategoryViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(category_system_slug=category_system_slug)
         return queryset.select_related('category_system')
     
+    @action(detail=False, methods=['post'], url_path='bulk')
+    def bulk_create(self, request, *args, **kwargs):
+        if not request.user.has_perm('categories.add_category'):
+            raise PermissionDenied('You do not have permission to bulk create categories')
+
+        if not isinstance(request.data, list):
+            return Response(
+                {
+                    "status": "error",
+                    "message": "Expected list for bulk category creation"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        created_categories = []
+        errors = []
+        for item in request.data:
+            try:
+                serializer = self.get_serializer(data=item, context={'depth': 2})
+                serializer.is_valid(raise_exception=True)
+                category_instance = serializer.save()
+                created_categories.append(category_instance)
+            except Exception as e:
+                errors.append({
+                    "data": item,
+                    "error": str(e),
+                })
+        response_serializer = self.get_serializer(created_categories, many=True, context={'depth': 2})
+        response_data = {
+            "status": "success" if not errors else "partial_success",
+            "message": f"Successfully processed {len(request.data)} categories. "
+                        f"{len(created_categories)} categories created/updated",
+            "created_items": response_serializer.data,
+        }
+        if errors:
+            response_data["errors"] = errors
+            return Response(response_data, status=status.HTTP_207_MULTI_STATUS)
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
     @action(detail=False, methods=['get'])
     def tree(self, request):
         system_id = request.query_params.get('system_id', None)

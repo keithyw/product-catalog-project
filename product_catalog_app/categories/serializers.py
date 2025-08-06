@@ -27,6 +27,15 @@ class CategorySystemSerializer(serializers.ModelSerializer):
         return None
     
 class CategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField(read_only=True)
+
+    nested_children_data = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+    )
+
     parent = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         allow_null=True,
@@ -64,6 +73,8 @@ class CategorySerializer(serializers.ModelSerializer):
             'category_system_slug',
             'depth',
             'path',
+            'children',
+            'nested_children_data',
         ]
         read_only_fields = [
             'slug', 'created_at', 'updated_at',
@@ -75,30 +86,60 @@ class CategorySerializer(serializers.ModelSerializer):
         if obj.parent:
             return obj.parent.name
         return None
-        
+
+    def get_children(self, obj):
+        current_depth = self.context.get('depth', 2)
+        if current_depth <= 0:
+            return []
+        context = self.context.copy()
+        context['depth'] = current_depth - 1
+        children = obj.get_children().filter(category_system=obj.category_system)
+        return CategorySerializer(children, many=True, context=context).data
+
     def create(self, validated_data):
+        nested_children_data = validated_data.pop('nested_children_data', [])
         parent_instance = validated_data.pop('parent', None)
         category_system = validated_data['category_system']
+        category = None
+        existing_category = Category.objects.filter(
+            name=validated_data['name'],
+            category_system=category_system,
+            parent=parent_instance,
+        ).first()
 
-        if parent_instance is None: # Trying to create a new top-level category
-            existing_root_for_system = Category.objects.filter(
-                category_system=category_system, depth=1
-            ).first()
-
-            if existing_root_for_system:
-                category = existing_root_for_system.add_sibling('sorted-sibling', **validated_data)
-            else:
-                # No root exists for this system, create the first root
-                category = Category.add_root(**validated_data)
+        if existing_category:
+            for attr, val in validated_data.items():
+                setattr(existing_category, attr, val)
+            existing_category.save()
+            category = existing_category
         else:
-            category = parent_instance.add_child(**validated_data)
-            category.parent = parent_instance
-            category.save()
+            if parent_instance is None: # Trying to create a new top-level category
+                existing_root_for_system = Category.objects.filter(
+                    category_system=category_system, depth=1
+                ).first()
+
+                if existing_root_for_system:
+                    category = existing_root_for_system.add_sibling('sorted-sibling', **validated_data)
+                else:
+                    # No root exists for this system, create the first root
+                    category = Category.add_root(**validated_data)
+            else:
+                category = parent_instance.add_child(**validated_data)
+                category.parent = parent_instance
+                category.save()
+
+        for child_data in nested_children_data:
+            child_data['parent'] = category.id
+            child_data['category_system_id'] = category_system.id
+            child_serializer = CategorySerializer(data=child_data, context=self.context)
+            child_serializer.is_valid(raise_exception=True)
+            child_serializer.save()
+
         return category
-        
-    
+
     def update(self, instance, validated_data):
-        new_parent_instance = validated_data.pop('parent')
+        nested_children_data = validated_data.pop('nested_children_data', [])
+        new_parent_instance = validated_data.pop('parent', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
