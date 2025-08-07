@@ -38,3 +38,18 @@ export interface CreateCategoryRequest {
 export interface CategoryTreeNode extends Category {
 	children: CategoryTreeNode[]
 }
+
+export interface SimpleCategoryRequest {
+	name: string
+	description?: string
+	category_system_id?: number
+	nested_children_data: SimpleCategoryRequest[]
+}
+
+export interface CreateBulkCategoryResponse {
+	status: string
+	message?: string
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	errors?: any
+	created_categories: Category[]
+}

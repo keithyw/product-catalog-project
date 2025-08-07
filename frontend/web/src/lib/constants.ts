@@ -15,6 +15,7 @@ export const API_AI_TOOLS_GENERATE_URL = '/ai/generate/'
 export const API_BRANDS_URL = '/brands/'
 export const API_BRANDS_BULK_URL = `${API_BRANDS_URL}bulk/`
 export const API_CATEGORIES_URL = '/categories/'
+export const API_CATEGORIES_BULK_URL = `${API_CATEGORIES_URL}bulk/`
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
 export const API_PERMISSIONS_URL = '/permissions/'

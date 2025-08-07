@@ -79,6 +79,24 @@ SUGGEST_CATEGORIES_TOOL = types.Tool( # Using types.Tool
                                             "description": {
                                                 "type": "string",
                                                 "description": "A brief description of the sub-category."
+                                            },
+                                            "children": { # Define children directly, without recursion via $ref
+                                                "type": "array",
+                                                "description": "Optional: Sub-categories nested directly under this category.",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "description": "The name of the sub-category."
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "description": "A brief description of the sub-category."
+                                                        }
+                                                    },
+                                                    "required": ["name", "description"]
+                                                }
                                             }
                                         },
                                         "required": ["name", "description"]

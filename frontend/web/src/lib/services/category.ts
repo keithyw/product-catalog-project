@@ -1,10 +1,16 @@
 import axiosClient from '@/lib/clients/axiosClient'
-import { API_CATEGORIES_URL } from '@/lib/constants'
-import { Category, CreateCategoryRequest } from '@/types/category'
+import { API_CATEGORIES_URL, API_CATEGORIES_BULK_URL } from '@/lib/constants'
+import {
+	Category,
+	CreateCategoryRequest,
+	CreateBulkCategoryResponse,
+	SimpleCategoryRequest,
+} from '@/types/category'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 
 interface CategoryService {
+	bulk: (data: SimpleCategoryRequest[]) => Promise<CreateBulkCategoryResponse>
 	create: (data: CreateCategoryRequest) => Promise<Category>
 	delete: (id: number) => Promise<void>
 	fetch: (
@@ -19,6 +25,15 @@ interface CategoryService {
 }
 
 const categoryService: CategoryService = {
+	bulk: async (
+		data: SimpleCategoryRequest[],
+	): Promise<CreateBulkCategoryResponse> => {
+		const res = await axiosClient.post<CreateBulkCategoryResponse>(
+			API_CATEGORIES_BULK_URL,
+			data,
+		)
+		return res.data || ({} as CreateBulkCategoryResponse)
+	},
 	create: async (data: CreateCategoryRequest): Promise<Category> => {
 		const res = await axiosClient.post<Category>(API_CATEGORIES_URL, data)
 		return res.data || ({} as Category)

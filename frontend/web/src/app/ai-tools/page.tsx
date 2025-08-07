@@ -6,12 +6,17 @@ import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import WizardLayout from '@/components/layout/WizardLayout'
 import PageTitle from '@/components/ui/PageTitle'
-import { BRANDS_URL } from '@/lib/constants'
+import {
+	BRANDS_URL,
+	CATEGORIES_URL,
+	ENTITY_BRAND,
+	ENTITY_CATEGORY,
+} from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import useAIToolsStore from '@/stores/useAIToolsStore'
 import { WizardStepType } from '@/types/wizard'
 import PromptStep from '@/app/ai-tools/steps/PromptStep'
-import ReviewStep from './steps/ReviewStep'
+import ReviewStep from '@/app/ai-tools/steps/ReviewStep'
 
 const wizardSteps: WizardStepType[] = [
 	{ id: 'prompt', title: 'Generate Prompt', component: PromptStep },
@@ -55,7 +60,16 @@ const GeneratePage: React.FC = () => {
 				} else {
 					clearDraft()
 					toast.success(`${entityType} has been uploaded succcessfully!`)
-					router.push(BRANDS_URL)
+					switch (entityType) {
+						case ENTITY_BRAND:
+							router.push(BRANDS_URL)
+							break
+						case ENTITY_CATEGORY:
+							router.push(CATEGORIES_URL)
+							break
+						default:
+							toast.error('Unknown entity type')
+					}
 				}
 			} else {
 				toast.error('errors: ' + error)

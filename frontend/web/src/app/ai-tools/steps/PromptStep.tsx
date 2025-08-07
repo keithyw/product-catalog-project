@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
 import TextareaInput from '@/components/ui/form/TextareaInput'
 import {
@@ -12,6 +12,7 @@ import aiToolsService, { AIServiceException } from '@/lib/services/aiTools'
 import useAIToolsStore from '@/stores/useAIToolsStore'
 import { OptionType } from '@/types/form'
 import { StepComponentProps } from '@/types/wizard'
+import { SimpleCategory } from '@/types/ai'
 
 const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
@@ -22,6 +23,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setPrompt,
 		setEntityType,
 		setBrands,
+		setCategories,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,
@@ -36,6 +38,25 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		[],
 	)
 
+	const assignIdsToCategories = useCallback(
+		(
+			categories: SimpleCategory[],
+			counter = { value: 0 },
+		): SimpleCategory[] => {
+			return categories.map((category) => {
+				const updatedCategory = { ...category, id: counter.value++ }
+				if (category.children && category.children.length > 0) {
+					updatedCategory.children = assignIdsToCategories(
+						category.children,
+						counter,
+					)
+				}
+				return updatedCategory
+			})
+		},
+		[],
+	)
+
 	useEffect(() => {
 		setIsCurrentStepValid(prompt.trim().length > 6)
 	}, [prompt, setIsCurrentStepValid])
@@ -43,19 +64,31 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	useEffect(() => {
 		const handleStepSubmit = async (): Promise<boolean> => {
 			let isValid = false
+			let res = null
 			setIsSubmitting(true)
 			setIsCurrentStepValid(isValid)
 			try {
-				const res = await aiToolsService.generateBrands(prompt)
-				console.log('gen ', res)
-				setBrands(
-					res?.data && res.data.length > 0
-						? res.data.map((b, bidx) => ({
-								...b,
-								id: bidx + 1,
-							}))
-						: [],
-				)
+				switch (entityType) {
+					case ENTITY_BRAND:
+						res = await aiToolsService.generateBrands(prompt)
+						setBrands(
+							res?.data && res.data.length > 0
+								? res.data.map((b, bidx) => ({
+										...b,
+										id: bidx + 1,
+									}))
+								: [],
+						)
+						break
+					case ENTITY_CATEGORY:
+						res = await aiToolsService.generateCategories(prompt)
+						setCategories(
+							res?.data && res.data.length > 0
+								? assignIdsToCategories(res.data)
+								: [],
+						)
+						break
+				}
 				isValid = res?.data && res.data.length > 0 ? true : false
 				setIsCurrentStepValid(isValid)
 			} catch (e: unknown) {
@@ -77,9 +110,12 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 			setSubmitHandler(null)
 		}
 	}, [
+		assignIdsToCategories,
+		entityType,
 		prompt,
 		isCurrentStepValid,
 		setBrands,
+		setCategories,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,

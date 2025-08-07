@@ -16,3 +16,16 @@ export interface GenerateBrandResponse {
 	// message?: string
 	// details?: ErrorResponseDetail
 }
+
+export interface SimpleCategory {
+	id?: number
+	name: string
+	description: string
+	children?: SimpleCategory[]
+}
+
+export interface GenerateCategoryResponse {
+	status: string
+	entity_type: string
+	data: SimpleCategory[]
+}

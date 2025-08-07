@@ -1,10 +1,11 @@
 import { create } from 'zustand'
-import { SimpleBrand } from '@/types/ai'
+import { SimpleBrand, SimpleCategory } from '@/types/ai'
 
 interface AIToolsStore {
 	prompt: string
 	entityType: string
 	brands: SimpleBrand[]
+	categories: SimpleCategory[]
 	currentStep: number
 	isCurrentStepValid: boolean
 	isSubmitting: boolean
@@ -12,6 +13,7 @@ interface AIToolsStore {
 	setPrompt(prompt: string): void
 	setEntityType(type: string): void
 	setBrands(brands: SimpleBrand[]): void
+	setCategories(categories: SimpleCategory[]): void
 	setCurrentStep(step: number): void
 	setIsCurrentStepValid(isValid: boolean): void
 	setIsSubmitting(submitting: boolean): void
@@ -23,6 +25,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	prompt: '',
 	entityType: '',
 	brands: [],
+	categories: [],
 	currentStep: 1,
 	isCurrentStepValid: false,
 	isSubmitting: false,
@@ -30,6 +33,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setPrompt: (prompt: string) => set({ prompt: prompt }),
 	setEntityType: (type: string) => set({ entityType: type }),
 	setBrands: (b: Omit<SimpleBrand, 'id'>[]) => set({ brands: b }),
+	setCategories: (c: SimpleCategory[]) => set({ categories: c }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setIsCurrentStepValid: (isValid: boolean) =>
 		set({ isCurrentStepValid: isValid }),

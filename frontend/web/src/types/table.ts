@@ -5,6 +5,7 @@ export interface TableColumn<T> {
 	sortable?: boolean
 	sortField?: string
 	isEditable?: boolean
+	isRemovable?: boolean
 	inputType?: 'text' | 'textarea'
 }
 
