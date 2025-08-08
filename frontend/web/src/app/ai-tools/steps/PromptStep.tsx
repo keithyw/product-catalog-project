@@ -18,12 +18,12 @@ import { StepComponentProps } from '@/types/wizard'
 import { SimpleCategory } from '@/types/ai'
 import BrandPromptHint from '@/app/ai-tools/steps/BrandPromptHint'
 import CategoryPromptHint from '@/app/ai-tools/steps/CategoryPromptHint'
+import ProductAttributePromptHint from '@/app/ai-tools/steps/ProductAttributePromptHint'
 
 const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
 		prompt,
 		entityType,
-		productAttributeSetName,
 		isCurrentStepValid,
 		isSubmitting,
 		setPrompt,
@@ -36,6 +36,10 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setIsCurrentStepValid,
 		setIsSubmitting,
 	} = useAIToolsStore()
+
+	const productAttributeSetName = useAIToolsStore(
+		(state) => state.productAttributeSetName,
+	)
 
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -207,6 +211,9 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 					)}
 					{entityType === ENTITY_CATEGORY && (
 						<CategoryPromptHint onHandleSubmit={onClose} />
+					)}
+					{entityType === ENTITY_PRODUCT_ATTRIBUTE && (
+						<ProductAttributePromptHint onHandleSubmit={onClose} />
 					)}
 				</div>
 			</BaseModal>
