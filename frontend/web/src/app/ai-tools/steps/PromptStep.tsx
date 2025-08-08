@@ -136,6 +136,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		assignIdsToCategories,
 		entityType,
 		prompt,
+		productAttributeSetName,
 		isCurrentStepValid,
 		setBrands,
 		setCategories,
