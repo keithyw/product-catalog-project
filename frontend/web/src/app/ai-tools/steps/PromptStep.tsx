@@ -17,6 +17,7 @@ import { OptionType } from '@/types/form'
 import { StepComponentProps } from '@/types/wizard'
 import { SimpleCategory } from '@/types/ai'
 import BrandPromptHint from '@/app/ai-tools/steps/BrandPromptHint'
+import CategoryPromptHint from '@/app/ai-tools/steps/CategoryPromptHint'
 
 const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
@@ -203,6 +204,9 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 				<div className='p-4'>
 					{entityType === ENTITY_BRAND && (
 						<BrandPromptHint onHandleSubmit={onClose} />
+					)}
+					{entityType === ENTITY_CATEGORY && (
+						<CategoryPromptHint onHandleSubmit={onClose} />
 					)}
 				</div>
 			</BaseModal>

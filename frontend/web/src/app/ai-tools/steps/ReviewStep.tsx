@@ -24,6 +24,7 @@ import {
 } from '@/types/product'
 import { TableColumn } from '@/types/table'
 import { StepComponentProps } from '@/types/wizard'
+import { isArray } from 'lodash'
 
 const BRAND_COLUMNS: TableColumn<SimpleBrand>[] = [
 	{
@@ -245,7 +246,15 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 
 				if (res && res.errors) {
 					isValid = false
-					setError(res.errors)
+					if (isArray(res.errors)) {
+						const errorMessages = res.errors
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							.map((err: any) => err.non_field_errors)
+							.join(', ')
+						setError(errorMessages)
+					} else {
+						setError(res.errors)
+					}
 				} else {
 					isValid = true
 				}
