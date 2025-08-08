@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import FormInput from '@/components/ui/form/FormInput'
-import { PRODUCT_ATTIBUTES_URL } from '@/lib/constants'
-import { PRODUCT_ATTIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
+import { PRODUCT_ATTRIBUTES_URL } from '@/lib/constants'
+import { PRODUCT_ATTRIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
 import productAttributeService from '@/lib/services/productAttribute'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import {
@@ -25,6 +25,13 @@ const fields: FormField<ProductAttributeCreateFormData>[] = [
 		label: 'Attribute Name',
 		placeholder: 'e.g., Author, Color, ISBN',
 		required: true,
+		type: 'text',
+	},
+	{
+		name: 'display_name',
+		label: 'Display Name',
+		placeholder: 'Front facing name to user',
+		required: false,
 		type: 'text',
 	},
 	{
@@ -64,6 +71,7 @@ export default function CreateProductAttributePage() {
 		resolver: zodResolver(productAttributeCreateSchema),
 		defaultValues: {
 			name: '',
+			display_name: '',
 			description: '',
 			type: 'text',
 			is_required: false,
@@ -91,7 +99,7 @@ export default function CreateProductAttributePage() {
 			const res = await productAttributeService.create(f)
 			toast.success(`Product attribute ${res.name} created successfully!`)
 			reset()
-			router.push(PRODUCT_ATTIBUTES_URL)
+			router.push(PRODUCT_ATTRIBUTES_URL)
 		} catch (e: unknown) {
 			handleFormErrors<ProductAttributeCreateFormData>(
 				e,
@@ -102,7 +110,7 @@ export default function CreateProductAttributePage() {
 	}
 
 	return (
-		<PermissionGuard requiredPermission={PRODUCT_ATTIBUTE_PERMISSIONS.ADD}>
+		<PermissionGuard requiredPermission={PRODUCT_ATTRIBUTE_PERMISSIONS.ADD}>
 			<CreateFormLayout
 				title='Create New Product Attribute'
 				isSubmitting={isSubmitting}

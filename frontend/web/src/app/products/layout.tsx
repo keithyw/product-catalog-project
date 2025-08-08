@@ -1,6 +1,6 @@
 import {
 	PRODUCTS_URL,
-	PRODUCT_ATTIBUTES_URL,
+	PRODUCT_ATTRIBUTES_URL,
 	PRODUCT_ATTRIBUTE_SETS_URL,
 } from '@/lib/constants'
 import CrudLayout from '@/components/layout/CrudLayout'
@@ -17,7 +17,7 @@ export default function ProductsLayout({
 			label: 'Products',
 		},
 		{
-			href: `${PRODUCT_ATTIBUTES_URL}`,
+			href: `${PRODUCT_ATTRIBUTES_URL}`,
 			label: 'Attributes',
 		},
 		{

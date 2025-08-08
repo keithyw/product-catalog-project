@@ -9,8 +9,10 @@ import PageTitle from '@/components/ui/PageTitle'
 import {
 	BRANDS_URL,
 	CATEGORIES_URL,
+	PRODUCT_ATTRIBUTES_URL,
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
+	ENTITY_PRODUCT_ATTRIBUTE,
 } from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import useAIToolsStore from '@/stores/useAIToolsStore'
@@ -66,6 +68,9 @@ const GeneratePage: React.FC = () => {
 							break
 						case ENTITY_CATEGORY:
 							router.push(CATEGORIES_URL)
+							break
+						case ENTITY_PRODUCT_ATTRIBUTE:
+							router.push(PRODUCT_ATTRIBUTES_URL)
 							break
 						default:
 							toast.error('Unknown entity type')

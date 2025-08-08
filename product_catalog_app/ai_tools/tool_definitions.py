@@ -149,7 +149,18 @@ SUGGEST_PRODUCT_ATTRIBUTES_TOOL = types.Tool( # Using types.Tool
                                         },
                                         "required": ["label", "value"]
                                     }
-                                }
+                                },
+                                "validation_rules": {
+                                    "type": "object",
+                                    "description": "Optional: Dynamic validation rules for the attribute. These are used for frontend validation and can include min/max lengths, numeric ranges, and regex patterns.",
+                                    "properties": {
+                                        "min_length": {"type": "number", "description": "Minimum allowed length for text-based types."},
+                                        "max_length": {"type": "number", "description": "Maximum allowed length for text-based types."},
+                                        "min": {"type": "number", "description": "Minimum allowed value for numeric types."},
+                                        "max": {"type": "number", "description": "Maximum allowed value for numeric types."},
+                                        "pattern": {"type": "string", "description": "A regex pattern for validating text-based types."},
+                                    }
+                                },
                             },
                             "required": ["name", "code", "type", "is_required"] # Fields required for each individual attribute definition
                         }

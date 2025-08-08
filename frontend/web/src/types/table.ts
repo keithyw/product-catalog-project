@@ -6,7 +6,9 @@ export interface TableColumn<T> {
 	sortField?: string
 	isEditable?: boolean
 	isRemovable?: boolean
-	inputType?: 'text' | 'textarea'
+	isObject?: boolean
+	selectOptions?: { value: string; label: string }[]
+	inputType?: 'text' | 'textarea' | 'checkbox' | 'select'
 }
 
 export type TableRowActionType =

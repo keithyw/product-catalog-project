@@ -30,31 +30,71 @@ function TableRow<T extends Record<string, any>>({
 			{columns.map((col, colIdx) => (
 				<td className='px-6 py-4' key={String(row[rowKey]) + '-' + colIdx}>
 					{col.isEditable ? (
-						col.inputType === 'textarea' ? (
-							<textarea
-								rows={2}
-								value={String(row[col.accessor as keyof T] || '')}
-								onChange={(e) =>
-									onCellUpdate(
-										row[rowKey],
-										col.accessor as keyof T,
-										e.target.value,
-									)
-								}
-							/>
-						) : (
-							<input
-								type='text'
-								value={String(row[col.accessor as keyof T] || '')}
-								onChange={(e) =>
-									onCellUpdate(
-										row[rowKey],
-										col.accessor as keyof T,
-										e.target.value,
-									)
-								}
-							/>
-						)
+						<>
+							{col.inputType === 'textarea' && (
+								<textarea
+									rows={2}
+									value={
+										col.isObject
+											? JSON.stringify(row[col.accessor as keyof T] || '')
+											: String(row[col.accessor as keyof T] || '')
+									}
+									onChange={(e) =>
+										onCellUpdate(
+											row[rowKey],
+											col.accessor as keyof T,
+											e.target.value,
+										)
+									}
+								/>
+							)}
+							{col.inputType === 'text' && (
+								<input
+									type='text'
+									value={String(row[col.accessor as keyof T] || '')}
+									onChange={(e) =>
+										onCellUpdate(
+											row[rowKey],
+											col.accessor as keyof T,
+											e.target.value,
+										)
+									}
+								/>
+							)}
+							{col.inputType === 'checkbox' && (
+								<input
+									type='checkbox'
+									checked={Boolean(row[col.accessor as keyof T])}
+									onChange={(e) =>
+										onCellUpdate(
+											row[rowKey],
+											col.accessor as keyof T,
+											e.target.checked,
+										)
+									}
+								/>
+							)}
+							{col.inputType === 'select' && col.selectOptions && (
+								<select
+									value={String(row[col.accessor as keyof T] || '')}
+									onChange={(e) =>
+										onCellUpdate(
+											row[rowKey],
+											col.accessor as keyof T,
+											e.target.value,
+										)
+									}
+								>
+									{col.selectOptions.map((option) => (
+										<option key={option.value} value={option.value}>
+											{option.label}
+										</option>
+									))}
+								</select>
+							)}
+						</>
+					) : col.isObject ? (
+						<pre>{JSON.stringify(row[col.accessor as keyof T], null, 2)}</pre>
 					) : (
 						String(col.accessor ? row[col.accessor as keyof T] : null)
 					)}

@@ -8,11 +8,11 @@ import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
 import {
-	CREATE_PRODUCT_ATTIBUTES_URL,
-	PRODUCT_ATTIBUTES_URL,
+	CREATE_PRODUCT_ATTRIBUTES_URL,
+	PRODUCT_ATTRIBUTES_URL,
 	DEFAULT_PAGE_SIZE,
 } from '@/lib/constants'
-import { PRODUCT_ATTIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
+import { PRODUCT_ATTRIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import productAttributeService from '@/lib/services/productAttribute'
 import { TableColumn, TableRowAction } from '@/types/table'
@@ -101,33 +101,33 @@ export default function ProductAttributesPage() {
 		{
 			label: 'View Details',
 			onClick: (productAttribute) => {
-				router.push(`${PRODUCT_ATTIBUTES_URL}/${productAttribute.id}`)
+				router.push(`${PRODUCT_ATTRIBUTES_URL}/${productAttribute.id}`)
 			},
 			actionType: 'view',
-			requiredPermission: PRODUCT_ATTIBUTE_PERMISSIONS.VIEW,
+			requiredPermission: PRODUCT_ATTRIBUTE_PERMISSIONS.VIEW,
 		},
 		{
 			label: 'Edit',
 			onClick: (productAttribute) => {
-				router.push(`${PRODUCT_ATTIBUTES_URL}/${productAttribute.id}/edit`)
+				router.push(`${PRODUCT_ATTRIBUTES_URL}/${productAttribute.id}/edit`)
 			},
 			actionType: 'edit',
-			requiredPermission: PRODUCT_ATTIBUTE_PERMISSIONS.CHANGE,
+			requiredPermission: PRODUCT_ATTRIBUTE_PERMISSIONS.CHANGE,
 		},
 		{
 			label: 'Delete',
 			onClick: openConfirmModal,
 			actionType: 'delete',
-			requiredPermission: PRODUCT_ATTIBUTE_PERMISSIONS.DELETE,
+			requiredPermission: PRODUCT_ATTRIBUTE_PERMISSIONS.DELETE,
 		},
 	]
 
 	return (
-		<PermissionGuard requiredPermission={PRODUCT_ATTIBUTE_PERMISSIONS.VIEW}>
+		<PermissionGuard requiredPermission={PRODUCT_ATTRIBUTE_PERMISSIONS.VIEW}>
 			<h1>Product Attributes</h1>
 			<CreateItemSection
-				href={CREATE_PRODUCT_ATTIBUTES_URL}
-				permission={PRODUCT_ATTIBUTE_PERMISSIONS.ADD}
+				href={CREATE_PRODUCT_ATTRIBUTES_URL}
+				permission={PRODUCT_ATTRIBUTE_PERMISSIONS.ADD}
 			>
 				Create New Product Attribute
 			</CreateItemSection>

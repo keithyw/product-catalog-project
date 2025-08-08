@@ -40,7 +40,7 @@ export const CATEGORY_PERMISSIONS = {
 	DELETE: 'delete_category',
 } as const
 
-export const PRODUCT_ATTIBUTE_PERMISSIONS = {
+export const PRODUCT_ATTRIBUTE_PERMISSIONS = {
 	VIEW: 'view_productattribute',
 	ADD: 'add_productattribute',
 	CHANGE: 'change_productattribute',

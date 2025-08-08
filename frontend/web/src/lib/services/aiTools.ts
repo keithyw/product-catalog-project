@@ -3,8 +3,13 @@ import {
 	API_AI_TOOLS_GENERATE_URL,
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
+	ENTITY_PRODUCT_ATTRIBUTE,
 } from '@/lib/constants'
-import { GenerateBrandResponse, GenerateCategoryResponse } from '@/types/ai'
+import {
+	GenerateBrandResponse,
+	GenerateCategoryResponse,
+	GenerateProductAttributeResponse,
+} from '@/types/ai'
 import { AxiosError } from 'axios'
 
 export class AIServiceException extends Error {
@@ -20,6 +25,9 @@ export class AIServiceException extends Error {
 interface AIToolsService {
 	generateBrands: (prompt: string) => Promise<GenerateBrandResponse>
 	generateCategories: (prompt: string) => Promise<GenerateCategoryResponse>
+	generateProductAttributes: (
+		prompt: string,
+	) => Promise<GenerateProductAttributeResponse>
 }
 
 const aiToolsService: AIToolsService = {
@@ -54,6 +62,30 @@ const aiToolsService: AIToolsService = {
 				{
 					prompt: prompt,
 					entity_type: ENTITY_CATEGORY,
+				},
+			)
+			return res.data
+		} catch (e: unknown) {
+			if (e instanceof AxiosError) {
+				if (e.response) {
+					throw new AIServiceException(
+						e.response.data.message,
+						e.response.status,
+					)
+				}
+			}
+		}
+		throw new AIServiceException('Unknown error', 500)
+	},
+	generateProductAttributes: async (
+		prompt: string,
+	): Promise<GenerateProductAttributeResponse> => {
+		try {
+			const res = await axiosClient.post<GenerateProductAttributeResponse>(
+				API_AI_TOOLS_GENERATE_URL,
+				{
+					prompt: prompt,
+					entity_type: ENTITY_PRODUCT_ATTRIBUTE,
 				},
 			)
 			return res.data

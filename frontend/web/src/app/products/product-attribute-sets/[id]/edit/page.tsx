@@ -11,7 +11,7 @@ import SpinnerSection from '@/components/ui/SpinnerSection'
 import ComboboxMultiSelect from '@/components/ui/form/ComboboxMultiSelect'
 import FormInput from '@/components/ui/form/FormInput'
 import {
-	FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR,
+	FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
 	PRODUCT_ATTRIBUTE_SETS_URL,
 } from '@/lib/constants'
 import { PRODUCT_ATTRIBUTE_SET_PERMISSIONS } from '@/lib/constants/permissions'
@@ -94,7 +94,7 @@ export default function EditProductAttributeSetPage() {
 			setIsLoading(false)
 			setError('root.serverError', {
 				type: 'server',
-				message: FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR,
+				message: FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
 			})
 			return
 		}
@@ -118,9 +118,9 @@ export default function EditProductAttributeSetPage() {
 					console.error(e.message)
 					setError('root.serverError', {
 						type: 'server',
-						message: FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR,
+						message: FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
 					})
-					toast.error(FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR)
+					toast.error(FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR)
 					router.push(PRODUCT_ATTRIBUTE_SETS_URL)
 				}
 			} finally {

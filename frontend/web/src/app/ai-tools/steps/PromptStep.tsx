@@ -6,7 +6,7 @@ import TextareaInput from '@/components/ui/form/TextareaInput'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
-	ENTITY_PRODUCT_ATTIBUTE,
+	ENTITY_PRODUCT_ATTRIBUTE,
 } from '@/lib/constants'
 import aiToolsService, { AIServiceException } from '@/lib/services/aiTools'
 import useAIToolsStore from '@/stores/useAIToolsStore'
@@ -24,6 +24,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setEntityType,
 		setBrands,
 		setCategories,
+		setProductAttributes,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,
@@ -33,7 +34,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		() => [
 			{ value: ENTITY_BRAND, label: 'Brands' },
 			{ value: ENTITY_CATEGORY, label: 'Categories' },
-			{ value: ENTITY_PRODUCT_ATTIBUTE, label: 'Product Attributes' },
+			{ value: ENTITY_PRODUCT_ATTRIBUTE, label: 'Product Attributes' },
 		],
 		[],
 	)
@@ -88,6 +89,17 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 								: [],
 						)
 						break
+					case ENTITY_PRODUCT_ATTRIBUTE:
+						res = await aiToolsService.generateProductAttributes(prompt)
+						setProductAttributes(
+							res?.data && res.data.length > 0
+								? res.data.map((p, pidx) => ({
+										...p,
+										id: pidx + 1,
+									}))
+								: [],
+						)
+						break
 				}
 				isValid = res?.data && res.data.length > 0 ? true : false
 				setIsCurrentStepValid(isValid)
@@ -116,6 +128,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		isCurrentStepValid,
 		setBrands,
 		setCategories,
+		setProductAttributes,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,

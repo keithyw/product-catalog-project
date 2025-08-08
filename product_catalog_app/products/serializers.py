@@ -12,6 +12,7 @@ class ProductAttributeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'code',
+            'display_name',
             'description',
             'type',
             'is_required',

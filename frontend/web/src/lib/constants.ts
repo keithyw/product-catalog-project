@@ -6,7 +6,7 @@ export const REFRESH_TOKEN_KEY = 'refresh_token'
 
 export const ENTITY_BRAND = 'brand'
 export const ENTITY_CATEGORY = 'category'
-export const ENTITY_PRODUCT_ATTIBUTE = 'product_attribute'
+export const ENTITY_PRODUCT_ATTRIBUTE = 'product_attribute'
 
 export const API_TOKEN_URL = '/token/'
 export const API_REFRESH_URL = '/token/refresh/'
@@ -19,7 +19,7 @@ export const API_CATEGORIES_BULK_URL = `${API_CATEGORIES_URL}bulk/`
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
 export const API_PERMISSIONS_URL = '/permissions/'
-export const API_PRODUCT_ATTIBUTES_URL = '/product-attributes/'
+export const API_PRODUCT_ATTRIBUTES_URL = '/product-attributes/'
 export const API_PRODUCT_ATTRIBUTE_SETS_URL = '/product-attribute-sets/'
 export const API_PRODUCT_URL = '/products/'
 export const API_USERS_URL = '/users/'
@@ -34,8 +34,8 @@ export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
 export const CREATE_PRODUCT_URL = `${PRODUCTS_URL}/create`
-export const PRODUCT_ATTIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
-export const CREATE_PRODUCT_ATTIBUTES_URL = `${PRODUCT_ATTIBUTES_URL}/create`
+export const PRODUCT_ATTRIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
+export const CREATE_PRODUCT_ATTRIBUTES_URL = `${PRODUCT_ATTRIBUTES_URL}/create`
 export const PRODUCT_ATTRIBUTE_SETS_URL = `${PRODUCTS_URL}/product-attribute-sets`
 export const CREATE_PRODUCT_ATTRIBUTE_SETS_URL = `${PRODUCT_ATTRIBUTE_SETS_URL}/create`
 export const PROFILE_URL = '/profile'
@@ -52,7 +52,7 @@ export const PROTECTED_ROUTES = [
 	CATEGORIES_URL,
 	DASHBOARD_URL,
 	PRODUCTS_URL,
-	PRODUCT_ATTIBUTES_URL,
+	PRODUCT_ATTRIBUTES_URL,
 	PROFILE_URL,
 	USERS_URL,
 ]
@@ -66,9 +66,9 @@ export const FAILED_LOADING_GROUP_ERROR =
 	'Failed to load groups. Please try again.'
 export const FAILED_LOADING_PRODUCT_ERROR =
 	'Failed to load product. Please try again.'
-export const FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR =
+export const FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR =
 	'Failed to load product attributes. Please try again.'
-export const FAILED_LOADING_PRODUCT_ATTIBUTE_SET_ERROR =
+export const FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR =
 	'Failed to load product attribute set. Please try again.'
 export const FAILED_LOADING_USER_ERROR =
 	'Failed to load user. Please try again.'

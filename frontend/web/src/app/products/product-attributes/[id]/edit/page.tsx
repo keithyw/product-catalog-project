@@ -10,10 +10,10 @@ import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import FormInput from '@/components/ui/form/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import {
-	FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR,
-	PRODUCT_ATTIBUTES_URL,
+	FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR,
+	PRODUCT_ATTRIBUTES_URL,
 } from '@/lib/constants'
-import { PRODUCT_ATTIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
+import { PRODUCT_ATTRIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
 import productAttributeService from '@/lib/services/productAttribute'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import {
@@ -29,6 +29,13 @@ const fields: FormField<ProductAttributeCreateFormData>[] = [
 		label: 'Attribute Name',
 		placeholder: 'e.g., Author, Color, ISBN',
 		required: true,
+		type: 'text',
+	},
+	{
+		name: 'display_name',
+		label: 'Display Name',
+		placeholder: 'Front facing name to user',
+		required: false,
 		type: 'text',
 	},
 	{
@@ -74,6 +81,7 @@ export default function EditProductAttributePage() {
 		resolver: zodResolver(productAttributeCreateSchema),
 		defaultValues: {
 			name: '',
+			display_name: '',
 			description: '',
 			type: 'text',
 			is_required: false,
@@ -90,7 +98,7 @@ export default function EditProductAttributePage() {
 			setIsLoading(false)
 			setError('root.serverError', {
 				type: 'server',
-				message: FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR,
+				message: FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR,
 			})
 			return
 		}
@@ -102,6 +110,7 @@ export default function EditProductAttributePage() {
 				setProductAttribute(res)
 				reset({
 					name: res.name,
+					display_name: res.display_name || '',
 					description: res.description || '',
 					type: res.type,
 					is_required: res.is_required,
@@ -120,10 +129,10 @@ export default function EditProductAttributePage() {
 				if (e instanceof Error) {
 					setError('root.serverError', {
 						type: 'server',
-						message: FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR,
+						message: FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR,
 					})
-					toast.error(FAILED_LOADING_PRODUCT_ATTIBUTE_ERROR)
-					router.push(PRODUCT_ATTIBUTES_URL)
+					toast.error(FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR)
+					router.push(PRODUCT_ATTRIBUTES_URL)
 				}
 			} finally {
 				setIsLoading(false)
@@ -150,7 +159,7 @@ export default function EditProductAttributePage() {
 				form,
 			)
 			toast.success(`Product attribute ${res.name} updated successfully!`)
-			router.push(PRODUCT_ATTIBUTES_URL)
+			router.push(PRODUCT_ATTRIBUTES_URL)
 		} catch (e: unknown) {
 			handleFormErrors<ProductAttributeCreateFormData>(
 				e,
@@ -169,13 +178,13 @@ export default function EditProductAttributePage() {
 	}
 
 	return (
-		<PermissionGuard requiredPermission={PRODUCT_ATTIBUTE_PERMISSIONS.CHANGE}>
+		<PermissionGuard requiredPermission={PRODUCT_ATTRIBUTE_PERMISSIONS.CHANGE}>
 			<CreateFormLayout
 				title='Edit Product Attribute'
 				isSubmitting={isSubmitting}
 				submitText='Save'
 				submittingText='Saving...'
-				cancelUrl={`${PRODUCT_ATTIBUTES_URL}/${productAttributeId}`}
+				cancelUrl={`${PRODUCT_ATTRIBUTES_URL}/${productAttributeId}`}
 				handleSubmit={handleSubmit(onSubmit)}
 			>
 				{fields.map((f, idx) => (

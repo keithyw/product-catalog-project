@@ -10,8 +10,8 @@ import PageTitle from '@/components/ui/PageTitle'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
-import { PRODUCT_ATTIBUTES_URL } from '@/lib/constants'
-import { PRODUCT_ATTIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
+import { PRODUCT_ATTRIBUTES_URL } from '@/lib/constants'
+import { PRODUCT_ATTRIBUTE_PERMISSIONS } from '@/lib/constants/permissions'
 import productAttributeService from '@/lib/services/productAttribute'
 import { ProductAttribute } from '@/types/product'
 
@@ -28,7 +28,7 @@ export default function ProductAttributeDetailsPage() {
 
 	const handleEditClick = () => {
 		if (productAttribute) {
-			router.push(`${PRODUCT_ATTIBUTES_URL}/${productAttribute.id}/edit`)
+			router.push(`${PRODUCT_ATTRIBUTES_URL}/${productAttribute.id}/edit`)
 		}
 	}
 
@@ -47,7 +47,7 @@ export default function ProductAttributeDetailsPage() {
 				toast.success(
 					`Product attribute ${productAttribute.name} deleted successfully!`,
 				)
-				router.push(PRODUCT_ATTIBUTES_URL)
+				router.push(PRODUCT_ATTRIBUTES_URL)
 			} catch (e: unknown) {
 				console.error('Failed deleting product attribute: ', e)
 				toast.error(
@@ -72,6 +72,7 @@ export default function ProductAttributeDetailsPage() {
 				setProductAttribute(res)
 				setDetails([
 					{ label: 'Name', value: res.name },
+					{ label: 'Display Name', value: res.display_name || '' },
 					{ label: 'Description', value: res.description || '' },
 					{ label: 'Type', value: res.type },
 					{ label: 'Is Required', value: res.is_required ? 'Yes' : 'No' },
@@ -88,7 +89,7 @@ export default function ProductAttributeDetailsPage() {
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					setError(e.message)
-					router.push(PRODUCT_ATTIBUTE_PERMISSIONS.VIEW)
+					router.push(PRODUCT_ATTRIBUTE_PERMISSIONS.VIEW)
 				}
 			} finally {
 				setIsLoading(false)
@@ -111,7 +112,7 @@ export default function ProductAttributeDetailsPage() {
 				<PageTitle>Product Attribute Details</PageTitle>
 				{productAttribute && <DetailsSection rows={details} />}
 				<PermissionGuard
-					requiredPermission={PRODUCT_ATTIBUTE_PERMISSIONS.CHANGE}
+					requiredPermission={PRODUCT_ATTRIBUTE_PERMISSIONS.CHANGE}
 				>
 					<div className='mt-6 flex justify-end space-x-3'>
 						<Button actionType='edit' onClick={handleEditClick}>

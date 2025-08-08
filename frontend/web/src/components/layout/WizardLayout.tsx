@@ -48,7 +48,7 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 	return (
 		<div className='min-h-screen bg-gray-100 p-4 font-sans'>
 			<div className='max-w-6xl mx-auto bg-white shadow-lg rounded-lg flex flex-col md:flex-row'>
-				<div className='w-full md:w-1/4 bg-blue-700 text-white p-6 rounded-t-lg md:rounded-l-lg md:rounded-tr-none'>
+				<div className='w-full flex flex-col md:w-1/4 bg-blue-700 text-white p-6 rounded-t-lg md:rounded-l-lg md:rounded-tr-none'>
 					<h2 className='text-2xl font-bold mb-6'>{title}</h2>
 					<nav>
 						<ul className='space-y-3'>
@@ -80,7 +80,7 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 						</ul>
 					</nav>
 				</div>
-				<div className='flex-1 p-8 flex flex-col'>
+				<div className='flex-1 p-8 flex flex-col min-w-0'>
 					<h1 className='text-3xl font-bold text-gray-800 mb-6'>{title}</h1>
 					<div className='flex-grow'>{children}</div>
 					{error && (

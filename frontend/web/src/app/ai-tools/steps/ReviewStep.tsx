@@ -4,13 +4,19 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import ImportDataTable from '@/components/ui/tables/ImportDataTable'
 import NestedImportDataTable from '@/components/ui/tables/NestImportDataTable'
 import PageTitle from '@/components/ui/PageTitle'
-import { ENTITY_BRAND, ENTITY_CATEGORY } from '@/lib/constants'
+import {
+	ENTITY_BRAND,
+	ENTITY_CATEGORY,
+	ENTITY_PRODUCT_ATTRIBUTE,
+} from '@/lib/constants'
 import brandService from '@/lib/services/brand'
 import categoryService from '@/lib/services/category'
+import productAttributeService from '@/lib/services/productAttribute'
 import useAIToolsStore from '@/stores/useAIToolsStore'
-import { SimpleBrand, SimpleCategory } from '@/types/ai'
+import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
 import { CreateBrandRequest } from '@/types/brand'
 import { SimpleCategoryRequest } from '@/types/category'
+import { CreateProductAttributeRequest } from '@/types/product'
 import { TableColumn } from '@/types/table'
 import { StepComponentProps } from '@/types/wizard'
 
@@ -52,13 +58,77 @@ const CATEGORY_COLUMNS: TableColumn<SimpleCategory>[] = [
 	},
 ]
 
+const PRODUCT_ATTRIBUTE_COLUMNS: TableColumn<SimpleProductAttribute>[] = [
+	{
+		header: 'ID',
+		accessor: 'id',
+	},
+	{
+		header: 'Name',
+		accessor: 'name',
+		isEditable: true,
+		inputType: 'text',
+	},
+	{
+		header: 'Description',
+		accessor: 'description',
+		isEditable: true,
+		inputType: 'textarea',
+	},
+	{
+		header: 'Type',
+		accessor: 'type',
+		isEditable: true,
+		inputType: 'select',
+		selectOptions: [
+			{ value: 'text', label: 'Text' },
+			{ value: 'textarea', label: 'Textarea' },
+			{ value: 'number', label: 'Number' },
+			{ value: 'boolean', label: 'Boolean' },
+			{ value: 'select', label: 'Select' },
+			{ value: 'multiselect', label: 'Multiselect' },
+			{ value: 'date', label: 'Date' },
+			{ value: 'datetime', label: 'Datetime' },
+			{ value: 'json', label: 'JSON' },
+		],
+	},
+	{
+		header: 'Required',
+		accessor: 'is_required',
+		isEditable: true,
+		inputType: 'checkbox',
+	},
+	{
+		header: 'Default Value',
+		accessor: 'default_value',
+		isEditable: true,
+		inputType: 'text',
+	},
+	{
+		header: 'Options',
+		accessor: 'options',
+		// isEditable: true,
+		inputType: 'textarea',
+		isObject: true,
+	},
+	{
+		header: 'Validation Rules',
+		accessor: 'validation_rules',
+		isEditable: false,
+		// inputType: 'textarea',
+		isObject: true,
+	},
+]
+
 const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
 		brands,
 		categories,
+		productAttributes,
 		entityType,
 		setBrands,
 		setCategories,
+		setProductAttributes,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,
@@ -66,6 +136,7 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 
 	const cols = useMemo(() => BRAND_COLUMNS, [])
 	const catCols = useMemo(() => CATEGORY_COLUMNS, [])
+	const prodAttrCols = useMemo(() => PRODUCT_ATTRIBUTE_COLUMNS, [])
 
 	const convertCategoriesToRequest = useCallback(
 		(categories: SimpleCategory[]): SimpleCategoryRequest[] => {
@@ -91,10 +162,15 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 					Array.isArray(categories) && categories.length > 0,
 				)
 				break
+			case ENTITY_PRODUCT_ATTRIBUTE:
+				setIsCurrentStepValid(
+					Array.isArray(productAttributes) && productAttributes.length > 0, // Assuming product attributes are handled similarly to brands for now
+				)
+				break
 			default:
 				setIsCurrentStepValid(false)
 		}
-	}, [brands, categories, entityType, setIsCurrentStepValid])
+	}, [brands, categories, productAttributes, entityType, setIsCurrentStepValid])
 
 	useEffect(() => {
 		const handleStepSubmit = async (): Promise<boolean> => {
@@ -124,6 +200,26 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 							res = await categoryService.bulk(data)
 						}
 						break
+					case ENTITY_PRODUCT_ATTRIBUTE:
+						if (
+							Array.isArray(productAttributes) &&
+							productAttributes.length > 0
+						) {
+							const data: CreateProductAttributeRequest[] =
+								productAttributes.map((attr) => {
+									return {
+										name: attr.name,
+										description: attr.description,
+										type: attr.type,
+										is_required: attr.is_required,
+										default_value: attr.default_value,
+										options: attr.options,
+										validation_rules: attr.validation_rules,
+									}
+								})
+							res = await productAttributeService.bulk(data)
+						}
+						break
 				}
 
 				if (res && res.errors) {
@@ -150,6 +246,7 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	}, [
 		brands,
 		categories,
+		productAttributes,
 		convertCategoriesToRequest,
 		entityType,
 		setError,
@@ -182,6 +279,12 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 			const updatedCategories = removeCategoryAndChildren(categories, row)
 			setCategories(updatedCategories)
 		}
+		if (productAttributes) {
+			const updatedProductAttributes = productAttributes.filter(
+				(i) => i.id !== row,
+			)
+			setProductAttributes(updatedProductAttributes)
+		}
 	}
 
 	const onDataBrandChange = (updatedData: SimpleBrand[]) => {
@@ -191,6 +294,12 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setCategories(updatedData)
 	}
 
+	const onDataProductAttributeChange = (
+		updatedData: SimpleProductAttribute[],
+	) => {
+		setProductAttributes(updatedData)
+	}
+
 	return (
 		<div className='space-y-4 p-4'>
 			<PageTitle>Review Data</PageTitle>
@@ -198,6 +307,7 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 				Review the AI-generated brand data below. You can make edits or remove
 				items before importing.
 			</p>
+
 			{entityType === ENTITY_BRAND && (
 				<ImportDataTable
 					data={brands}
@@ -214,6 +324,16 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 					columns={catCols}
 					rowKey='id'
 					onDataChange={onDataCategoryChange}
+					onRemoveRow={handleRemoveRow}
+					canRemoveRow={true}
+				/>
+			)}
+			{entityType === ENTITY_PRODUCT_ATTRIBUTE && (
+				<ImportDataTable
+					data={productAttributes}
+					columns={prodAttrCols}
+					rowKey='id'
+					onDataChange={onDataProductAttributeChange}
 					onRemoveRow={handleRemoveRow}
 					canRemoveRow={true}
 				/>

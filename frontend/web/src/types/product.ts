@@ -24,6 +24,7 @@ export type ProductAttributeType =
 export interface ProductAttribute {
 	id: number
 	name: string
+	display_name: string
 	code: string
 	description?: string
 	type: ProductAttributeType
@@ -37,8 +38,17 @@ export interface ProductAttribute {
 	updated_at: string
 }
 
+export interface CreateBulkProductAttributeResponse {
+	status: string
+	message?: string
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	errors?: any
+	created_product_attributes: ProductAttribute[]
+}
+
 export interface CreateProductAttributeRequest {
 	name: string
+	display_name?: string | null
 	description?: string | null
 	type: ProductAttributeType
 	is_required?: boolean

@@ -29,6 +29,7 @@ class ProductAttribute(models.Model):
     validation_rules = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    display_name = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Product Attribute'
