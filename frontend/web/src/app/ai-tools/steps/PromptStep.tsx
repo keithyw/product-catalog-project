@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import Button from '@/components/ui/form/Button'
 import TextInput from '@/components/ui/form/TextInput'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
 import TextareaInput from '@/components/ui/form/TextareaInput'
+import BaseModal from '@/components/ui/modals/BaseModal'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
@@ -14,6 +16,7 @@ import useAIToolsStore from '@/stores/useAIToolsStore'
 import { OptionType } from '@/types/form'
 import { StepComponentProps } from '@/types/wizard'
 import { SimpleCategory } from '@/types/ai'
+import BrandPromptHint from '@/app/ai-tools/steps/BrandPromptHint'
 
 const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
@@ -32,6 +35,8 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setIsCurrentStepValid,
 		setIsSubmitting,
 	} = useAIToolsStore()
+
+	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const entityTypeOptions: OptionType[] = useMemo(
 		() => [
@@ -147,6 +152,10 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setSubmitHandler,
 	])
 
+	const onClose = () => {
+		setIsModalOpen(false)
+	}
+
 	return (
 		<div className='space-y-6 p-4'>
 			<SelectDropdown
@@ -185,6 +194,18 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 					Please select a data type to enable prompt
 				</p>
 			)}
+			{entityType && (
+				<Button actionType='neutral' onClick={() => setIsModalOpen(true)}>
+					Get Help Generating Prompt
+				</Button>
+			)}
+			<BaseModal isOpen={isModalOpen} onClose={onClose}>
+				<div className='p-4'>
+					{entityType === ENTITY_BRAND && (
+						<BrandPromptHint onHandleSubmit={onClose} />
+					)}
+				</div>
+			</BaseModal>
 		</div>
 	)
 }
