@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo } from 'react'
+import TextInput from '@/components/ui/form/TextInput'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
 import TextareaInput from '@/components/ui/form/TextareaInput'
 import {
@@ -18,6 +19,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	const {
 		prompt,
 		entityType,
+		productAttributeSetName,
 		isCurrentStepValid,
 		isSubmitting,
 		setPrompt,
@@ -25,6 +27,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		setBrands,
 		setCategories,
 		setProductAttributes,
+		setProductAttributeSetName,
 		setError,
 		setIsCurrentStepValid,
 		setIsSubmitting,
@@ -59,8 +62,14 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 	)
 
 	useEffect(() => {
-		setIsCurrentStepValid(prompt.trim().length > 6)
-	}, [prompt, setIsCurrentStepValid])
+		if (entityType === ENTITY_PRODUCT_ATTRIBUTE) {
+			setIsCurrentStepValid(
+				productAttributeSetName.trim().length > 2 && prompt.trim().length > 6,
+			)
+		} else {
+			setIsCurrentStepValid(prompt.trim().length > 6)
+		}
+	}, [prompt, entityType, setIsCurrentStepValid, productAttributeSetName])
 
 	useEffect(() => {
 		const handleStepSubmit = async (): Promise<boolean> => {
@@ -96,6 +105,8 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 								? res.data.map((p, pidx) => ({
 										...p,
 										id: pidx + 1,
+										name: [productAttributeSetName, p.name].join(' - '),
+										display_name: p.name,
 									}))
 								: [],
 						)
@@ -147,6 +158,17 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 				placeholder='Select a data type'
 				disabled={isSubmitting}
 			/>
+			{entityType === ENTITY_PRODUCT_ATTRIBUTE && (
+				<TextInput
+					id='productAttributeName'
+					label='Product Attribute Set Name'
+					placeholder='A product type like book, song, etc.'
+					required={true}
+					value={productAttributeSetName}
+					onChange={(e) => setProductAttributeSetName(e.target.value)}
+					disabled={isSubmitting}
+				/>
+			)}
 			<TextareaInput
 				id='prompt'
 				label='Generate content for: '

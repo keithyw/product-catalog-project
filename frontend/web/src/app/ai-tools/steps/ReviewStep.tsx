@@ -12,11 +12,16 @@ import {
 import brandService from '@/lib/services/brand'
 import categoryService from '@/lib/services/category'
 import productAttributeService from '@/lib/services/productAttribute'
+import productAttributeSetService from '@/lib/services/productAttributeSet'
 import useAIToolsStore from '@/stores/useAIToolsStore'
 import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
 import { CreateBrandRequest } from '@/types/brand'
 import { SimpleCategoryRequest } from '@/types/category'
-import { CreateProductAttributeRequest } from '@/types/product'
+import {
+	CreateProductAttributeRequest,
+	CreateProductAttributeSetRequest,
+	ProductAttribute,
+} from '@/types/product'
 import { TableColumn } from '@/types/table'
 import { StepComponentProps } from '@/types/wizard'
 
@@ -66,6 +71,12 @@ const PRODUCT_ATTRIBUTE_COLUMNS: TableColumn<SimpleProductAttribute>[] = [
 	{
 		header: 'Name',
 		accessor: 'name',
+		isEditable: true,
+		inputType: 'text',
+	},
+	{
+		header: 'Display Name',
+		accessor: 'display_name',
 		isEditable: true,
 		inputType: 'text',
 	},
@@ -125,6 +136,7 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		brands,
 		categories,
 		productAttributes,
+		productAttributeSetName,
 		entityType,
 		setBrands,
 		setCategories,
@@ -218,6 +230,15 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 									}
 								})
 							res = await productAttributeService.bulk(data)
+							if (res.created_product_attributes.length > 0) {
+								const req: CreateProductAttributeSetRequest = {
+									name: productAttributeSetName,
+									attributes: res.created_product_attributes.map(
+										(r: ProductAttribute) => r.id,
+									),
+								}
+								await productAttributeSetService.create(req)
+							}
 						}
 						break
 				}

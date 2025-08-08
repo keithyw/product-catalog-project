@@ -7,6 +7,7 @@ interface AIToolsStore {
 	brands: SimpleBrand[]
 	categories: SimpleCategory[]
 	productAttributes: SimpleProductAttribute[]
+	productAttributeSetName: string
 	currentStep: number
 	isCurrentStepValid: boolean
 	isSubmitting: boolean
@@ -16,6 +17,7 @@ interface AIToolsStore {
 	setBrands(brands: SimpleBrand[]): void
 	setCategories(categories: SimpleCategory[]): void
 	setProductAttributes(productAttributes: SimpleProductAttribute[]): void
+	setProductAttributeSetName(name: string): void
 	setCurrentStep(step: number): void
 	setIsCurrentStepValid(isValid: boolean): void
 	setIsSubmitting(submitting: boolean): void
@@ -29,6 +31,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	brands: [],
 	categories: [],
 	productAttributes: [],
+	productAttributeSetName: '',
 	currentStep: 1,
 	isCurrentStepValid: false,
 	isSubmitting: false,
@@ -39,6 +42,8 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setCategories: (c: SimpleCategory[]) => set({ categories: c }),
 	setProductAttributes: (p: Omit<SimpleProductAttribute, 'id'>[]) =>
 		set({ productAttributes: p }),
+	setProductAttributeSetName: (name: string) =>
+		set({ productAttributeSetName: name }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setIsCurrentStepValid: (isValid: boolean) =>
 		set({ isCurrentStepValid: isValid }),
