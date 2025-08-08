@@ -49,7 +49,19 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 		set({ isCurrentStepValid: isValid }),
 	setIsSubmitting: (submitting: boolean) => set({ isSubmitting: submitting }),
 	setError: (error: string) => set({ error: error }),
-	clearDraft: () => set({ currentStep: 1 }),
+	clearDraft: () =>
+		set({
+			currentStep: 1,
+			prompt: '',
+			entityType: '',
+			brands: [],
+			categories: [],
+			productAttributes: [],
+			productAttributeSetName: '',
+			isCurrentStepValid: false,
+			isSubmitting: false,
+			error: '',
+		}),
 }))
 
 export default useAIToolsStore
