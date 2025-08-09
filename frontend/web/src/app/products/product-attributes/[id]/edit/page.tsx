@@ -11,6 +11,7 @@ import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
 import OptionsEditorModal from '@/components/ui/modals/OptionsEditorModal'
+import ValidationRulesEditorModal from '@/components/ui/modals/ValidationRulesEditorModal'
 import {
 	FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR,
 	PRODUCT_ATTRIBUTES_URL,
@@ -23,7 +24,11 @@ import {
 	ProductAttributeCreateFormData,
 } from '@/schemas/productAttributeSchema'
 import { FormField, OptionType } from '@/types/form'
-import { ATTRIBUTE_TYPE_OPTIONS, ProductAttribute } from '@/types/product'
+import {
+	ATTRIBUTE_TYPE_OPTIONS,
+	ProductAttribute,
+	ProductAttributeType,
+} from '@/types/product'
 
 const fields: FormField<ProductAttributeCreateFormData>[] = [
 	{
@@ -71,6 +76,8 @@ export default function EditProductAttributePage() {
 	const [productAttribute, setProductAttribute] =
 		useState<ProductAttribute | null>(null)
 	const [isOptionsEditorOpen, setIsOptionsEditorOpen] = useState(false)
+	const [isValidationRulesEditorOpen, setIsValidationRulesEditorOpen] =
+		useState(false)
 
 	const {
 		register,
@@ -104,6 +111,10 @@ export default function EditProductAttributePage() {
 
 	const handleSaveOptions = (newOptions: OptionType[]) => {
 		setValue('options', JSON.stringify(newOptions))
+	}
+
+	const onCloseValidationRulesEditorModal = () => {
+		setIsValidationRulesEditorOpen(false)
 	}
 
 	useEffect(() => {
@@ -249,23 +260,41 @@ export default function EditProductAttributePage() {
 						</Button>
 					</>
 				)}
-				<FormInput
-					field={{
-						name: 'validation_rules',
-						label: 'Validation Rules (JSON Object)',
-						placeholder: `e.g., {"min": 0, "max": 100} or {"pattern": "^[A-Z]{2}$"}`,
-						required: false,
-						type: 'textarea',
-					}}
-					register={register}
-					control={control}
-					errorMessage={errors.validation_rules?.message as string}
-				/>
+				<>
+					<FormInput
+						field={{
+							name: 'validation_rules',
+							label: 'Validation Rules (JSON Object)',
+							placeholder: `e.g., {"min": 0, "max": 100} or {"pattern": "^[A-Z]{2}$"}`,
+							required: false,
+							type: 'textarea',
+						}}
+						register={register}
+						control={control}
+						errorMessage={errors.validation_rules?.message as string}
+					/>
+					<Button
+						actionType='neutral'
+						onClick={(e) => {
+							e.preventDefault()
+							setIsValidationRulesEditorOpen(true)
+						}}
+					>
+						Use Validation Rules Editor
+					</Button>
+				</>
 				<OptionsEditorModal
 					isOpen={isOptionsEditorOpen}
 					options={JSON.parse(options)}
 					onClose={onCloseEditOptionsModal}
 					onSave={handleSaveOptions}
+				/>
+				<ValidationRulesEditorModal
+					isOpen={isValidationRulesEditorOpen}
+					attributeType={selectedType as ProductAttributeType}
+					rules={JSON.parse(watch('validation_rules') || '{}')}
+					onClose={onCloseValidationRulesEditorModal}
+					onSave={(rules) => setValue('validation_rules', rules)}
 				/>
 			</CreateFormLayout>
 		</PermissionGuard>
