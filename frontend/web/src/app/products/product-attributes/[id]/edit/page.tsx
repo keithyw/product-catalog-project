@@ -6,9 +6,11 @@ import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import PermissionGuard from '@/components/auth/PermissionGuard'
-import CreateFormLayout from '@/components/layout/CreateFormLayout'
-import FormInput from '@/components/ui/form/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
+import CreateFormLayout from '@/components/layout/CreateFormLayout'
+import Button from '@/components/ui/form/Button'
+import FormInput from '@/components/ui/form/FormInput'
+import OptionsEditorModal from '@/components/ui/modals/OptionsEditorModal'
 import {
 	FAILED_LOADING_PRODUCT_ATTRIBUTE_ERROR,
 	PRODUCT_ATTRIBUTES_URL,
@@ -20,7 +22,7 @@ import {
 	productAttributeCreateSchema,
 	ProductAttributeCreateFormData,
 } from '@/schemas/productAttributeSchema'
-import { FormField } from '@/types/form'
+import { FormField, OptionType } from '@/types/form'
 import { ATTRIBUTE_TYPE_OPTIONS, ProductAttribute } from '@/types/product'
 
 const fields: FormField<ProductAttributeCreateFormData>[] = [
@@ -68,12 +70,14 @@ export default function EditProductAttributePage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [productAttribute, setProductAttribute] =
 		useState<ProductAttribute | null>(null)
+	const [isOptionsEditorOpen, setIsOptionsEditorOpen] = useState(false)
 
 	const {
 		register,
 		handleSubmit,
 		setError,
 		reset,
+		setValue,
 		formState: { errors, isSubmitting },
 		control,
 		watch,
@@ -92,6 +96,15 @@ export default function EditProductAttributePage() {
 	})
 
 	const selectedType = watch('type')
+	const options = watch('options') || '[]'
+
+	const onCloseEditOptionsModal = () => {
+		setIsOptionsEditorOpen(false)
+	}
+
+	const handleSaveOptions = (newOptions: OptionType[]) => {
+		setValue('options', JSON.stringify(newOptions))
+	}
 
 	useEffect(() => {
 		if (!productAttributeId) {
@@ -212,18 +225,29 @@ export default function EditProductAttributePage() {
 					/>
 				)}
 				{(selectedType === 'select' || selectedType === 'multiselect') && (
-					<FormInput
-						field={{
-							name: 'options',
-							label: 'Options (JSON Array)',
-							placeholder: `e.g., [{"value": "red", "label": "Red"}]`,
-							required: true,
-							type: 'textarea',
-						}}
-						register={register}
-						control={control}
-						errorMessage={errors.options?.message as string}
-					/>
+					<>
+						<FormInput
+							field={{
+								name: 'options',
+								label: 'Options (JSON Array)',
+								placeholder: `e.g., [{"value": "red", "label": "Red"}]`,
+								required: true,
+								type: 'textarea',
+							}}
+							register={register}
+							control={control}
+							errorMessage={errors.options?.message as string}
+						/>
+						<Button
+							actionType='neutral'
+							onClick={(e) => {
+								e.preventDefault()
+								setIsOptionsEditorOpen(true)
+							}}
+						>
+							User Options Editor
+						</Button>
+					</>
 				)}
 				<FormInput
 					field={{
@@ -236,6 +260,12 @@ export default function EditProductAttributePage() {
 					register={register}
 					control={control}
 					errorMessage={errors.validation_rules?.message as string}
+				/>
+				<OptionsEditorModal
+					isOpen={isOptionsEditorOpen}
+					options={JSON.parse(options)}
+					onClose={onCloseEditOptionsModal}
+					onSave={handleSaveOptions}
 				/>
 			</CreateFormLayout>
 		</PermissionGuard>
