@@ -82,6 +82,12 @@ const PRODUCT_ATTRIBUTE_COLUMNS: TableColumn<SimpleProductAttribute>[] = [
 		inputType: 'text',
 	},
 	{
+		header: 'Sample Values',
+		accessor: 'sample_values',
+		isEditable: true,
+		inputType: 'text',
+	},
+	{
 		header: 'Description',
 		accessor: 'description',
 		isEditable: true,
@@ -222,7 +228,9 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 								productAttributes.map((attr) => {
 									return {
 										name: attr.name,
+										display_name: attr.display_name || null,
 										description: attr.description,
+										sample_values: attr.sample_values,
 										type: attr.type,
 										is_required: attr.is_required,
 										default_value: attr.default_value,

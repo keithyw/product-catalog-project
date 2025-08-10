@@ -46,6 +46,9 @@ class ProductAIGenerationService:
             
             if attr.type == 'text' or attr.type == 'textarea' or attr.type == 'json':
                 property["type"] = "string"
+                if attr.sample_values:
+                    property["description"] += f" for example: {attr.sample_values}"
+                    # property["enum"] = [s.strip() for s in attr.sample_values.split(',')]
                 if 'min_length' in attr.validation_rules:
                     property["minLength"] = attr.validation_rules['min_length']
                 if 'max_length' in attr.validation_rules:
@@ -55,6 +58,8 @@ class ProductAIGenerationService:
 
             elif attr.type == 'number':
                 property["type"] = "number"
+                if attr.sample_values:
+                    property["description"] += f" for example: {attr.sample_values}"
                 if "min" in attr.validation_rules:
                     property["minimum"] = attr.validation_rules["min"]
                 if "max" in attr.validation_rules:
@@ -127,6 +132,17 @@ class ProductAIGenerationService:
             ]
         )
         
+    def _clean_attribute_keys(self, products):
+        for p in products:
+            if 'attributes' in p:
+                new_attributes = {}
+                for key, val in p['attributes'].items():
+                    cleaned_key = key.replace('___', ' - ')
+                    cleaned_key = cleaned_key.replace('_', ' ')
+                    new_attributes[cleaned_key] = val
+                p['attributes'] = new_attributes
+        return products
+
     def generate(self, prompt: str, product_type:str) -> dict:
         self._load_product_attribute_set(product_type)
         tool_object = self._generate_definition(product_type, self.product_attribute_set.attributes)
@@ -171,6 +187,7 @@ class ProductAIGenerationService:
             logger.info("trying to get content")
             content = tool_call.args.get('products')
             logger.info(f"AI generated for {product_type}: {content}")
+            content = self._clean_attribute_keys(content)
             return {
                 "product_type": product_type,
                 "data": content,

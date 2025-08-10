@@ -25,7 +25,7 @@ const ProductAttributePromptHint: React.FC<ProductAttributePromptHintProps> = ({
 		// Start with a base prompt
 		let generatedPrompt =
 			`Generate a detailed list of product attributes for a ${productAttributeSetName || '[product_type]'}. ` +
-			`The attributes should include the display name, a unique snake_case code, a data type (e.g., text, number, boolean, multiselect), and specify if each is required.`
+			`The attributes should include the display name, sample values to provide hints to the AI, a unique snake_case code, a data type (e.g., text, number, boolean, multiselect), and specify if each is required.`
 
 		// Add example attributes if provided
 		if (exampleAttributes) {

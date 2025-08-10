@@ -113,6 +113,12 @@ export default function ProductAttributeSetPage() {
 											{attr.is_required ? 'Yes' : 'No'}
 										</span>
 									</p>
+									{attr.sample_values && (
+										<p className='text-sm text-gray-600'>
+											Sample Values:
+											<span className='font-medium'>{attr.sample_values}</span>
+										</p>
+									)}
 									{attr.default_value !== null && (
 										<p className='text-sm text-gray-600'>
 											Default Values:

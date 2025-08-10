@@ -130,6 +130,7 @@ SUGGEST_PRODUCT_ATTRIBUTES_TOOL = types.Tool( # Using types.Tool
                             "type": "object",
                             "properties": {
                                 "name": {"type": "string", "description": "The display name of the attribute (e.g., 'Color', 'Material')."},
+                                "sample_values": {"type": "string", "description": "Comma-separated list of sample values for the attribute. If options are provided for this attribute, the values here should match the value part of the options."},
                                 "code": {"type": "string", "description": "A unique, machine-readable code for the attribute (e.g., 'color', 'material_type'). Use snake_case."},
                                 "type": {
                                     "type": "string",

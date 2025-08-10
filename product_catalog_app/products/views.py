@@ -54,6 +54,8 @@ class ProductAttributeViewSet(viewsets.ModelViewSet):
                             'validation_rules': p.get('validation_rules', {}),
                             'display_name': p.get('display_name', ''),
                             'sample_values': p.get('sample_values', ''),
+                            'is_required': p.get('is_required', False),
+                            'default_value': p.get('default_value', ''),
                         },
                     )
                     if created:
