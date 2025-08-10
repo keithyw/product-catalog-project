@@ -73,6 +73,7 @@ export default function ProductAttributeDetailsPage() {
 				setDetails([
 					{ label: 'Name', value: res.name },
 					{ label: 'Display Name', value: res.display_name || '' },
+					{ label: 'Sample Values', value: res.sample_values || '' },
 					{ label: 'Description', value: res.description || '' },
 					{ label: 'Type', value: res.type },
 					{ label: 'Is Required', value: res.is_required ? 'Yes' : 'No' },

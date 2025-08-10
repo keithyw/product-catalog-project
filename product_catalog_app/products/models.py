@@ -30,6 +30,7 @@ class ProductAttribute(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     display_name = models.CharField(max_length=100, blank=True, null=True)
+    sample_values = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Product Attribute'

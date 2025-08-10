@@ -17,6 +17,7 @@ export const productAttributeCreateSchema = z
 	.object({
 		name: z.string().min(1, 'Name is required.'),
 		display_name: z.string().nullable().optional(),
+		sample_values: z.string().nullable().optional(),
 		description: z.string().nullable().optional(),
 		type: attributeTypes.default('text').optional(), // Default to 'text' if not provided
 		is_required: z.boolean().default(false).optional(),

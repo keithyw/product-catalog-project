@@ -6,17 +6,10 @@ export interface SimpleBrand {
 	description: string
 }
 
-// export interface ErrorResponseDetail {
-// 	original_error: string
-// 	entity_type: string
-// }
-
 export interface GenerateBrandResponse {
 	status: string
 	entity_type: string
 	data: SimpleBrand[]
-	// message?: string
-	// details?: ErrorResponseDetail
 }
 
 export interface SimpleCategory {
@@ -36,6 +29,7 @@ export interface SimpleProductAttribute {
 	id?: number
 	name: string
 	display_name?: string | null
+	sample_values?: string | null
 	description?: string | null
 	type: ProductAttributeType
 	is_required: boolean

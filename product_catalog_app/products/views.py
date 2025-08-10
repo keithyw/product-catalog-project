@@ -1,3 +1,4 @@
+import logging
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -6,8 +7,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, ProductAttribute, ProductAttributeSet
-from .serializers import ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
+from .serializers import AIProductGenerateRequestSeralizer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
+from .services import ProductAIGenerationService, ProductAIGenerationServiceError
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -24,7 +28,7 @@ class ProductAttributeViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
-    
+
     @action(detail=False, methods=['post'], url_path='bulk')
     def bulk_create(self, request, *args, **kwargs):
         if not request.user.has_perm('products.add_productattribute'):
@@ -48,6 +52,8 @@ class ProductAttributeViewSet(viewsets.ModelViewSet):
                             'description': p.get('description', ''),
                             'options': p.get('options', {}),
                             'validation_rules': p.get('validation_rules', {}),
+                            'display_name': p.get('display_name', ''),
+                            'sample_values': p.get('sample_values', ''),
                         },
                     )
                     if created:
@@ -87,7 +93,7 @@ class ProductAttributeSetViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
-            
+
 class ProductViewSet(viewsets.ModelViewSet):
     """
     API endpoint for viewing and editing product instances.
@@ -101,3 +107,36 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
+
+    @action(detail=False, methods=['post'], url_path='generate')
+    def generate(self, request, *args, **kwargs):
+        logger.info("Received AI generation request for product")
+        serializer = AIProductGenerateRequestSeralizer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        prompt = serializer.validated_data['prompt']
+        product_type = serializer.validated_data['product_type']
+
+        try:
+            svc = ProductAIGenerationService()
+            content = svc.generate(prompt, product_type)
+            return Response({
+                "status": "success",
+                "product_type": product_type,
+                "data": content['data'],
+            })
+
+        except ProductAIGenerationServiceError as e:
+            logger.error(f"Product AI generation error for {product_type}, prompt={prompt[:50]}... {e.message} Details: {e.details}")
+            return Response({
+                "status": "error",
+                "message": str(e),
+                "details": e.details,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": "An unexpected server error occurred",
+                "details": str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

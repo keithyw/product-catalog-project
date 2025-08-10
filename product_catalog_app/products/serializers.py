@@ -13,6 +13,7 @@ class ProductAttributeSerializer(serializers.ModelSerializer):
             'name',
             'code',
             'display_name',
+            'sample_values',
             'description',
             'type',
             'is_required',
@@ -107,6 +108,9 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
             instance.attributes.set(attributes_data)
         return instance    
 
+class AIProductGenerateRequestSeralizer(serializers.Serializer):
+    prompt = serializers.CharField(max_length=5000)
+    product_type = serializers.CharField(max_length=150)
 class ProductSerializer(serializers.ModelSerializer):
     name = serializers.CharField(min_length=3)
     description = serializers.CharField(required=False, allow_null=True)

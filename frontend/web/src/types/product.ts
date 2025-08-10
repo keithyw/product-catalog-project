@@ -25,6 +25,7 @@ export interface ProductAttribute {
 	id: number
 	name: string
 	display_name: string
+	sample_values?: string | null
 	code: string
 	description?: string
 	type: ProductAttributeType
@@ -49,6 +50,7 @@ export interface CreateBulkProductAttributeResponse {
 export interface CreateProductAttributeRequest {
 	name: string
 	display_name?: string | null
+	sample_values?: string | null
 	description?: string | null
 	type: ProductAttributeType
 	is_required?: boolean

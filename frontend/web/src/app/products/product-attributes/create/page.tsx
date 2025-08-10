@@ -38,6 +38,13 @@ const fields: FormField<ProductAttributeCreateFormData>[] = [
 		type: 'text',
 	},
 	{
+		name: 'sample_values',
+		label: 'Sample Values',
+		placeholder: 'hint to AI with comma separated values',
+		required: false,
+		type: 'text',
+	},
+	{
 		name: 'description',
 		label: 'Description',
 		placeholder: 'A brief description of this attribute',
@@ -80,6 +87,7 @@ export default function CreateProductAttributePage() {
 		defaultValues: {
 			name: '',
 			display_name: '',
+			sample_values: '',
 			description: '',
 			type: 'text',
 			is_required: false,
