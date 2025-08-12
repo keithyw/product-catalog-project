@@ -39,6 +39,13 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
         queryset=ProductAttribute.objects.all(),
     )
 
+    product_type_brands = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Brand.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+
     attributes_detail = ProductAttributeSerializer(source='attributes', many=True, read_only=True)
 
     brand = serializers.PrimaryKeyRelatedField(
@@ -65,6 +72,7 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
             'code',
             'description',
             'attributes',
+            'product_type_brands',
             'attributes_detail',
             'brand',
             'brand_name',
@@ -83,30 +91,42 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
         ]
         
     def validate(self, data):
+        brands_data = data.pop('product_type_brands', None)
+        attributes_data = data.pop('attributes', None)
+
         dummy_instance = ProductAttributeSet(**{
-            k: v for k, v in data.items() if k not in ['attributes', 'attributes_detail']
+            k: v for k, v in data.items() if k not in ['attributes_detail']
         })
         try:
             dummy_instance.clean()
         except serializers.ValidationError as e:
             raise serializers.ValidationError(e.message_dict)
+        if attributes_data is not None:
+            data['attributes'] = attributes_data
+        if brands_data is not None:
+            data['product_type_brands'] = brands_data
         return data
         
     def create(self, validated_data):
         attributes_data = validated_data.pop('attributes', [])
+        brands_data = validated_data.pop('product_type_brands', [])
         product_attribute_set = ProductAttributeSet.objects.create(**validated_data)
         product_attribute_set.attributes.set(attributes_data)
+        product_attribute_set.product_type_brands.set(brands_data)
         return product_attribute_set
     
     def update(self, instance, validated_data):
         attributes_data = validated_data.pop('attributes', None)
+        brands_data = validated_data.pop('product_type_brands', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        
+
         if attributes_data is not None:
             instance.attributes.set(attributes_data)
-        return instance    
+        if brands_data is not None:
+            instance.product_type_brands.set(brands_data)
+        return instance
 
 class AIProductGenerateRequestSeralizer(serializers.Serializer):
     prompt = serializers.CharField(max_length=5000)

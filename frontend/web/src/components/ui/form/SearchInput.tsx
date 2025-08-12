@@ -3,6 +3,7 @@ interface SearchInputProps {
 	onChange: (term: string) => void
 	placeholder?: string
 	className?: string
+	background?: string
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -10,6 +11,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
 	onChange,
 	placeholder = 'Search…',
 	className = '',
+	background = 'dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400',
 }) => {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onChange(e.target.value)
@@ -32,10 +34,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
                     focus:ring-2
                     focus:ring-blue-500 
                     focus:border-blue-500
-                    dark:bg-gray-700
-                    dark:border-gray-600
-                    dark:text-white
-                    dark:focus:ring-blue-400
+                    ${background}
                     ${className}`}
 				placeholder={placeholder}
 				value={value}

@@ -72,6 +72,8 @@ export interface ProductAttributeSet {
 	category_name: string | null
 	brand: number | null
 	brand_name: string | null
+	// this should be a number; will change later
+	product_type_brands?: number[] | null
 	is_active: boolean
 	created_at: string
 	updated_at: string
@@ -84,6 +86,7 @@ export interface CreateProductAttributeSetRequest {
 	category?: number | null
 	brand?: number | null
 	is_active?: boolean
+	product_type_brands?: number[] | null
 }
 
 export interface Product {

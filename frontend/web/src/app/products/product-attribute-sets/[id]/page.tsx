@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import { useParams, useRouter } from 'next/navigation'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
+import Chip from '@/components/ui/Chip'
 import DetailsSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import PageTitle from '@/components/ui/PageTitle'
 import SpinnerSection from '@/components/ui/SpinnerSection'
@@ -12,7 +13,9 @@ import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import { PRODUCT_ATTRIBUTE_SETS_URL } from '@/lib/constants'
 import { PRODUCT_ATTRIBUTE_SET_PERMISSIONS } from '@/lib/constants/permissions'
+import brandService from '@/lib/services/brand'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
+import { Brand } from '@/types/brand'
 import { ProductAttributeSet } from '@/types/product'
 
 export default function ProductAttributeSetPage() {
@@ -25,6 +28,7 @@ export default function ProductAttributeSetPage() {
 	const [attributeSet, setAttributeSet] = useState<ProductAttributeSet | null>(
 		null,
 	)
+	const [brands, setBrands] = useState<Brand[]>([])
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 
 	const handleEditClick = () => {
@@ -57,6 +61,23 @@ export default function ProductAttributeSetPage() {
 	}
 
 	useEffect(() => {
+		// not a good solution because this won't load everything
+		const fetchBrands = async () => {
+			setIsLoading(true)
+			try {
+				const res = await brandService.fetch()
+				setBrands(res.results)
+			} catch (e: unknown) {
+				console.error('Failed fetching brands: ', e)
+				toast.error('Failed to fetch brands')
+			} finally {
+				setIsLoading(false)
+			}
+		}
+		fetchBrands()
+	}, [])
+
+	useEffect(() => {
 		if (!id) {
 			setIsLoading(false)
 			setError('Failed to load attribute set. Please try again.')
@@ -76,6 +97,10 @@ export default function ProductAttributeSetPage() {
 		fetchAttrSet()
 	}, [id])
 
+	const availableBrands = brands.filter((brand) =>
+		attributeSet?.product_type_brands?.includes(brand.id),
+	)
+
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading product attribute set...' />
 	}
@@ -84,11 +109,36 @@ export default function ProductAttributeSetPage() {
 		return <ServerErrorMessages errorMessages={error} />
 	}
 
+	if (!id) {
+		setError('Failed to load attribute set. Please try again.')
+		return
+	}
+
 	return (
 		<div className='container mx-auto p-4'>
 			<div className='bg-white p-8 shadow-md max-w-2xl mx-auto'>
 				<PageTitle>Product Attribute Set Details</PageTitle>
 				{attributeSet && <DetailsSection rows={details} />}
+				<div className='bg-white shadow-md rounded-lg p-6'>
+					<h2 className='text-xl font-bold text-gray-800 mb-4'>
+						Allowed Brands
+					</h2>
+					<div className='relative mt-1'>
+						<div className='relative w-full border shadow-md rounded-lg'>
+							<div className='flex flex-wrap gap-2 p-2'>
+								{attributeSet?.product_type_brands?.length === 0 ? (
+									<p className='text-gray-600'>No allowed brands</p>
+								) : (
+									availableBrands.map((b) => (
+										<Chip key={b.id} chipType='primary'>
+											{b.name}
+										</Chip>
+									))
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
 				<div className='bg-white shadow-md rounded-lg p-6'>
 					<h2 className='text-xl font-bold text-gray-800 mb-4'>Attributes</h2>
 					{attributeSet?.attributes_detail.length === 0 ? (

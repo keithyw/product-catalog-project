@@ -69,6 +69,11 @@ class ProductAttributeSet(models.Model):
         related_name='attribute_sets',        
     )
 
+    product_type_brands = models.ManyToManyField(
+        Brand,
+        related_name='product_attribute_sets',
+    )
+
     brand = models.ForeignKey(
         Brand,
         on_delete=models.SET_NULL,
