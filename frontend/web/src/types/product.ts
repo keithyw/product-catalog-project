@@ -1,3 +1,5 @@
+import { SelectableItem } from '@/types/base'
+
 export const ATTRIBUTE_TYPE_OPTIONS = [
 	{ value: 'text', label: 'Text Input' },
 	{ value: 'textarea', label: 'Text Area' },
@@ -21,9 +23,7 @@ export type ProductAttributeType =
 	| 'datetime'
 	| 'json'
 
-export interface ProductAttribute {
-	id: number
-	name: string
+export interface ProductAttribute extends SelectableItem {
 	display_name: string
 	display_order?: number | null
 	sample_values?: string | null

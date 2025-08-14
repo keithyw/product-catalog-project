@@ -4,30 +4,32 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import Button from '@/components/ui/form/Button'
 import SearchInput from '@/components/ui/form/SearchInput'
 import BaseModal from '@/components/ui/modals/BaseModal'
-import { Brand } from '@/types/brand'
+import { SelectableItem } from '@/types/base'
 
-interface BrandsSelectionModalProps {
+interface MultiSelectModalProps<T> {
+	title: string
 	isOpen: boolean
 	onClose: () => void
-	allBrands: Brand[]
-	selectedBrands: Brand[]
-	onSelectBrand: (brand: Brand) => void
+	allItems: T[]
+	selectedItems: T[]
+	onSelectItem: (item: T) => void
 }
 
-const BrandsSelectionModal: React.FC<BrandsSelectionModalProps> = ({
+const MultiSelectModal = <T extends SelectableItem>({
+	title,
 	isOpen,
 	onClose,
-	allBrands,
-	selectedBrands,
-	onSelectBrand,
-}) => {
+	allItems,
+	selectedItems,
+	onSelectItem,
+}: MultiSelectModalProps<T>) => {
 	const [query, setQuery] = useState('')
 
-	const filterBrands = allBrands
+	const filteredItems = allItems
 		.filter(
 			(b) =>
 				b.name.toLowerCase().includes(query.toLowerCase()) &&
-				!selectedBrands.some((sb) => sb.id === b.id),
+				!selectedItems.some((selected) => selected.id === b.id),
 		)
 		.sort((a, b) => a.name.localeCompare(b.name))
 
@@ -38,7 +40,7 @@ const BrandsSelectionModal: React.FC<BrandsSelectionModalProps> = ({
 					as='h2'
 					className='text-lg font-medium font-semibold leading-6 text-gray-900'
 				>
-					Manage Allowable Brands
+					{title}
 				</DialogTitle>
 				<div className='p-6'>
 					<div className='relative mb-6'>
@@ -49,30 +51,30 @@ const BrandsSelectionModal: React.FC<BrandsSelectionModalProps> = ({
 							className='text-gray-900'
 						/>
 					</div>
-					<div className='space-y-3'>
-						<h3 className='text-gray-900 font-bold'>Add Brands Here</h3>
+					<div className='space-y-3 mb-4'>
+						<h3 className='text-gray-900 font-bold'>Selects Items from Here</h3>
 					</div>
 					<div className='max-h-80 overflow-y-auto'>
 						<div className='space-y-3'>
-							{filterBrands.length > 0 ? (
-								filterBrands.map((brand) => (
+							{filteredItems.length > 0 ? (
+								filteredItems.map((item) => (
 									<div
-										key={brand.id}
+										key={item.id}
 										className='flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition-colors'
 									>
 										<span className='text-lg font-medium text-gray-700'>
-											{brand.name}
+											{item.name}
 										</span>
 										<Button
 											actionType='neutral'
-											onClick={() => onSelectBrand(brand)}
+											onClick={() => onSelectItem(item)}
 										>
 											<PlusIcon className='w-4 h-4 mr-2' />
 										</Button>
 									</div>
 								))
 							) : (
-								<p className='text-gray-500'>No brands found</p>
+								<p className='text-gray-500'>No items found</p>
 							)}
 						</div>
 					</div>
@@ -82,4 +84,4 @@ const BrandsSelectionModal: React.FC<BrandsSelectionModalProps> = ({
 	)
 }
 
-export default BrandsSelectionModal
+export default MultiSelectModal

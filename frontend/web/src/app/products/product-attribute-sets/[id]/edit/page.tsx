@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useParams, useRouter } from 'next/navigation'
@@ -11,9 +11,8 @@ import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import Chip from '@/components/ui/Chip'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import Button from '@/components/ui/form/Button'
-import ComboboxMultiSelect from '@/components/ui/form/ComboboxMultiSelect'
 import FormInput from '@/components/ui/form/FormInput'
-import BrandsSelectionModal from '@/components/ui/modals/BrandsSelectionModal'
+import MultiSelectModal from '@/components/ui/modals/MultiSelectModal'
 import {
 	FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
 	PRODUCT_ATTRIBUTE_SETS_URL,
@@ -32,6 +31,7 @@ import { Brand } from '@/types/brand'
 import { FormField, OptionType } from '@/types/form'
 import {
 	CreateProductAttributeSetRequest,
+	ProductAttribute,
 	ProductAttributeSet,
 } from '@/types/product'
 
@@ -66,7 +66,7 @@ export default function EditProductAttributeSetPage() {
 	const [attributeSet, setAttributeSet] = useState<ProductAttributeSet | null>(
 		null,
 	)
-	const [attributes, setAttributes] = useState<OptionType[]>([])
+	const [allAttributes, setAllAttributes] = useState<ProductAttribute[]>([])
 	const [loadingAttributes, setLoadingAttributes] = useState(true)
 	const [errorAttributes, setErrorAttributes] = useState<string | null>(null)
 
@@ -79,8 +79,13 @@ export default function EditProductAttributeSetPage() {
 	const [loadingBrands, setLoadingBrands] = useState(true)
 	const [errorBrands, setErrorBrands] = useState<string | null>(null)
 
+	const [selectedAttributes, setSelectedAttributes] = useState<
+		ProductAttribute[]
+	>([])
 	const [selectedBrands, setSelectedBrands] = useState<Brand[]>([])
 
+	const [isAttributesSelectionModalOpen, setIsAttributesSelectionModalOpen] =
+		useState(false)
 	const [isBrandsSelectionModalOpen, setIsBrandsSelectionModalOpen] =
 		useState(false)
 
@@ -97,7 +102,6 @@ export default function EditProductAttributeSetPage() {
 			name: '',
 			description: '',
 			is_active: true,
-			attributes: [],
 			category: null,
 			brand: null,
 		},
@@ -127,7 +131,6 @@ export default function EditProductAttributeSetPage() {
 					name: attr.name,
 					description: attr.description,
 					is_active: attr.is_active,
-					attributes: attr.attributes,
 					category: attr.category,
 					brand: attr.brand,
 				})
@@ -153,8 +156,8 @@ export default function EditProductAttributeSetPage() {
 			setLoadingAttributes(true)
 			setErrorAttributes(null)
 			try {
-				const res = await productAttributeService.fetch()
-				setAttributes(res.results.map((a) => ({ value: a.id, label: a.name })))
+				const res = await productAttributeService.fetch(1, 200)
+				setAllAttributes(res.results)
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					setErrorAttributes(e.message)
@@ -190,7 +193,13 @@ export default function EditProductAttributeSetPage() {
 	useEffect(() => {
 		const associatedBrandIds = new Set(attributeSet?.product_type_brands || [])
 		setSelectedBrands(allBrands.filter((b) => associatedBrandIds.has(b.id)))
-	}, [attributeSet, allBrands])
+		const associatedAttributeIds = new Set(attributeSet?.attributes || [])
+		setSelectedAttributes(
+			allAttributes.filter((a) =>
+				associatedAttributeIds.has(parseInt(a.id as string)),
+			),
+		)
+	}, [attributeSet, allAttributes, allBrands])
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -217,7 +226,7 @@ export default function EditProductAttributeSetPage() {
 				name: data.name,
 				description: data.description,
 				is_active: data.is_active,
-				attributes: data.attributes,
+				attributes: selectedAttributes.map((a) => parseInt(a.id as string)),
 				category: data.category,
 				brand: data.brand,
 				product_type_brands: attributeSet?.product_type_brands || [],
@@ -231,6 +240,23 @@ export default function EditProductAttributeSetPage() {
 		} catch (e: unknown) {
 			handleFormErrors(e, setError, 'Failed updating attribute set.')
 		}
+	}
+
+	const onSelectAttribute = (attribute: ProductAttribute) => {
+		if (!selectedAttributes.find((a) => a.id === attribute.id)) {
+			const newSelectedAttributes = [...selectedAttributes, attribute]
+			setSelectedAttributes(newSelectedAttributes)
+			setAttributeSet({
+				...attributeSet!,
+				attributes: newSelectedAttributes.map((a) => parseInt(a.id as string)),
+			})
+		}
+	}
+
+	const onRemoveAttribute = (attribute: ProductAttribute) => {
+		setSelectedAttributes(
+			selectedAttributes.filter((a) => a.id !== attribute.id),
+		)
 	}
 
 	const onSelectBrand = (brand: Brand) => {
@@ -278,27 +304,53 @@ export default function EditProductAttributeSetPage() {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
-				<Controller
-					name='attributes'
-					control={control}
-					rules={{ required: true }}
-					render={({ field }) => (
-						<ComboboxMultiSelect
-							id='attributes'
-							label='Select Attributes'
-							options={attributes}
-							selectedValues={(field.value as number[]) || []}
-							onSelect={(selectedIds) => field.onChange(selectedIds)}
-							placeholder={
-								loadingAttributes
-									? 'Loading attributes...'
-									: errorAttributes || 'Select attributes for this set'
-							}
-							disabled={loadingAttributes || !!errorAttributes}
-							errorMessage={errors.attributes?.message as string}
-						/>
-					)}
-				/>
+				<div className='mt-4'>
+					<h3 className='text-lg font-semibold text-gray-900'>Attributes</h3>
+					<div className='relative mt-1'>
+						<div className='relative w-full cursor-default border shadow-md rounded-lg'>
+							<div className='flex flex-wrap gap-2 p-2'>
+								{!loadingAttributes && selectedAttributes.length > 0 ? (
+									selectedAttributes.map((a) => (
+										<Chip key={a.id} chipType='primary'>
+											{a.name}
+											<button
+												type='button'
+												onClick={() => onRemoveAttribute(a)}
+												className='ml-1 text-blue-600 hover:text-blue-900 focus:outline-none'
+											>
+												<XMarkIcon className='h-3 w-3' />
+											</button>
+										</Chip>
+									))
+								) : (
+									<p>No attributes selected. Click Add Attributes to select.</p>
+								)}
+								{errorAttributes && (
+									<p className='text-red-500'>{errorAttributes}</p>
+								)}
+							</div>
+						</div>
+					</div>
+					<div className='items-center space-x-2 mt-2'>
+						<Button
+							actionType='neutral'
+							onClick={(e) => {
+								e.preventDefault()
+								setIsAttributesSelectionModalOpen(true)
+							}}
+						>
+							Add Attributes
+						</Button>
+					</div>
+					<MultiSelectModal
+						title='Add Attributes Here'
+						isOpen={isAttributesSelectionModalOpen}
+						onClose={() => setIsAttributesSelectionModalOpen(false)}
+						allItems={allAttributes}
+						selectedItems={selectedAttributes}
+						onSelectItem={onSelectAttribute}
+					/>
+				</div>
 				<div className='mt-4'>
 					<h3 className='text-lg font-semibold text-gray-900'>
 						Allowable Brands
@@ -320,7 +372,7 @@ export default function EditProductAttributeSetPage() {
 										</Chip>
 									))
 								) : (
-									<p>
+									<p className='text-gray-500'>
 										No brands selected. Click Add Allowable Brands to select.
 									</p>
 								)}
@@ -338,12 +390,13 @@ export default function EditProductAttributeSetPage() {
 							Add Allowable Brands
 						</Button>
 					</div>
-					<BrandsSelectionModal
+					<MultiSelectModal
+						title='Add Brands Here'
 						isOpen={isBrandsSelectionModalOpen}
 						onClose={onClose}
-						allBrands={allBrands}
-						selectedBrands={selectedBrands}
-						onSelectBrand={onSelectBrand}
+						allItems={allBrands}
+						selectedItems={selectedBrands}
+						onSelectItem={onSelectBrand}
 					/>
 				</div>
 				<FormInput

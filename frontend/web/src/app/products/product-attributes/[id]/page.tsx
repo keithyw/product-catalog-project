@@ -43,7 +43,9 @@ export default function ProductAttributeDetailsPage() {
 	const handleDeleteConfirm = async () => {
 		if (productAttribute) {
 			try {
-				await productAttributeService.delete(productAttribute.id)
+				await productAttributeService.delete(
+					parseInt(productAttribute.id as string),
+				)
 				toast.success(
 					`Product attribute ${productAttribute.name} deleted successfully!`,
 				)
