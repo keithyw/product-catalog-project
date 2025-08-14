@@ -13,6 +13,7 @@ class ProductAttributeSerializer(serializers.ModelSerializer):
             'name',
             'code',
             'display_name',
+            'display_order',
             'sample_values',
             'description',
             'type',

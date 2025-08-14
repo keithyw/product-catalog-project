@@ -46,6 +46,13 @@ const fields: FormField<ProductAttributeCreateFormData>[] = [
 		type: 'text',
 	},
 	{
+		name: 'display_order',
+		label: 'Display Order',
+		placeholder: 'Order in which this attribute appears',
+		required: false,
+		type: 'number',
+	},
+	{
 		name: 'sample_values',
 		label: 'Sample Values',
 		placeholder: 'hint to AI with comma separated values',
@@ -100,6 +107,7 @@ export default function EditProductAttributePage() {
 		defaultValues: {
 			name: '',
 			display_name: '',
+			display_order: '',
 			sample_values: '',
 			description: '',
 			type: 'text',
@@ -143,6 +151,7 @@ export default function EditProductAttributePage() {
 				reset({
 					name: res.name,
 					display_name: res.display_name || '',
+					display_order: String(res.display_order) || '',
 					sample_values: res.sample_values || '',
 					description: res.description || '',
 					type: res.type,
@@ -189,7 +198,10 @@ export default function EditProductAttributePage() {
 			}
 			const res = await productAttributeService.update(
 				parseInt(productAttributeId as string),
-				form,
+				{
+					...form,
+					display_order: parseInt(form.display_order as string) || null,
+				},
 			)
 			toast.success(`Product attribute ${res.name} updated successfully!`)
 			router.push(PRODUCT_ATTRIBUTES_URL)

@@ -2,6 +2,7 @@ import logging
 from django.conf import settings
 from google.genai import types
 from ai_tools.client import GeminiAIClient
+from brands.models import Brand
 from .models import ProductAttributeSet
 
 logger = logging.getLogger(__name__)
@@ -19,13 +20,18 @@ class ProductAIGenerationService:
         self.client = GeminiAIClient.get_client()
         self.model_name = getattr(settings, 'GEMINI_MODEL')
         self.product_attribute_set = None
+        self.brands = None
         
+    def _load_brands(self):
+        brands = Brand.objects.all()
+        self.brands = brands
+
     def _load_product_attribute_set(self, name):
         set = ProductAttributeSet.objects.filter(name=name).first()
         if not set:
             raise ProductAIGenerationServiceError(f"Product attribute set '{name}' not found.")
         self.product_attribute_set = set
-        
+
     def _generate_definition(self, product_type, product_attributes):
         logger.info(f"Generating AI tool definition for product type: {product_type}")
         # attributes = {
@@ -35,6 +41,15 @@ class ProductAIGenerationService:
         # }
         attributes = {}
         required_fields = []
+        unique_brands = [
+            b.name for b in self.brands if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True)
+        ]
+
+        product_type_brands = list(set(unique_brands))
+
+        # for b in self.brands:
+        #     if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True):
+        #         product_type_brands.append(b.name)
 
         for attr in product_attributes.all():
             if attr.is_required:
@@ -70,13 +85,13 @@ class ProductAIGenerationService:
                 
             elif attr.type == 'select' and attr.options:
                 property['type'] = 'string'
-                property['enum'] = [o.value for o in attr.options]
+                property['enum'] = [o['value'] for o in attr.options]
 
-            elif attr.type == 'multi_select' and attr.options:
+            elif attr.type == 'multiselect' and attr.options:
                 property['type'] = 'array'
                 property['items'] = {
                     'type': 'string',
-                    'enum': [o.value for o in attr.options]
+                    'enum': [o['value'] for o in attr.options]
                 }
 
             elif attr.type == 'date':
@@ -105,6 +120,11 @@ class ProductAIGenerationService:
                             "description": {
                                 "type": "string",
                                 "description": "An optional product description",
+                            },
+                            "brand": {
+                                "type": "string",
+                                "description": "An optional product brand from the list of available brands.",
+                                "enum": product_type_brands,
                             },
                             "attributes": {
                                 "type": "object",
@@ -144,6 +164,7 @@ class ProductAIGenerationService:
         return products
 
     def generate(self, prompt: str, product_type:str) -> dict:
+        self._load_brands()
         self._load_product_attribute_set(product_type)
         tool_object = self._generate_definition(product_type, self.product_attribute_set.attributes)
         

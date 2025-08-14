@@ -65,7 +65,7 @@ export default function ProductAttributeSetPage() {
 		const fetchBrands = async () => {
 			setIsLoading(true)
 			try {
-				const res = await brandService.fetch()
+				const res = await brandService.fetch(1, 200)
 				setBrands(res.results)
 			} catch (e: unknown) {
 				console.error('Failed fetching brands: ', e)

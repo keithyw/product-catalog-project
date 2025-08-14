@@ -118,7 +118,7 @@ export default function CreateProductAttributeSetPage() {
 			setLoadingBrands(true)
 			setErrorBrands(null)
 			try {
-				const res = await brandService.fetch()
+				const res = await brandService.fetch(1, 200)
 				setAllBrands(res.results)
 				setBrands(res.results.map((b) => ({ value: b.id, label: b.name })))
 			} catch (e: unknown) {

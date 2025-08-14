@@ -38,6 +38,13 @@ const fields: FormField<ProductAttributeCreateFormData>[] = [
 		type: 'text',
 	},
 	{
+		name: 'display_order',
+		label: 'Display Order',
+		placeholder: 'Order in which this attribute appears',
+		required: false,
+		type: 'number',
+	},
+	{
 		name: 'sample_values',
 		label: 'Sample Values',
 		placeholder: 'hint to AI with comma separated values',
@@ -87,6 +94,7 @@ export default function CreateProductAttributePage() {
 		defaultValues: {
 			name: '',
 			display_name: '',
+			display_order: '',
 			sample_values: '',
 			description: '',
 			type: 'text',
@@ -116,6 +124,9 @@ export default function CreateProductAttributePage() {
 		try {
 			const f = {
 				...data,
+				display_order: data.display_order
+					? parseInt(data.display_order as string)
+					: null,
 				type: data.type as ProductAttributeType,
 				default_value: data.default_value
 					? JSON.parse(data.default_value)

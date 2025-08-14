@@ -73,6 +73,7 @@ export default function ProductAttributeDetailsPage() {
 				setDetails([
 					{ label: 'Name', value: res.name },
 					{ label: 'Display Name', value: res.display_name || '' },
+					{ label: 'Display Order', value: String(res.display_order) || '' },
 					{ label: 'Sample Values', value: res.sample_values || '' },
 					{ label: 'Description', value: res.description || '' },
 					{ label: 'Type', value: res.type },

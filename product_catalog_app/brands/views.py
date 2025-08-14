@@ -9,15 +9,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Brand
 from .serializers import BrandSerializer
 
-class StandardResultsSetPagianation(PageNumberPagination):
+class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
-    max_page_size = 20
+    max_page_size = 200
     
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
-    pagination_class = StandardResultsSetPagianation
+    pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['name', 'description']

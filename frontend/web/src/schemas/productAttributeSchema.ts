@@ -17,6 +17,22 @@ export const productAttributeCreateSchema = z
 	.object({
 		name: z.string().min(1, 'Name is required.'),
 		display_name: z.string().nullable().optional(),
+		display_order: z
+			.string()
+			.nullable()
+			.optional()
+			.refine(
+				(val) => {
+					if (val === '' || val === null || val === undefined) {
+						return true // It's optional and nullable
+					}
+					const num = Number(val)
+					return !isNaN(num) && num >= 0
+				},
+				{
+					message: 'Display order must be a non-negative number.',
+				},
+			),
 		sample_values: z.string().nullable().optional(),
 		description: z.string().nullable().optional(),
 		type: attributeTypes.default('text').optional(), // Default to 'text' if not provided
