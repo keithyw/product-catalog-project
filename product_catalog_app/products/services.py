@@ -32,26 +32,35 @@ class ProductAIGenerationService:
             raise ProductAIGenerationServiceError(f"Product attribute set '{name}' not found.")
         self.product_attribute_set = set
 
+    def _get_top_five_attributes(self, product_attributes: list) -> list:
+        ordered_attributes = sorted(
+            [attr for attr in product_attributes if attr.display_order is not None],
+            key=lambda x: x.display_order
+        )
+        unordered_attributes = sorted(
+            [attr for attr in product_attributes if attr.display_order is None],
+            key=lambda x: x.name
+        )
+
+        top_five = ordered_attributes[:5]
+        remaining_slots = 5 - len (top_five)
+
+        if remaining_slots > 0:
+            top_five.extend(unordered_attributes[:remaining_slots])
+
+        return top_five
+
     def _generate_definition(self, product_type, product_attributes):
         logger.info(f"Generating AI tool definition for product type: {product_type}")
-        # attributes = {
-            # "type": "object",
-            # "description": "A list of product attributes",
-            # "description": f"Product attributes for {product_type}, each with a set of properties",
-        # }
         attributes = {}
         required_fields = []
         unique_brands = [
             b.name for b in self.brands if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True)
         ]
-
         product_type_brands = list(set(unique_brands))
+        gen_attributes = self._get_top_five_attributes(product_attributes.all())
 
-        # for b in self.brands:
-        #     if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True):
-        #         product_type_brands.append(b.name)
-
-        for attr in product_attributes.all():
+        for attr in gen_attributes:
             if attr.is_required:
                 required_fields.append(attr.name)
                 
@@ -63,7 +72,6 @@ class ProductAIGenerationService:
                 property["type"] = "string"
                 if attr.sample_values:
                     property["description"] += f" for example: {attr.sample_values}"
-                    # property["enum"] = [s.strip() for s in attr.sample_values.split(',')]
                 if 'min_length' in attr.validation_rules:
                     property["minLength"] = attr.validation_rules['min_length']
                 if 'max_length' in attr.validation_rules:
@@ -128,7 +136,6 @@ class ProductAIGenerationService:
                             },
                             "attributes": {
                                 "type": "object",
-                                # "description": "A list of product attributes",
                                 "properties": attributes,
                                 "required": required_fields,
                             },
