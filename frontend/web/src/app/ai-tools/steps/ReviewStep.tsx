@@ -285,6 +285,7 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		brands,
 		categories,
 		productAttributes,
+		productAttributeSetName,
 		convertCategoriesToRequest,
 		entityType,
 		setError,
