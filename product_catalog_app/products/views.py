@@ -13,6 +13,8 @@ from .services import ProductAIGenerationService, ProductAIGenerationServiceErro
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+logger.info('i have a very big penis')
+
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -110,15 +112,43 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', 'name']
     ordering = ['id']
 
+    @action(detail=False, methods=['post'], url_path='bulk')
+    def bulk_create(self, request, *args, **kwargs):
+        logger.info("Received bulk create request for products.")
+        if not request.user.has_perm('products.add_product'):
+            raise PermissionDenied('You do not have permission to bulk create products.')
+        if not isinstance(request.data, list):
+            return Response(
+                {"error": "Invalid request format. Expected a list of products."},
+                status=status.HTTP_400_BAD_REQUEST,
+                created_products=[],
+            )
+        logger.info(f"Bulk create request received with {len(request.data)} products.")
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        products = [
+            Product(
+                name=p.get('name'),
+                description=p.get('description'),
+                is_active=p.get('is_active'),
+                brand=p.get('brand'),
+                category=p.get('category'),
+                attribute_set=p.get('attribute_set'),
+                attributes_data=p.get('attributes_data'),
+            )
+            for p in serializer.validated_data
+        ]
+        created = Product.objects.bulk_create(products)
+        response_serializer = self.get_serializer(created, many=True)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
     @action(detail=False, methods=['post'], url_path='generate')
     def generate(self, request, *args, **kwargs):
         logger.info("Received AI generation request for product")
         serializer = AIProductGenerateRequestSeralizer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         prompt = serializer.validated_data['prompt']
         product_type = serializer.validated_data['product_type']
-
         try:
             svc = ProductAIGenerationService()
             content = svc.generate(prompt, product_type)

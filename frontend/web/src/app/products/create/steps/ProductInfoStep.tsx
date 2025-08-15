@@ -90,7 +90,7 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		const fetchData = async () => {
 			try {
 				setLoadingBrands(true)
-				const brands = await brandService.fetch()
+				const brands = await brandService.fetch(1, 200)
 				if (brands.count > 0) {
 					setBrands(brands.results.map((b) => ({ value: b.id, label: b.name })))
 				}
@@ -105,7 +105,7 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 
 			try {
 				setLoadingCategories(true)
-				const categories = await categoryService.fetch()
+				const categories = await categoryService.fetch(1, 200)
 				if (categories.count > 0) {
 					setCategories(
 						categories.results.map((c) => ({ value: c.id, label: c.name })),
@@ -122,7 +122,7 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 
 			try {
 				setLoadingAttributeSets(true)
-				const attributeSets = await productAttributeSetService.fetch()
+				const attributeSets = await productAttributeSetService.fetch(1, 200)
 				if (attributeSets.count > 0) {
 					setAttributeSets(
 						attributeSets.results.map((as) => ({
