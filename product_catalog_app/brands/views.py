@@ -66,43 +66,18 @@ class BrandViewSet(viewsets.ModelViewSet):
                 created_brands=[]
             )
         serializer = self.get_serializer(data=request.data, many=True)
-        if serializer.is_valid():
-            created_brands = []
-            errors = []
-            for b in serializer.validated_data:
-                try:
-                    brand, created = Brand.objects.get_or_create(
-                        name=b['name'],
-                        defaults={
-                            'description': b.get('description'),
-                            'logo_url': b.get('logo_url'),
-                            'website_url': b.get('website_url'),
-                            'contact_email': b.get('contact_email'),
-                            'contact_id': b.get('contact_id'),
-                        },
-                    )
-                    if created:
-                        created_brands.append(brand)
-                except Exception as e:
-                    errors.append({
-                        "data": b,
-                        "error": str(e),
-                    })
-            response_serializer = self.get_serializer(created_brands, many=True)
-
-            response_data = {
-                "status": "success",
-                "message": f"Successfully processed {len(request.data)} brands "
-                        f"{len(created_brands)} new brands created "
-                        f"{len(request.data) - len(created_brands)} skipped",
-                "created_brands": response_serializer.data,
-            }
-
-            if errors:
-                response_data['errors'] = errors
-                return Response(response_data, status=status.HTTP_207_MULTI_STATUS)
-
-            return Response(response_data, status=status.HTTP_201_CREATED)
-
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        brands = [
+            Brand(
+                name=b.get('name'),
+                description=b.get('description'),
+                logo_url=b.get('logo_url'),
+                website_url=b.get('website_url'),
+                contact_email=b.get('contact_email'),
+                contact_id=b.get('contact_id'),
+            )
+            for b in serializer.validated_data
+        ]
+        created = Brand.objects.bulk_create(brands)
+        response_serializer = self.get_serializer(created, many=True)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)

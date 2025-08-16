@@ -13,8 +13,6 @@ from .services import ProductAIGenerationService, ProductAIGenerationServiceErro
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info('i have a very big penis')
-
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
