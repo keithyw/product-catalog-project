@@ -9,7 +9,9 @@ interface AIToolsStore {
 	productAttributes: SimpleProductAttribute[]
 	productAttributeSetName: string
 	currentStep: number
+	hasPromptHint: boolean
 	isCurrentStepValid: boolean
+	isPromptDisabled: boolean
 	isSubmitting: boolean
 	error: string
 	setPrompt(prompt: string): void
@@ -19,7 +21,9 @@ interface AIToolsStore {
 	setProductAttributes(productAttributes: SimpleProductAttribute[]): void
 	setProductAttributeSetName(name: string): void
 	setCurrentStep(step: number): void
+	setHasPromptHint(hasHint: boolean): void
 	setIsCurrentStepValid(isValid: boolean): void
+	setIsPromptDisabled(isDisabled: boolean): void
 	setIsSubmitting(submitting: boolean): void
 	setError(error: string): void
 	clearDraft: () => void
@@ -33,7 +37,9 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	productAttributes: [],
 	productAttributeSetName: '',
 	currentStep: 1,
+	hasPromptHint: false,
 	isCurrentStepValid: false,
+	isPromptDisabled: false,
 	isSubmitting: false,
 	error: '',
 	setPrompt: (prompt: string) => set({ prompt: prompt }),
@@ -45,8 +51,11 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setProductAttributeSetName: (name: string) =>
 		set({ productAttributeSetName: name }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
+	setHasPromptHint: (hasHint: boolean) => set({ hasPromptHint: hasHint }),
 	setIsCurrentStepValid: (isValid: boolean) =>
 		set({ isCurrentStepValid: isValid }),
+	setIsPromptDisabled: (isDisabled: boolean) =>
+		set({ isPromptDisabled: isDisabled }),
 	setIsSubmitting: (submitting: boolean) => set({ isSubmitting: submitting }),
 	setError: (error: string) => set({ error: error }),
 	clearDraft: () =>

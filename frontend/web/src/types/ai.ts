@@ -6,6 +6,12 @@ export interface SimpleBrand {
 	description: string
 }
 
+export interface GeneratedResponse<T> {
+	status: string
+	entity_type: string
+	data: T[]
+}
+
 export interface GenerateBrandResponse {
 	status: string
 	entity_type: string
@@ -44,4 +50,8 @@ export interface GenerateProductAttributeResponse {
 	status: string
 	entity_type: string
 	data: SimpleProductAttribute[]
+}
+
+export interface PromptHintComponentProps {
+	onHandleSubmit: () => void
 }

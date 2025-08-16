@@ -1,56 +1,69 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import Button from '@/components/ui/form/Button'
+import React, { ComponentType, useCallback, useEffect } from 'react'
 import TextInput from '@/components/ui/form/TextInput'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
-import TextareaInput from '@/components/ui/form/TextareaInput'
-import BaseModal from '@/components/ui/modals/BaseModal'
+import AIPromptStep from '@/components/wizard-steps/AIPromptStep'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
 	ENTITY_PRODUCT_ATTRIBUTE,
 } from '@/lib/constants'
-import aiToolsService, { AIServiceException } from '@/lib/services/aiTools'
+import aiToolsService from '@/lib/services/aiTools'
 import useAIToolsStore from '@/stores/useAIToolsStore'
 import { OptionType } from '@/types/form'
 import { StepComponentProps } from '@/types/wizard'
-import { SimpleCategory } from '@/types/ai'
+import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
 import BrandPromptHint from '@/app/ai-tools/steps/BrandPromptHint'
 import CategoryPromptHint from '@/app/ai-tools/steps/CategoryPromptHint'
 import ProductAttributePromptHint from '@/app/ai-tools/steps/ProductAttributePromptHint'
 
-const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
+const entityTypeOptions: OptionType[] = [
+	{ value: ENTITY_BRAND, label: 'Brands' },
+	{ value: ENTITY_CATEGORY, label: 'Categories' },
+	{ value: ENTITY_PRODUCT_ATTRIBUTE, label: 'Product Attributes' },
+]
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const entityPromptHints: Record<string, ComponentType<any>> = {
+	[ENTITY_BRAND]: BrandPromptHint,
+	[ENTITY_CATEGORY]: CategoryPromptHint,
+	[ENTITY_PRODUCT_ATTRIBUTE]: ProductAttributePromptHint,
+}
+
+const PromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 	const {
-		prompt,
 		entityType,
-		isCurrentStepValid,
 		isSubmitting,
-		setPrompt,
-		setEntityType,
+		prompt,
 		setBrands,
 		setCategories,
+		setEntityType,
 		setProductAttributes,
 		setProductAttributeSetName,
-		setError,
+		setHasPromptHint,
 		setIsCurrentStepValid,
-		setIsSubmitting,
+		setIsPromptDisabled,
 	} = useAIToolsStore()
-
 	const productAttributeSetName = useAIToolsStore(
 		(state) => state.productAttributeSetName,
 	)
+	const PromptHintComponent = entityPromptHints[entityType]
 
-	const [isModalOpen, setIsModalOpen] = useState(false)
+	useEffect(() => {
+		setHasPromptHint(true)
+		setIsPromptDisabled(entityType === '' ? true : false)
+	}, [setIsPromptDisabled, setHasPromptHint, entityType])
 
-	const entityTypeOptions: OptionType[] = useMemo(
-		() => [
-			{ value: ENTITY_BRAND, label: 'Brands' },
-			{ value: ENTITY_CATEGORY, label: 'Categories' },
-			{ value: ENTITY_PRODUCT_ATTRIBUTE, label: 'Product Attributes' },
-		],
-		[],
-	)
+	useEffect(() => {
+		if (entityType === ENTITY_PRODUCT_ATTRIBUTE) {
+			setIsCurrentStepValid(
+				productAttributeSetName.trim().length > 2 && prompt.trim().length > 6,
+			)
+		} else {
+			setIsCurrentStepValid(prompt.trim().length > 6)
+		}
+	}, [prompt, entityType, setIsCurrentStepValid, productAttributeSetName])
 
 	const assignIdsToCategories = useCallback(
 		(
@@ -71,98 +84,57 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		[],
 	)
 
-	useEffect(() => {
-		if (entityType === ENTITY_PRODUCT_ATTRIBUTE) {
-			setIsCurrentStepValid(
-				productAttributeSetName.trim().length > 2 && prompt.trim().length > 6,
-			)
-		} else {
-			setIsCurrentStepValid(prompt.trim().length > 6)
+	const handleGenerate = useCallback(async (): Promise<boolean> => {
+		const res = await aiToolsService.generateByType(prompt, entityType)
+		switch (entityType) {
+			case ENTITY_BRAND:
+				const brands = res?.data as SimpleBrand[]
+				setBrands(
+					brands.length > 0
+						? brands.map((b, bidx) => ({
+								...b,
+								id: bidx + 1,
+							}))
+						: [],
+				)
+				break
+			case ENTITY_CATEGORY:
+				const categories = res?.data as SimpleCategory[]
+				setCategories(
+					categories.length > 0 ? assignIdsToCategories(categories) : [],
+				)
+				break
+			case ENTITY_PRODUCT_ATTRIBUTE:
+				const productAttributes = res?.data as SimpleProductAttribute[]
+				setProductAttributes(
+					productAttributes.length > 0
+						? productAttributes.map((p, pidx) => ({
+								...p,
+								id: pidx + 1,
+								name: [productAttributeSetName, p.name].join(' - '),
+								display_name: p.name,
+							}))
+						: [],
+				)
+				break
 		}
-	}, [prompt, entityType, setIsCurrentStepValid, productAttributeSetName])
-
-	useEffect(() => {
-		const handleStepSubmit = async (): Promise<boolean> => {
-			let isValid = false
-			let res = null
-			setIsSubmitting(true)
-			setIsCurrentStepValid(isValid)
-			try {
-				switch (entityType) {
-					case ENTITY_BRAND:
-						res = await aiToolsService.generateBrands(prompt)
-						setBrands(
-							res?.data && res.data.length > 0
-								? res.data.map((b, bidx) => ({
-										...b,
-										id: bidx + 1,
-									}))
-								: [],
-						)
-						break
-					case ENTITY_CATEGORY:
-						res = await aiToolsService.generateCategories(prompt)
-						setCategories(
-							res?.data && res.data.length > 0
-								? assignIdsToCategories(res.data)
-								: [],
-						)
-						break
-					case ENTITY_PRODUCT_ATTRIBUTE:
-						res = await aiToolsService.generateProductAttributes(prompt)
-						setProductAttributes(
-							res?.data && res.data.length > 0
-								? res.data.map((p, pidx) => ({
-										...p,
-										id: pidx + 1,
-										name: [productAttributeSetName, p.name].join(' - '),
-										display_name: p.name,
-									}))
-								: [],
-						)
-						break
-				}
-				isValid = res?.data && res.data.length > 0 ? true : false
-				setIsCurrentStepValid(isValid)
-			} catch (e: unknown) {
-				setIsCurrentStepValid(false)
-				if (e instanceof AIServiceException) {
-					console.error('AIServiceException ' + e.message)
-					setError(e.message)
-				} else if (e instanceof Error) {
-					console.error('generic error ', e.message)
-					setError(e.message)
-				}
-			} finally {
-				setIsSubmitting(false)
-			}
-			return isValid
-		}
-		setSubmitHandler(handleStepSubmit)
-		return () => {
-			setSubmitHandler(null)
-		}
+		return true
 	}, [
 		assignIdsToCategories,
 		entityType,
-		prompt,
 		productAttributeSetName,
-		isCurrentStepValid,
+		prompt,
 		setBrands,
 		setCategories,
 		setProductAttributes,
-		setError,
-		setIsCurrentStepValid,
-		setIsSubmitting,
-		setSubmitHandler,
 	])
 
-	const onClose = () => {
-		setIsModalOpen(false)
-	}
-
 	return (
-		<div className='space-y-6 p-4'>
+		<AIPromptStep
+			setSubmitHandler={setSubmitHandler}
+			promptHintComponent={PromptHintComponent}
+			onGenerate={handleGenerate}
+		>
 			<SelectDropdown
 				id='entityType'
 				name='entityType'
@@ -184,40 +156,7 @@ const PromptStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 					disabled={isSubmitting}
 				/>
 			)}
-			<TextareaInput
-				id='prompt'
-				label='Generate content for: '
-				placeholder='e.g., "Generate a list of 5 popular 80s toy robot brands, including their names and a brief description for each.'
-				value={prompt}
-				rows={6}
-				className='min-h-[120px] resize-y'
-				onChange={(e) => setPrompt(e.target.value)}
-				disabled={isSubmitting || !entityType}
-			/>
-			{!entityType && (
-				<p className='text-sm text-red-500'>
-					Please select a data type to enable prompt
-				</p>
-			)}
-			{entityType && (
-				<Button actionType='neutral' onClick={() => setIsModalOpen(true)}>
-					Get Help Generating Prompt
-				</Button>
-			)}
-			<BaseModal isOpen={isModalOpen} onClose={onClose}>
-				<div className='p-4'>
-					{entityType === ENTITY_BRAND && (
-						<BrandPromptHint onHandleSubmit={onClose} />
-					)}
-					{entityType === ENTITY_CATEGORY && (
-						<CategoryPromptHint onHandleSubmit={onClose} />
-					)}
-					{entityType === ENTITY_PRODUCT_ATTRIBUTE && (
-						<ProductAttributePromptHint onHandleSubmit={onClose} />
-					)}
-				</div>
-			</BaseModal>
-		</div>
+		</AIPromptStep>
 	)
 }
 
