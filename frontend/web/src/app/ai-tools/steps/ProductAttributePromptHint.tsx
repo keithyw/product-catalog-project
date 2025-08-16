@@ -14,6 +14,7 @@ interface ProductAttributePromptHintProps {
 const ProductAttributePromptHint: React.FC<ProductAttributePromptHintProps> = ({
 	onHandleSubmit,
 }) => {
+	// const [localPrompt, setLocalPrompt] = useState('')
 	const [exampleAttributes, setExampleAttributes] = useState('')
 	const [validationHint, setValidationHint] = useState('')
 	const [multiselectHint, setMultiselectHint] = useState('')
@@ -44,9 +45,6 @@ const ProductAttributePromptHint: React.FC<ProductAttributePromptHintProps> = ({
 
 		// Set the prompt in the global store
 		setPrompt(generatedPrompt.trim())
-
-		// Set the product attribute set name
-		// setProductAttributeSetName(productAttributeSetName)
 	}, [
 		productAttributeSetName,
 		exampleAttributes,
@@ -56,10 +54,6 @@ const ProductAttributePromptHint: React.FC<ProductAttributePromptHintProps> = ({
 	])
 
 	const handleClearAndSubmit = () => {
-		// Reset local state before submitting
-		setExampleAttributes('')
-		setValidationHint('')
-		setMultiselectHint('')
 		onHandleSubmit()
 	}
 

@@ -239,12 +239,10 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 									}
 								})
 							res = await productAttributeService.bulk(data)
-							if (res.created_product_attributes.length > 0) {
+							if (res.length > 0) {
 								const req: CreateProductAttributeSetRequest = {
 									name: productAttributeSetName,
-									attributes: res.created_product_attributes.map(
-										(r: ProductAttribute) => r.id,
-									),
+									attributes: res.map((r: ProductAttribute) => r.id),
 								}
 								await productAttributeSetService.create(req)
 							}

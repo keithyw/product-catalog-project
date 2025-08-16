@@ -6,6 +6,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.text import slugify
 from .models import Product, ProductAttribute, ProductAttributeSet
 from .serializers import AIProductGenerateRequestSeralizer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
 from .services import ProductAIGenerationService, ProductAIGenerationServiceError
@@ -40,50 +41,27 @@ class ProductAttributeViewSet(viewsets.ModelViewSet):
                 created_product_attributes = [],
             )
         serializer = self.get_serializer(data=request.data, many=True)
-        if serializer.is_valid():
-            created_product_attributes = []
-            errors = []
-            for p in serializer.validated_data:
-                try:
-                    product_attribute, created = ProductAttribute.objects.get_or_create(
-                        name=p['name'],
-                        defaults={
-                            'type': p.get('type', 'text'),
-                            'description': p.get('description', ''),
-                            'options': p.get('options', {}),
-                            'validation_rules': p.get('validation_rules', {}),
-                            'display_name': p.get('display_name', ''),
-                            'sample_values': p.get('sample_values', ''),
-                            'is_required': p.get('is_required', False),
-                            'default_value': p.get('default_value', ''),
-                        },
-                    )
-                    if created:
-                        created_product_attributes.append(product_attribute)
-                except Exception as e:
-                    errors.append({
-                        "data": p,
-                        "error": str(e),
-                    })
-            response_serializer = self.get_serializer(created_product_attributes, many=True)
-
-            response_data = {
-                "status": "success",
-                "message": f"Successfully processed {len(created_product_attributes)} product attributes "
-                            f"{len(created_product_attributes)} new product attributes created."
-                            f"{len(request.data) - len(created_product_attributes)} skipped.",
-                "created_product_attributes": response_serializer.data,
-            }
-
-            if errors:
-                response_data["errors"] = errors
-                return Response(response_data, status=status.HTTP_207_MULTI_STATUS)
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+        serializer.is_valid(raise_exception=True)
+        product_attributes = [
+            ProductAttribute(
+                name=p.get('name'),
+                code=slugify(p.get('name')),
+                type=p.get('type', 'text'),
+                description=p.get('description', ''),
+                options=p.get('options', {}),
+                validation_rules=p.get('validation_rules', {}),
+                display_name=p.get('display_name', ''),
+                sample_values=p.get('sample_values', ''),
+                is_required=p.get('is_required', False),
+                default_value=p.get('default_value', ''),
             )
+            for p in serializer.validated_data
+        ]
+        codes = {attr.code for attr in product_attributes}
+        ProductAttribute.objects.bulk_create(product_attributes)
+        created = ProductAttribute.objects.filter(code__in=codes)
+        response_serializer = ProductAttributeSerializer(created, many=True)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
 class ProductAttributeSetViewSet(viewsets.ModelViewSet):
     queryset = ProductAttributeSet.objects.all().order_by('name')

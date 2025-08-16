@@ -4,14 +4,11 @@ import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 import {
 	CreateProductAttributeRequest,
-	CreateBulkProductAttributeResponse,
 	ProductAttribute,
 } from '@/types/product'
 
 interface ProductAttributeService {
-	bulk: (
-		data: CreateProductAttributeRequest[],
-	) => Promise<CreateBulkProductAttributeResponse>
+	bulk: (data: CreateProductAttributeRequest[]) => Promise<ProductAttribute[]>
 	create: (data: CreateProductAttributeRequest) => Promise<ProductAttribute>
 	delete: (id: number) => Promise<void>
 	fetch: (
@@ -30,12 +27,12 @@ interface ProductAttributeService {
 const productAttributeService: ProductAttributeService = {
 	bulk: async (
 		data: CreateProductAttributeRequest[],
-	): Promise<CreateBulkProductAttributeResponse> => {
-		const res = await axiosClient.post<CreateBulkProductAttributeResponse>(
+	): Promise<ProductAttribute[]> => {
+		const res = await axiosClient.post<ProductAttribute[]>(
 			`${API_PRODUCT_ATTRIBUTES_URL}bulk/`,
 			data,
 		)
-		return res.data || ({} as CreateBulkProductAttributeResponse)
+		return res.data || []
 	},
 	create: async (
 		data: CreateProductAttributeRequest,
