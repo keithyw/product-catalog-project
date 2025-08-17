@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
-import ImportDataTable from '@/components/ui/tables/ImportDataTable'
-import NestedImportDataTable from '@/components/ui/tables/NestImportDataTable'
-import PageTitle from '@/components/ui/PageTitle'
+import React, { useCallback, useMemo } from 'react'
+import { isArray } from 'lodash'
+import AIReviewStep from '@/components/wizard-steps/AIReviewStep'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,
@@ -22,140 +21,35 @@ import {
 	CreateProductAttributeSetRequest,
 	ProductAttribute,
 } from '@/types/product'
-import { TableColumn } from '@/types/table'
+import {
+	BRAND_COLUMNS,
+	CATEGORY_COLUMNS,
+	PRODUCT_ATTRIBUTE_COLUMNS,
+} from '@/types/table-columns/aiGenerationColumns'
 import { StepComponentProps } from '@/types/wizard'
-import { isArray } from 'lodash'
 
-const BRAND_COLUMNS: TableColumn<SimpleBrand>[] = [
-	{
-		header: 'ID',
-		accessor: 'id',
-	},
-	{
-		header: 'Name',
-		accessor: 'name',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Description',
-		accessor: 'description',
-		isEditable: true,
-		inputType: 'textarea',
-	},
-]
-
-const CATEGORY_COLUMNS: TableColumn<SimpleCategory>[] = [
-	{
-		header: 'ID',
-		accessor: 'id',
-	},
-	{
-		header: 'Name',
-		accessor: 'name',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Description',
-		accessor: 'description',
-		isEditable: true,
-		inputType: 'textarea',
-	},
-]
-
-const PRODUCT_ATTRIBUTE_COLUMNS: TableColumn<SimpleProductAttribute>[] = [
-	{
-		header: 'ID',
-		accessor: 'id',
-	},
-	{
-		header: 'Name',
-		accessor: 'name',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Display Name',
-		accessor: 'display_name',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Sample Values',
-		accessor: 'sample_values',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Description',
-		accessor: 'description',
-		isEditable: true,
-		inputType: 'textarea',
-	},
-	{
-		header: 'Type',
-		accessor: 'type',
-		isEditable: true,
-		inputType: 'select',
-		selectOptions: [
-			{ value: 'text', label: 'Text' },
-			{ value: 'textarea', label: 'Textarea' },
-			{ value: 'number', label: 'Number' },
-			{ value: 'boolean', label: 'Boolean' },
-			{ value: 'select', label: 'Select' },
-			{ value: 'multiselect', label: 'Multiselect' },
-			{ value: 'date', label: 'Date' },
-			{ value: 'datetime', label: 'Datetime' },
-			{ value: 'json', label: 'JSON' },
-		],
-	},
-	{
-		header: 'Required',
-		accessor: 'is_required',
-		isEditable: true,
-		inputType: 'checkbox',
-	},
-	{
-		header: 'Default Value',
-		accessor: 'default_value',
-		isEditable: true,
-		inputType: 'text',
-	},
-	{
-		header: 'Options',
-		accessor: 'options',
-		// isEditable: true,
-		inputType: 'textarea',
-		isObject: true,
-	},
-	{
-		header: 'Validation Rules',
-		accessor: 'validation_rules',
-		isEditable: false,
-		// inputType: 'textarea',
-		isObject: true,
-	},
-]
-
-const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
+const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 	const {
 		brands,
 		categories,
 		productAttributes,
 		productAttributeSetName,
 		entityType,
-		setBrands,
-		setCategories,
-		setProductAttributes,
-		setError,
-		setIsCurrentStepValid,
-		setIsSubmitting,
 	} = useAIToolsStore()
 
-	const cols = useMemo(() => BRAND_COLUMNS, [])
-	const catCols = useMemo(() => CATEGORY_COLUMNS, [])
-	const prodAttrCols = useMemo(() => PRODUCT_ATTRIBUTE_COLUMNS, [])
+	const removeCategoryAndChildren = useCallback(
+		(categories: SimpleCategory[], id: number): SimpleCategory[] => {
+			return categories
+				.filter((cat) => cat.id !== id)
+				.map((cat) => {
+					if (cat.children) {
+						cat.children = removeCategoryAndChildren(cat.children, id)
+					}
+					return cat
+				})
+		},
+		[],
+	)
 
 	const convertCategoriesToRequest = useCallback(
 		(categories: SimpleCategory[]): SimpleCategoryRequest[] => {
@@ -171,113 +65,83 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		[],
 	)
 
-	useEffect(() => {
-		switch (entityType) {
-			case ENTITY_BRAND:
-				setIsCurrentStepValid(Array.isArray(brands) && brands.length > 0)
-				break
-			case ENTITY_CATEGORY:
-				setIsCurrentStepValid(
-					Array.isArray(categories) && categories.length > 0,
-				)
-				break
-			case ENTITY_PRODUCT_ATTRIBUTE:
-				setIsCurrentStepValid(
-					Array.isArray(productAttributes) && productAttributes.length > 0, // Assuming product attributes are handled similarly to brands for now
-				)
-				break
-			default:
-				setIsCurrentStepValid(false)
-		}
-	}, [brands, categories, productAttributes, entityType, setIsCurrentStepValid])
-
-	useEffect(() => {
-		const handleStepSubmit = async (): Promise<boolean> => {
-			let isValid = false
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			let res: any = null
-			// let isValid = Array.isArray(brands) && brands.length > 0
-			setIsSubmitting(true)
-			try {
-				switch (entityType) {
-					case ENTITY_BRAND:
-						// isValid = Array.isArray(brands) && brands.length > 0
-						if (Array.isArray(brands) && brands.length > 0) {
-							const data: CreateBrandRequest[] = brands.map((b) => {
-								return {
-									name: b.name,
-									description: b.description,
-								}
-							})
-							res = await brandService.bulk(data)
-						}
-						break
-					case ENTITY_CATEGORY:
-						if (Array.isArray(categories) && categories.length > 0) {
-							const data: SimpleCategoryRequest[] =
-								convertCategoriesToRequest(categories)
-							res = await categoryService.bulk(data)
-						}
-						break
-					case ENTITY_PRODUCT_ATTRIBUTE:
-						if (
-							Array.isArray(productAttributes) &&
-							productAttributes.length > 0
-						) {
-							const data: CreateProductAttributeRequest[] =
-								productAttributes.map((attr) => {
-									return {
-										name: attr.name,
-										display_name: attr.display_name || null,
-										description: attr.description,
-										sample_values: attr.sample_values,
-										type: attr.type,
-										is_required: attr.is_required,
-										default_value: attr.default_value,
-										options: attr.options,
-										validation_rules: attr.validation_rules,
-									}
-								})
-							res = await productAttributeService.bulk(data)
-							if (res.length > 0) {
-								const req: CreateProductAttributeSetRequest = {
-									name: productAttributeSetName,
-									attributes: res.map((r: ProductAttribute) => r.id),
-								}
-								await productAttributeSetService.create(req)
+	const entityMap = useMemo(() => {
+		return {
+			columns: {
+				[ENTITY_BRAND]: BRAND_COLUMNS,
+				[ENTITY_CATEGORY]: CATEGORY_COLUMNS,
+				[ENTITY_PRODUCT_ATTRIBUTE]: PRODUCT_ATTRIBUTE_COLUMNS,
+			},
+			data: {
+				[ENTITY_BRAND]: brands,
+				[ENTITY_CATEGORY]: categories,
+				[ENTITY_PRODUCT_ATTRIBUTE]: productAttributes,
+			},
+			filters: {
+				[ENTITY_BRAND]: (items: SimpleBrand[], id: number) =>
+					items.filter((item) => item.id !== id),
+				[ENTITY_CATEGORY]: (items: SimpleCategory[], id: number) =>
+					removeCategoryAndChildren(items, id),
+				removeCategoryAndChildren,
+				[ENTITY_PRODUCT_ATTRIBUTE]: (
+					items: SimpleProductAttribute[],
+					id: number,
+				) => items.filter((item) => item.id !== id),
+			},
+			bulkSave: {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				[ENTITY_BRAND]: async (items: SimpleBrand[]): Promise<any> => {
+					if (isArray(items) && items.length > 0) {
+						const req: CreateBrandRequest[] = items.map((b) => {
+							return {
+								name: b.name,
+								description: b.description,
 							}
-						}
-						break
-				}
-
-				if (res && res.errors) {
-					isValid = false
-					if (isArray(res.errors)) {
-						const errorMessages = res.errors
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							.map((err: any) => err.non_field_errors)
-							.join(', ')
-						setError(errorMessages)
-					} else {
-						setError(res.errors)
+						})
+						return await brandService.bulk(req)
 					}
-				} else {
-					isValid = true
-				}
-			} catch (e: unknown) {
-				isValid = false
-				if (e instanceof Error) {
-					setError(e.message)
-				}
-			} finally {
-				setIsSubmitting(false)
-			}
-			setIsCurrentStepValid(isValid)
-			return isValid
-		}
-		setSubmitHandler(handleStepSubmit)
-		return () => {
-			setSubmitHandler(null)
+					return null
+				},
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				[ENTITY_CATEGORY]: async (items: SimpleCategory[]): Promise<any> => {
+					if (isArray(items) && items.length > 0) {
+						const data: SimpleCategoryRequest[] =
+							convertCategoriesToRequest(categories)
+						return await categoryService.bulk(data)
+					}
+					return null
+				},
+				[ENTITY_PRODUCT_ATTRIBUTE]: async (
+					items: SimpleProductAttribute[],
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				): Promise<any> => {
+					if (isArray(items) && items.length > 0) {
+						const data: CreateProductAttributeRequest[] = items.map((attr) => {
+							return {
+								name: attr.name,
+								display_name: attr.display_name || null,
+								description: attr.description,
+								sample_values: attr.sample_values,
+								type: attr.type,
+								is_required: attr.is_required,
+								default_value: attr.default_value,
+								options: attr.options,
+								validation_rules: attr.validation_rules,
+							}
+						})
+						const res = await productAttributeService.bulk(data)
+						if (res.length > 0) {
+							const req: CreateProductAttributeSetRequest = {
+								name: productAttributeSetName,
+								attributes: res.map((r: ProductAttribute) => r.id as number),
+							}
+							await productAttributeSetService.create(req)
+						}
+						return res
+					}
+					return null
+				},
+			},
 		}
 	}, [
 		brands,
@@ -285,97 +149,47 @@ const ReviewStep: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 		productAttributes,
 		productAttributeSetName,
 		convertCategoriesToRequest,
-		entityType,
-		setError,
-		setIsCurrentStepValid,
-		setIsSubmitting,
-		setSubmitHandler,
+		removeCategoryAndChildren,
 	])
-
-	const removeCategoryAndChildren = (
-		categories: SimpleCategory[],
-		id: number,
-	): SimpleCategory[] => {
-		return categories
-			.filter((cat) => cat.id !== id)
-			.map((cat) => {
-				if (cat.children) {
-					cat.children = removeCategoryAndChildren(cat.children, id)
-				}
-				return cat
-			})
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const handleRemoveRow = (row: any) => {
-		if (brands) {
-			const updatedBrands = brands.filter((i) => i.id !== row)
-			setBrands(updatedBrands)
-		}
-		if (categories) {
-			const updatedCategories = removeCategoryAndChildren(categories, row)
-			setCategories(updatedCategories)
-		}
-		if (productAttributes) {
-			const updatedProductAttributes = productAttributes.filter(
-				(i) => i.id !== row,
-			)
-			setProductAttributes(updatedProductAttributes)
-		}
-	}
-
-	const onDataBrandChange = (updatedData: SimpleBrand[]) => {
-		setBrands(updatedData)
-	}
-	const onDataCategoryChange = (updatedData: SimpleCategory[]) => {
-		setCategories(updatedData)
-	}
-
-	const onDataProductAttributeChange = (
-		updatedData: SimpleProductAttribute[],
-	) => {
-		setProductAttributes(updatedData)
-	}
-
 	return (
-		<div className='space-y-4 p-4'>
-			<PageTitle>Review Data</PageTitle>
-			<p className='text-sm text-gray-500 mb-4'>
-				Review the AI-generated brand data below. You can make edits or remove
-				items before importing.
-			</p>
-
+		<>
 			{entityType === ENTITY_BRAND && (
-				<ImportDataTable
-					data={brands}
-					columns={cols}
-					rowKey='id'
-					onDataChange={onDataBrandChange}
-					onRemoveRow={handleRemoveRow}
-					canRemoveRow={true}
+				<AIReviewStep<SimpleBrand>
+					columns={entityMap.columns[entityType]}
+					data={entityMap.data[entityType]}
+					isNested={false}
+					filterFn={entityMap.filters[entityType]}
+					onSave={() =>
+						entityMap.bulkSave[entityType](entityMap.data[entityType])
+					}
+					setSubmitHandler={setSubmitHandler}
 				/>
 			)}
 			{entityType === ENTITY_CATEGORY && (
-				<NestedImportDataTable
-					data={categories}
-					columns={catCols}
-					rowKey='id'
-					onDataChange={onDataCategoryChange}
-					onRemoveRow={handleRemoveRow}
-					canRemoveRow={true}
+				<AIReviewStep<SimpleCategory>
+					columns={entityMap.columns[entityType]}
+					data={entityMap.data[entityType]}
+					isNested={true}
+					filterFn={entityMap.filters[entityType]}
+					onSave={() =>
+						entityMap.bulkSave[entityType](entityMap.data[entityType])
+					}
+					setSubmitHandler={setSubmitHandler}
 				/>
 			)}
 			{entityType === ENTITY_PRODUCT_ATTRIBUTE && (
-				<ImportDataTable
-					data={productAttributes}
-					columns={prodAttrCols}
-					rowKey='id'
-					onDataChange={onDataProductAttributeChange}
-					onRemoveRow={handleRemoveRow}
-					canRemoveRow={true}
+				<AIReviewStep<SimpleProductAttribute>
+					columns={entityMap.columns[entityType]}
+					data={entityMap.data[entityType]}
+					isNested={false}
+					filterFn={entityMap.filters[entityType]}
+					onSave={() =>
+						entityMap.bulkSave[entityType](entityMap.data[entityType])
+					}
+					setSubmitHandler={setSubmitHandler}
 				/>
 			)}
-		</div>
+		</>
 	)
 }
 

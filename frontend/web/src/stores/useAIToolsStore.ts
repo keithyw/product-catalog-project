@@ -15,6 +15,7 @@ interface AIToolsStore {
 	isSubmitting: boolean
 	error: string
 	setPrompt(prompt: string): void
+	setEntityData: <T>(data: T[], entityType: string) => void
 	setEntityType(type: string): void
 	setBrands(brands: SimpleBrand[]): void
 	setCategories(categories: SimpleCategory[]): void
@@ -43,6 +44,19 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	isSubmitting: false,
 	error: '',
 	setPrompt: (prompt: string) => set({ prompt: prompt }),
+	setEntityData: <T>(data: T[], entityType: string) => {
+		switch (entityType) {
+			case 'brands':
+				set({ brands: data as SimpleBrand[] })
+				break
+			case 'categories':
+				set({ categories: data as SimpleCategory[] })
+				break
+			case 'productAttributes':
+				set({ productAttributes: data as SimpleProductAttribute[] })
+				break
+		}
+	},
 	setEntityType: (type: string) => set({ entityType: type }),
 	setBrands: (b: Omit<SimpleBrand, 'id'>[]) => set({ brands: b }),
 	setCategories: (c: SimpleCategory[]) => set({ categories: c }),
