@@ -13,6 +13,7 @@ export const REFRESH_TOKEN_KEY = 'refresh_token'
 export const ENTITY_BRAND = 'brand'
 export const ENTITY_CATEGORY = 'category'
 export const ENTITY_PRODUCT_ATTRIBUTE = 'product_attribute'
+export const ENTITY_PRODUCT = 'product'
 
 export const API_TOKEN_URL = '/token/'
 export const API_REFRESH_URL = '/token/refresh/'
@@ -28,6 +29,7 @@ export const API_PERMISSIONS_URL = '/permissions/'
 export const API_PRODUCT_ATTRIBUTES_URL = '/product-attributes/'
 export const API_PRODUCT_ATTRIBUTE_SETS_URL = '/product-attribute-sets/'
 export const API_PRODUCT_URL = '/products/'
+export const API_PRODUCTS_GENERATE_URL = `${API_PRODUCT_URL}generate/`
 export const API_USERS_URL = '/users/'
 export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`
 
@@ -40,6 +42,7 @@ export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
 export const CREATE_PRODUCT_URL = `${PRODUCTS_URL}/create`
+export const PRODUCTS_AI_TOOLS_URL = `${PRODUCTS_URL}/${AI_TOOLS_URL}`
 export const PRODUCT_ATTRIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
 export const CREATE_PRODUCT_ATTRIBUTES_URL = `${PRODUCT_ATTRIBUTES_URL}/create`
 export const PRODUCT_ATTRIBUTE_SETS_URL = `${PRODUCTS_URL}/product-attribute-sets`

@@ -1,5 +1,6 @@
 import {
 	PRODUCTS_URL,
+	PRODUCTS_AI_TOOLS_URL,
 	PRODUCT_ATTRIBUTES_URL,
 	PRODUCT_ATTRIBUTE_SETS_URL,
 } from '@/lib/constants'
@@ -15,6 +16,10 @@ export default function ProductsLayout({
 		{
 			href: `${PRODUCTS_URL}`,
 			label: 'Products',
+		},
+		{
+			href: `${PRODUCTS_AI_TOOLS_URL}`,
+			label: 'AI Gen',
 		},
 		{
 			href: `${PRODUCT_ATTRIBUTES_URL}`,

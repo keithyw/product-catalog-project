@@ -14,7 +14,6 @@ interface ProductAttributePromptHintProps {
 const ProductAttributePromptHint: React.FC<ProductAttributePromptHintProps> = ({
 	onHandleSubmit,
 }) => {
-	// const [localPrompt, setLocalPrompt] = useState('')
 	const [exampleAttributes, setExampleAttributes] = useState('')
 	const [validationHint, setValidationHint] = useState('')
 	const [multiselectHint, setMultiselectHint] = useState('')

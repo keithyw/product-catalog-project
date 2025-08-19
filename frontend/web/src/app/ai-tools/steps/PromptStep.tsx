@@ -3,7 +3,7 @@
 import React, { ComponentType, useCallback, useEffect } from 'react'
 import TextInput from '@/components/ui/form/TextInput'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
-import AIPromptStep from '@/components/wizard-steps/AIPromptStep'
+import AIPromptStep from '@/components/ui/wizard-steps/AIPromptStep'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,

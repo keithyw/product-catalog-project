@@ -48,7 +48,10 @@ const productAttributeSetService: ProductAttributeSetService = {
 		searchTerm?: string,
 		ordering?: string,
 	): Promise<ListResponse<ProductAttributeSet>> => {
-		const params: PaginationParams = { page_size: DEFAULT_PAGE_SIZE }
+		const params: PaginationParams = {
+			page_size: pageSize ? pageSize : DEFAULT_PAGE_SIZE,
+		}
+		if (page) params.page = page
 		if (searchTerm) params.search = searchTerm
 		if (ordering) params.ordering = ordering
 		const res = await axiosClient.get<ListResponse<ProductAttributeSet>>(

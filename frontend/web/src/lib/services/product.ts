@@ -1,8 +1,14 @@
+import { AxiosError } from 'axios'
 import axiosClient from '@/lib/clients/axiosClient'
-import { API_PRODUCT_URL } from '@/lib/constants'
+import { API_PRODUCT_URL, API_PRODUCTS_GENERATE_URL } from '@/lib/constants'
+import { AIServiceException } from '@/lib/services/aiTools'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
-import { CreateProductRequest, Product } from '@/types/product'
+import {
+	CreateProductRequest,
+	CreateProductBulkResponse,
+	Product,
+} from '@/types/product'
 
 interface ProductService {
 	create: (data: CreateProductRequest) => Promise<Product>
@@ -13,6 +19,10 @@ interface ProductService {
 		searchTerm?: string,
 		ordering?: string,
 	) => Promise<ListResponse<Product>>
+	generate: (
+		productType: string,
+		prompt: string,
+	) => Promise<CreateProductBulkResponse>
 	get: (id: number) => Promise<Product>
 	patch: (id: number, data: Partial<CreateProductRequest>) => Promise<Product>
 	update: (id: number, data: CreateProductRequest) => Promise<Product>
@@ -40,6 +50,31 @@ const productService: ProductService = {
 			params,
 		})
 		return r.data || { results: [], count: 0, next: null, previous: null }
+	},
+	generate: async (
+		productType: string,
+		prompt: string,
+	): Promise<CreateProductBulkResponse> => {
+		try {
+			const res = await axiosClient.post<CreateProductBulkResponse>(
+				API_PRODUCTS_GENERATE_URL,
+				{
+					product_type: productType,
+					prompt: prompt,
+				},
+			)
+			return res.data
+		} catch (e: unknown) {
+			if (e instanceof AxiosError) {
+				if (e.response) {
+					throw new AIServiceException(
+						e.response.data.message,
+						e.response.status,
+					)
+				}
+			}
+		}
+		throw new AIServiceException('Unknown error', 500)
 	},
 	get: async (id: number): Promise<Product> => {
 		const r = await axiosClient.get<Product>(`${API_PRODUCT_URL}${id}/`)

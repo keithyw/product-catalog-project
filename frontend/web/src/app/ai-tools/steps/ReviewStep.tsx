@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo } from 'react'
 import { isArray } from 'lodash'
-import AIReviewStep from '@/components/wizard-steps/AIReviewStep'
+import AIReviewStep from '@/components/ui/wizard-steps/AIReviewStep'
 import {
 	ENTITY_BRAND,
 	ENTITY_CATEGORY,

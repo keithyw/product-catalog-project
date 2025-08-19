@@ -1,4 +1,6 @@
 import logging
+import json
+import re
 from django.conf import settings
 from google.genai import types
 from ai_tools.client import GeminiAIClient
@@ -170,50 +172,56 @@ class ProductAIGenerationService:
                 p['attributes'] = new_attributes
         return products
 
-    def generate(self, prompt: str, product_type:str) -> dict:
+    def generate(self, prompt: str, product_type: str) -> dict:
         self._load_brands()
         self._load_product_attribute_set(product_type)
         tool_object = self._generate_definition(product_type, self.product_attribute_set.attributes)
-        
         try:
             res = self.client.models.generate_content(
                 model=self.model_name,
                 contents=[types.Part.from_text(text=prompt)],
                 config=types.GenerateContentConfig(tools=[tool_object]),
             )
-            
-            function_calls = []
-            
-            logger.info(f"AI generation response: {res}")
-            if res.candidates and res.candidates[0].content and res.candidates[0].content.parts:
-                logger.info("Processing AI response parts")
-                for part in res.candidates[0].content.parts:
-                    logger.info(f"Processing part: {part}")
-                    if part.function_call:
-                        logger.info(f"Found function call: {part.function_call}")
-                        function_calls.append(part.function_call)
-                        
-            if not function_calls:
-                text_res = res.text if res.text else "No text response from AI"
-                raise ProductAIGenerationServiceError(
-                    message=f"AI could not generate structured data. It responded with {text_res}",
-                    details={"ai_response_text": text_res},
-                )
-                
-            tool_call = function_calls[0]
-            logger.info(f"Found tool call: {tool_call}")
-            logger.info("trying to get the expected name")
-            expected_name = tool_object.function_declarations[0].name
-            logger.info(f"Expected name {expected_name}")
-            logger.info(f"Tool call name: {tool_call.name}")            
-            if tool_call.name != expected_name:
-                raise ProductAIGenerationServiceError(
-                    message=f"Function call name mismatch: expected {expected_name}, got {tool_call.name}",
-                    details={"called_tool": tool_call.name, "expected_tool": expected_name},
-                )
-                
-            logger.info("trying to get content")
-            content = tool_call.args.get('products')
+            function_calls = res.candidates[0].content.parts[0].function_call
+            if function_calls:
+                logger.info(f"Found tool call: {function_calls}")
+                logger.info("Trying to get the expected name")
+                expected_name = tool_object.function_declarations[0].name
+                logger.info(f"Expected name {expected_name}")
+                logger.info(f"Tool call name: {function_calls.name}")
+                if function_calls.name != expected_name:
+                    raise ProductAIGenerationServiceError(
+                        message=f"Function call name mismatch: expected {expected_name}, got {function_calls.name}",
+                        details={"called_tool": function_calls.name, "expected_tool": expected_name},
+                    )
+
+                logger.info("Trying to get content from function call")
+                content = function_calls.args.get('products')
+            else:
+                text_res = res.candidates[0].content.parts[0].text
+                logger.info("No function call found. Checking for text response.")
+                if not text_res:
+                    raise ProductAIGenerationServiceError(
+                        message="AI could not generate structured data. It returned no content.",
+                        details={"ai_response_text": text_res},
+                    )
+
+                logger.info(f"Found text response. Trying to extract JSON: {text_res[:100]}...")
+                json_match = re.search(r'```json\n(.*?)\n```', text_res, re.DOTALL)
+                if not json_match:
+                    raise ProductAIGenerationServiceError(
+                        message="AI response did not contain a valid JSON object.",
+                        details={"ai_response_text": text_res},
+                    )
+                json_content = json_match.group(1).strip()
+                try:
+                    content = json.loads(json_content)
+                    logger.info("Successfully parsed JSON from text response.")
+                except json.JSONDecodeError as e:
+                    raise ProductAIGenerationServiceError(
+                        message=f"Failed to decode JSON from AI response: {str(e)}",
+                        details={"json_content": json_content, "original_error": str(e)},
+                    )
             logger.info(f"AI generated for {product_type}: {content}")
             content = self._clean_attribute_keys(content)
             return {

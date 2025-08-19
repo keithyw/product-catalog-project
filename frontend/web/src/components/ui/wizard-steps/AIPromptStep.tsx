@@ -9,7 +9,7 @@ import { StepComponentProps } from '@/types/wizard'
 
 interface AIPromptStepProps extends StepComponentProps {
 	children?: React.ReactNode
-	promptHintComponent: ComponentType<PromptHintComponentProps>
+	promptHintComponent?: ComponentType<PromptHintComponentProps>
 	onGenerate: () => Promise<boolean>
 }
 
@@ -78,11 +78,13 @@ const AIPromptStep = ({
 					Get Help Generating Prompt
 				</Button>
 			)}
-			<BaseModal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-				<div className='p-4'>
-					<PromptHintComponent onHandleSubmit={() => setIsOpen(false)} />
-				</div>
-			</BaseModal>
+			{PromptHintComponent && (
+				<BaseModal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+					<div className='p-4'>
+						<PromptHintComponent onHandleSubmit={() => setIsOpen(false)} />
+					</div>
+				</BaseModal>
+			)}
 		</div>
 	)
 }

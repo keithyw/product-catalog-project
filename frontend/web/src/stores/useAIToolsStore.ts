@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
+import { ProductAttributeSet } from '@/types/product'
 
 interface AIToolsStore {
 	prompt: string
@@ -7,6 +8,7 @@ interface AIToolsStore {
 	brands: SimpleBrand[]
 	categories: SimpleCategory[]
 	productAttributes: SimpleProductAttribute[]
+	productAttributeSet: ProductAttributeSet | null
 	productAttributeSetName: string
 	currentStep: number
 	hasPromptHint: boolean
@@ -20,6 +22,7 @@ interface AIToolsStore {
 	setBrands(brands: SimpleBrand[]): void
 	setCategories(categories: SimpleCategory[]): void
 	setProductAttributes(productAttributes: SimpleProductAttribute[]): void
+	setProductAttributeSet(item: ProductAttributeSet): void
 	setProductAttributeSetName(name: string): void
 	setCurrentStep(step: number): void
 	setHasPromptHint(hasHint: boolean): void
@@ -36,6 +39,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	brands: [],
 	categories: [],
 	productAttributes: [],
+	productAttributeSet: null,
 	productAttributeSetName: '',
 	currentStep: 1,
 	hasPromptHint: false,
@@ -62,6 +66,8 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setCategories: (c: SimpleCategory[]) => set({ categories: c }),
 	setProductAttributes: (p: Omit<SimpleProductAttribute, 'id'>[]) =>
 		set({ productAttributes: p }),
+	setProductAttributeSet: (item: ProductAttributeSet) =>
+		set({ productAttributeSet: item }),
 	setProductAttributeSetName: (name: string) =>
 		set({ productAttributeSetName: name }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
