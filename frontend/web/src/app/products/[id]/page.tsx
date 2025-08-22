@@ -99,7 +99,7 @@ export default function ProductDetailsPage() {
 	}
 
 	return (
-		<div className='containermx-auto p-4'>
+		<div className='container mx-auto p-4'>
 			<div className='bg-white p-8 shadow-md max-w-2xl mx-auto'>
 				<PageTitle>Product Details</PageTitle>
 				{product && <DetailSection rows={details} />}

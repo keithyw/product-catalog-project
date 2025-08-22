@@ -43,7 +43,6 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 	const currentStepIndex = steps.findIndex((step) => step.id === currentStepId)
 	const isFirstStep = currentStepIndex === 0
 	const isLastStep = currentStepIndex === steps.length - 1
-	console.log('wzi error ' + error)
 
 	return (
 		<div className='min-h-screen bg-gray-100 p-4 font-sans'>

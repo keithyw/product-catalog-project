@@ -27,6 +27,7 @@ const ProductPromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 		setHasPromptHint,
 		setIsCurrentStepValid,
 		setProductAttributeSet,
+		setProducts,
 	} = useAIToolsStore()
 
 	useEffect(() => {
@@ -71,9 +72,16 @@ const ProductPromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 			prompt,
 		)
 		console.log('res from ai:', res)
-
+		setProducts(
+			res.data.length > 0
+				? res.data.map((p, idx) => ({
+						...p,
+						id: idx + 1,
+					}))
+				: [],
+		)
 		return true
-	}, [productAttributeSet, prompt])
+	}, [productAttributeSet, prompt, setProducts])
 
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading attribute set...' />

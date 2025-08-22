@@ -128,13 +128,13 @@ export interface ProductsResponse {
 }
 
 export interface SimpleProduct {
-	id: number
+	id?: number
 	name: string
 	brand: string
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attributes: Record<string, any>
 }
-export interface CreateProductBulkResponse {
+export interface GenerateProductBulkResponse {
 	status: string
 	product_type: string
 	data: SimpleProduct[]

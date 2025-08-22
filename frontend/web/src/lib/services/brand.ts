@@ -1,15 +1,11 @@
 import axiosClient from '@/lib/clients/axiosClient'
 import { API_BRANDS_URL, API_BRANDS_BULK_URL } from '@/lib/constants'
-import {
-	Brand,
-	CreateBrandRequest,
-	CreateBulkBrandResponse,
-} from '@/types/brand'
+import { Brand, CreateBrandRequest } from '@/types/brand'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 
 interface BrandService {
-	bulk: (data: CreateBrandRequest[]) => Promise<CreateBulkBrandResponse>
+	bulk: (data: CreateBrandRequest[]) => Promise<Brand[]>
 	create: (data: CreateBrandRequest) => Promise<Brand>
 	delete: (id: number) => Promise<void>
 	fetch: (
@@ -23,14 +19,9 @@ interface BrandService {
 }
 
 const brandService: BrandService = {
-	bulk: async (
-		data: CreateBrandRequest[],
-	): Promise<CreateBulkBrandResponse> => {
-		const res = await axiosClient.post<CreateBulkBrandResponse>(
-			API_BRANDS_BULK_URL,
-			data,
-		)
-		return res.data || ({} as CreateBulkBrandResponse)
+	bulk: async (data: CreateBrandRequest[]): Promise<Brand[]> => {
+		const res = await axiosClient.post<Brand[]>(API_BRANDS_BULK_URL, data)
+		return res.data || ([] as Brand[])
 	},
 	create: async (data: CreateBrandRequest): Promise<Brand> => {
 		const res = await axiosClient.post<Brand>(API_BRANDS_URL, data)

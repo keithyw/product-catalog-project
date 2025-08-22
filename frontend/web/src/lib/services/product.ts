@@ -1,16 +1,21 @@
 import { AxiosError } from 'axios'
 import axiosClient from '@/lib/clients/axiosClient'
-import { API_PRODUCT_URL, API_PRODUCTS_GENERATE_URL } from '@/lib/constants'
+import {
+	API_PRODUCT_URL,
+	API_PRODUCTS_BULK_URL,
+	API_PRODUCTS_GENERATE_URL,
+} from '@/lib/constants'
 import { AIServiceException } from '@/lib/services/aiTools'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 import {
 	CreateProductRequest,
-	CreateProductBulkResponse,
+	GenerateProductBulkResponse,
 	Product,
 } from '@/types/product'
 
 interface ProductService {
+	bulk: (data: CreateProductRequest[]) => Promise<Product[]>
 	create: (data: CreateProductRequest) => Promise<Product>
 	delete: (id: number) => Promise<void>
 	fetch: (
@@ -22,13 +27,17 @@ interface ProductService {
 	generate: (
 		productType: string,
 		prompt: string,
-	) => Promise<CreateProductBulkResponse>
+	) => Promise<GenerateProductBulkResponse>
 	get: (id: number) => Promise<Product>
 	patch: (id: number, data: Partial<CreateProductRequest>) => Promise<Product>
 	update: (id: number, data: CreateProductRequest) => Promise<Product>
 }
 
 const productService: ProductService = {
+	bulk: async (data: CreateProductRequest[]): Promise<Product[]> => {
+		const res = await axiosClient.post<Product[]>(API_PRODUCTS_BULK_URL, data)
+		return res.data || ([] as Product[])
+	},
 	create: async (data: CreateProductRequest): Promise<Product> => {
 		const res = await axiosClient.post<Product>(API_PRODUCT_URL, data)
 		return res.data || ({} as Product)
@@ -54,9 +63,9 @@ const productService: ProductService = {
 	generate: async (
 		productType: string,
 		prompt: string,
-	): Promise<CreateProductBulkResponse> => {
+	): Promise<GenerateProductBulkResponse> => {
 		try {
-			const res = await axiosClient.post<CreateProductBulkResponse>(
+			const res = await axiosClient.post<GenerateProductBulkResponse>(
 				API_PRODUCTS_GENERATE_URL,
 				{
 					product_type: productType,

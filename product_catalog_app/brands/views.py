@@ -78,6 +78,8 @@ class BrandViewSet(viewsets.ModelViewSet):
             )
             for b in serializer.validated_data
         ]
-        created = Brand.objects.bulk_create(brands)
+        names = {b.name for b in brands}
+        Brand.objects.bulk_create(brands)
+        created = Brand.objects.filter(name__in=names)
         response_serializer = self.get_serializer(created, many=True)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)

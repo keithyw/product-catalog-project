@@ -1,6 +1,12 @@
 import { create } from 'zustand'
+import {
+	ENTITY_BRAND,
+	ENTITY_CATEGORY,
+	ENTITY_PRODUCT,
+	ENTITY_PRODUCT_ATTRIBUTE,
+} from '@/lib/constants'
 import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
-import { ProductAttributeSet } from '@/types/product'
+import { ProductAttributeSet, SimpleProduct } from '@/types/product'
 
 interface AIToolsStore {
 	prompt: string
@@ -10,6 +16,7 @@ interface AIToolsStore {
 	productAttributes: SimpleProductAttribute[]
 	productAttributeSet: ProductAttributeSet | null
 	productAttributeSetName: string
+	products: SimpleProduct[]
 	currentStep: number
 	hasPromptHint: boolean
 	isCurrentStepValid: boolean
@@ -24,6 +31,7 @@ interface AIToolsStore {
 	setProductAttributes(productAttributes: SimpleProductAttribute[]): void
 	setProductAttributeSet(item: ProductAttributeSet): void
 	setProductAttributeSetName(name: string): void
+	setProducts(products: SimpleProduct[]): void
 	setCurrentStep(step: number): void
 	setHasPromptHint(hasHint: boolean): void
 	setIsCurrentStepValid(isValid: boolean): void
@@ -41,6 +49,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	productAttributes: [],
 	productAttributeSet: null,
 	productAttributeSetName: '',
+	products: [],
 	currentStep: 1,
 	hasPromptHint: false,
 	isCurrentStepValid: false,
@@ -50,14 +59,17 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setPrompt: (prompt: string) => set({ prompt: prompt }),
 	setEntityData: <T>(data: T[], entityType: string) => {
 		switch (entityType) {
-			case 'brands':
+			case ENTITY_BRAND:
 				set({ brands: data as SimpleBrand[] })
 				break
-			case 'categories':
+			case ENTITY_CATEGORY:
 				set({ categories: data as SimpleCategory[] })
 				break
-			case 'productAttributes':
+			case ENTITY_PRODUCT_ATTRIBUTE:
 				set({ productAttributes: data as SimpleProductAttribute[] })
+				break
+			case ENTITY_PRODUCT:
+				set({ products: data as SimpleProduct[] })
 				break
 		}
 	},
@@ -70,6 +82,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 		set({ productAttributeSet: item }),
 	setProductAttributeSetName: (name: string) =>
 		set({ productAttributeSetName: name }),
+	setProducts: (p: Omit<SimpleProduct, 'id'>[]) => set({ products: p }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setHasPromptHint: (hasHint: boolean) => set({ hasPromptHint: hasHint }),
 	setIsCurrentStepValid: (isValid: boolean) =>
