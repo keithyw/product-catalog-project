@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
-import SpinnerSection from '@/components/ui/SpinnerSection'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
 	CREATE_PRODUCT_URL,
@@ -19,7 +18,7 @@ import productService from '@/lib/services/product'
 import { Product } from '@/types/product'
 import { TableColumn, TableRowAction } from '@/types/table'
 
-const COLS: TableColumn<Product>[] = [
+const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 	{
 		header: 'ID',
 		accessor: 'id',
@@ -29,6 +28,21 @@ const COLS: TableColumn<Product>[] = [
 		header: 'Name',
 		accessor: 'name',
 		sortable: true,
+	},
+	{
+		header: 'Product Type',
+		accessor: 'attribute_set_name',
+		sortable: false,
+	},
+	{
+		header: 'Brand',
+		accessor: 'brand_name',
+		sortable: false,
+	},
+	{
+		header: 'Category',
+		accessor: 'category_name',
+		sortable: false,
 	},
 ]
 
@@ -56,6 +70,8 @@ export default function ProductsPage() {
 		defaultPageSize: DEFAULT_PAGE_SIZE,
 		fetchData: productService.fetch,
 	})
+
+	const cols = useMemo(() => PRODUCT_COLUMNS, [])
 
 	const openConfirmModal = (p: Product) => {
 		setDeleteProduct(p)
@@ -111,12 +127,6 @@ export default function ProductsPage() {
 			requiredPermission: PRODUCT_PERMISSIONS.DELETE,
 		},
 	]
-
-	const cols = useMemo(() => COLS, [])
-
-	if (isLoading) {
-		return <SpinnerSection spinnerMessage='Loading products...' />
-	}
 
 	return (
 		<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.VIEW}>
