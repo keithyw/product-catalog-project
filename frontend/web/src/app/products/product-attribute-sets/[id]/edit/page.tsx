@@ -5,10 +5,9 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useParams, useRouter } from 'next/navigation'
-import { XMarkIcon } from '@heroicons/react/20/solid'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
-import Chip from '@/components/ui/Chip'
+import ChipContainer from '@/components/ui/ChipContainer'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
@@ -307,29 +306,14 @@ export default function EditProductAttributeSetPage() {
 				<div className='mt-4'>
 					<h3 className='text-lg font-semibold text-gray-900'>Attributes</h3>
 					<div className='relative mt-1'>
-						<div className='relative w-full cursor-default border shadow-md rounded-lg'>
-							<div className='flex flex-wrap gap-2 p-2'>
-								{!loadingAttributes && selectedAttributes.length > 0 ? (
-									selectedAttributes.map((a) => (
-										<Chip key={a.id} chipType='primary'>
-											{a.name}
-											<button
-												type='button'
-												onClick={() => onRemoveAttribute(a)}
-												className='ml-1 text-blue-600 hover:text-blue-900 focus:outline-none'
-											>
-												<XMarkIcon className='h-3 w-3' />
-											</button>
-										</Chip>
-									))
-								) : (
-									<p>No attributes selected. Click Add Attributes to select.</p>
-								)}
-								{errorAttributes && (
-									<p className='text-red-500'>{errorAttributes}</p>
-								)}
-							</div>
-						</div>
+						<ChipContainer
+							itemName='attributes'
+							fieldName='name'
+							isLoadingData={loadingAttributes}
+							data={selectedAttributes}
+							errors={errorAttributes as string}
+							onRemove={onRemoveAttribute}
+						/>
 					</div>
 					<div className='items-center space-x-2 mt-2'>
 						<Button
@@ -356,28 +340,14 @@ export default function EditProductAttributeSetPage() {
 						Allowable Brands
 					</h3>
 					<div className='relative mt-1'>
-						<div className='relative w-full cursor-default border shadow-md rounded-lg'>
-							<div className='flex flex-wrap gap-2 p-2'>
-								{selectedBrands.length > 0 ? (
-									selectedBrands.map((b) => (
-										<Chip key={b.id} chipType='primary'>
-											{b.name}
-											<button
-												type='button'
-												onClick={() => onRemoveBrand(b)}
-												className='ml-1 text-blue-600 hover:text-blue-900 focus:outline-none'
-											>
-												<XMarkIcon className='h-3 w-3' />
-											</button>
-										</Chip>
-									))
-								) : (
-									<p className='text-gray-500'>
-										No brands selected. Click Add Allowable Brands to select.
-									</p>
-								)}
-							</div>
-						</div>
+						<ChipContainer
+							itemName='brands'
+							fieldName='name'
+							isLoadingData={loadingBrands}
+							data={selectedBrands}
+							errors={errorBrands as string}
+							onRemove={onRemoveBrand}
+						/>
 					</div>
 					<div className='items-center space-x-2 mt-2'>
 						<Button
