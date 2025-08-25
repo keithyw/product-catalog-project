@@ -38,7 +38,9 @@ const ChipContainer = <T extends Record<string, any>>({
 					))
 				) : (
 					<p className='text-gray-500'>
-						No {itemName} selected. Click Add {itemName} to select.
+						No <span className='capitalize'>{itemName}</span> selected. Click
+						<span className='capitalize font-bold'> Add {itemName}</span> to
+						select.
 					</p>
 				)}
 				{errors && <p className='text-red-500'>{errors}</p>}

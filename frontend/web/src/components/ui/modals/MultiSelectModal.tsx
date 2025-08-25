@@ -38,7 +38,7 @@ const MultiSelectModal = <T extends SelectableItem>({
 			<div className='mt-4 space-y-4'>
 				<DialogTitle
 					as='h2'
-					className='text-lg font-medium font-semibold leading-6 text-gray-900'
+					className='text-lg font-medium font-semibold leading-6 text-gray-900 capitalize'
 				>
 					{title}
 				</DialogTitle>

@@ -7,16 +7,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useParams, useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
-import ChipContainer from '@/components/ui/ChipContainer'
+import MultiSelectManager from '@/components/ui/MultiSelectManager'
 import SpinnerSection from '@/components/ui/SpinnerSection'
-import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
-import MultiSelectModal from '@/components/ui/modals/MultiSelectModal'
 import {
 	FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
 	PRODUCT_ATTRIBUTE_SETS_URL,
 } from '@/lib/constants'
 import { PRODUCT_ATTRIBUTE_SET_PERMISSIONS } from '@/lib/constants/permissions'
+import { useMultiSelectModalController } from '@/lib/hooks/useMultiSelectModalController'
 import brandService from '@/lib/services/brand'
 import categoryService from '@/lib/services/category'
 import productAttributeService from '@/lib/services/productAttribute'
@@ -65,28 +64,58 @@ export default function EditProductAttributeSetPage() {
 	const [attributeSet, setAttributeSet] = useState<ProductAttributeSet | null>(
 		null,
 	)
-	const [allAttributes, setAllAttributes] = useState<ProductAttribute[]>([])
-	const [loadingAttributes, setLoadingAttributes] = useState(true)
-	const [errorAttributes, setErrorAttributes] = useState<string | null>(null)
 
+	const selectAttributeCallback = (updatedAttributes: ProductAttribute[]) => {
+		setAttributeSet({
+			...attributeSet!,
+			attributes: updatedAttributes.map((a) => parseInt(a.id as string)),
+		})
+	}
+
+	const {
+		data: allAttributes,
+		selectedData: selectedAttributes,
+		setSelectedData: setSelectedAttributes,
+		loadingErrors: errorAttributes,
+		isLoading: loadingAttributes,
+		onSelectItem: onSelectAttribute,
+		onRemoveItem: onRemoveAttribute,
+	} = useMultiSelectModalController<ProductAttribute>({
+		defaultPageSize: 200,
+		fetchData: productAttributeService.fetch,
+		onSelectCallback: selectAttributeCallback,
+	})
+
+	const selectBrandCallback = (updatedBrands: Brand[]) => {
+		const ids = updatedBrands.map((b) => b.id)
+		setAttributeSet({
+			...attributeSet!,
+			product_type_brands: ids,
+		})
+	}
+
+	const {
+		data: allBrands,
+		selectedData: selectedBrands,
+		setSelectedData: setSelectedBrands,
+		loadingErrors: errorBrands,
+		isLoading: loadingBrands,
+		onSelectItem: onSelectBrand,
+		onRemoveItem: onRemoveBrand,
+	} = useMultiSelectModalController<Brand>({
+		defaultPageSize: 200,
+		fetchData: brandService.fetch,
+		onSelectCallback: selectBrandCallback,
+	})
+
+	const [brands, setBrands] = useState<OptionType[]>([])
 	const [categories, setCategories] = useState<OptionType[]>([])
 	const [loadingCategories, setLoadingCategories] = useState(true)
 	const [errorCategories, setErrorCategories] = useState<string | null>(null)
 
-	const [brands, setBrands] = useState<OptionType[]>([])
-	const [allBrands, setAllBrands] = useState<Brand[]>([])
-	const [loadingBrands, setLoadingBrands] = useState(true)
-	const [errorBrands, setErrorBrands] = useState<string | null>(null)
-
-	const [selectedAttributes, setSelectedAttributes] = useState<
-		ProductAttribute[]
-	>([])
-	const [selectedBrands, setSelectedBrands] = useState<Brand[]>([])
-
-	const [isAttributesSelectionModalOpen, setIsAttributesSelectionModalOpen] =
-		useState(false)
-	const [isBrandsSelectionModalOpen, setIsBrandsSelectionModalOpen] =
-		useState(false)
+	useEffect(() => {
+		setBrands(allBrands.map((b) => ({ value: b.id, label: b.name })))
+	}, [allBrands, setBrands])
 
 	const {
 		register,
@@ -105,10 +134,6 @@ export default function EditProductAttributeSetPage() {
 			brand: null,
 		},
 	})
-
-	const onClose = () => {
-		setIsBrandsSelectionModalOpen(false)
-	}
 
 	useEffect(() => {
 		if (!id) {
@@ -151,45 +176,6 @@ export default function EditProductAttributeSetPage() {
 	}, [id, reset, router, setError])
 
 	useEffect(() => {
-		const fetchAttributes = async () => {
-			setLoadingAttributes(true)
-			setErrorAttributes(null)
-			try {
-				const res = await productAttributeService.fetch(1, 200)
-				setAllAttributes(res.results)
-			} catch (e: unknown) {
-				if (e instanceof Error) {
-					setErrorAttributes(e.message)
-					console.error(e.message)
-				}
-			} finally {
-				setLoadingAttributes(false)
-			}
-		}
-		fetchAttributes()
-	}, [])
-
-	useEffect(() => {
-		const fetchBrands = async () => {
-			setLoadingBrands(true)
-			setErrorBrands(null)
-			try {
-				const res = await brandService.fetch(1, 200)
-				setAllBrands(res.results)
-				setBrands(res.results.map((b) => ({ value: b.id, label: b.name })))
-			} catch (e: unknown) {
-				if (e instanceof Error) {
-					setErrorBrands(e.message)
-					console.error(e.message)
-				}
-			} finally {
-				setLoadingBrands(false)
-			}
-		}
-		fetchBrands()
-	}, [])
-
-	useEffect(() => {
 		const associatedBrandIds = new Set(attributeSet?.product_type_brands || [])
 		setSelectedBrands(allBrands.filter((b) => associatedBrandIds.has(b.id)))
 		const associatedAttributeIds = new Set(attributeSet?.attributes || [])
@@ -198,7 +184,13 @@ export default function EditProductAttributeSetPage() {
 				associatedAttributeIds.has(parseInt(a.id as string)),
 			),
 		)
-	}, [attributeSet, allAttributes, allBrands])
+	}, [
+		attributeSet,
+		allAttributes,
+		allBrands,
+		setSelectedAttributes,
+		setSelectedBrands,
+	])
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -241,39 +233,6 @@ export default function EditProductAttributeSetPage() {
 		}
 	}
 
-	const onSelectAttribute = (attribute: ProductAttribute) => {
-		if (!selectedAttributes.find((a) => a.id === attribute.id)) {
-			const newSelectedAttributes = [...selectedAttributes, attribute]
-			setSelectedAttributes(newSelectedAttributes)
-			setAttributeSet({
-				...attributeSet!,
-				attributes: newSelectedAttributes.map((a) => parseInt(a.id as string)),
-			})
-		}
-	}
-
-	const onRemoveAttribute = (attribute: ProductAttribute) => {
-		setSelectedAttributes(
-			selectedAttributes.filter((a) => a.id !== attribute.id),
-		)
-	}
-
-	const onSelectBrand = (brand: Brand) => {
-		if (!selectedBrands.find((b) => b.id === brand.id)) {
-			const newSelectedBrands = [...selectedBrands, brand]
-			const ids = newSelectedBrands.map((b) => b.id)
-			setSelectedBrands(newSelectedBrands)
-			setAttributeSet({
-				...attributeSet!,
-				product_type_brands: ids,
-			})
-		}
-	}
-
-	const onRemoveBrand = (brand: Brand) => {
-		setSelectedBrands(selectedBrands.filter((b) => b.id !== brand.id))
-	}
-
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading attribute set...' />
 	}
@@ -303,72 +262,28 @@ export default function EditProductAttributeSetPage() {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
-				<div className='mt-4'>
-					<h3 className='text-lg font-semibold text-gray-900'>Attributes</h3>
-					<div className='relative mt-1'>
-						<ChipContainer
-							itemName='attributes'
-							fieldName='name'
-							isLoadingData={loadingAttributes}
-							data={selectedAttributes}
-							errors={errorAttributes as string}
-							onRemove={onRemoveAttribute}
-						/>
-					</div>
-					<div className='items-center space-x-2 mt-2'>
-						<Button
-							actionType='neutral'
-							onClick={(e) => {
-								e.preventDefault()
-								setIsAttributesSelectionModalOpen(true)
-							}}
-						>
-							Add Attributes
-						</Button>
-					</div>
-					<MultiSelectModal
-						title='Add Attributes Here'
-						isOpen={isAttributesSelectionModalOpen}
-						onClose={() => setIsAttributesSelectionModalOpen(false)}
-						allItems={allAttributes}
-						selectedItems={selectedAttributes}
-						onSelectItem={onSelectAttribute}
-					/>
-				</div>
-				<div className='mt-4'>
-					<h3 className='text-lg font-semibold text-gray-900'>
-						Allowable Brands
-					</h3>
-					<div className='relative mt-1'>
-						<ChipContainer
-							itemName='brands'
-							fieldName='name'
-							isLoadingData={loadingBrands}
-							data={selectedBrands}
-							errors={errorBrands as string}
-							onRemove={onRemoveBrand}
-						/>
-					</div>
-					<div className='items-center space-x-2 mt-2'>
-						<Button
-							actionType='neutral'
-							onClick={(e) => {
-								e.preventDefault()
-								setIsBrandsSelectionModalOpen(true)
-							}}
-						>
-							Add Allowable Brands
-						</Button>
-					</div>
-					<MultiSelectModal
-						title='Add Brands Here'
-						isOpen={isBrandsSelectionModalOpen}
-						onClose={onClose}
-						allItems={allBrands}
-						selectedItems={selectedBrands}
-						onSelectItem={onSelectBrand}
-					/>
-				</div>
+				<MultiSelectManager
+					title='Add Attributes'
+					itemName='attributes'
+					fieldName='name'
+					data={allAttributes}
+					isLoadingData={loadingAttributes}
+					selectedData={selectedAttributes}
+					loadingErrors={errorAttributes as string}
+					onRemoveItem={onRemoveAttribute}
+					onSelectItem={onSelectAttribute}
+				/>
+				<MultiSelectManager
+					title='Add Allowable Brands'
+					itemName='brands'
+					fieldName='name'
+					data={allBrands}
+					isLoadingData={loadingBrands}
+					selectedData={selectedBrands}
+					loadingErrors={errorBrands as string}
+					onRemoveItem={onRemoveBrand}
+					onSelectItem={onSelectBrand}
+				/>
 				<FormInput
 					field={{
 						name: 'brand',
