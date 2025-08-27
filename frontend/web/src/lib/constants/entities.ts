@@ -1,0 +1,5 @@
+export const ENTITY_ASSET = 'asset'
+export const ENTITY_BRAND = 'brand'
+export const ENTITY_CATEGORY = 'category'
+export const ENTITY_PRODUCT_ATTRIBUTE = 'product_attribute'
+export const ENTITY_PRODUCT = 'product'

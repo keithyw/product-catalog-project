@@ -1,0 +1,19 @@
+export const API_TOKEN_URL = '/token/'
+export const API_REFRESH_URL = '/token/refresh/'
+
+export const API_AI_TOOLS_GENERATE_URL = '/ai/generate/'
+export const API_ASSETS_URL = '/assets/'
+export const API_BRANDS_URL = '/brands/'
+export const API_BRANDS_BULK_URL = `${API_BRANDS_URL}bulk/`
+export const API_CATEGORIES_URL = '/categories/'
+export const API_CATEGORIES_BULK_URL = `${API_CATEGORIES_URL}bulk/`
+export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
+export const API_GROUPS_URL = '/groups/'
+export const API_PERMISSIONS_URL = '/permissions/'
+export const API_PRODUCT_ATTRIBUTES_URL = '/product-attributes/'
+export const API_PRODUCT_ATTRIBUTE_SETS_URL = '/product-attribute-sets/'
+export const API_PRODUCT_URL = '/products/'
+export const API_PRODUCTS_BULK_URL = `${API_PRODUCT_URL}bulk/`
+export const API_PRODUCTS_GENERATE_URL = `${API_PRODUCT_URL}generate/`
+export const API_USERS_URL = '/users/'
+export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`
