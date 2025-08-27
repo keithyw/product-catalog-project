@@ -52,6 +52,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
     'ai_tools.apps.AiToolsConfig',
+    'assets.apps.AssetsConfig',
     'brands.apps.BrandsConfig',
     'categories.apps.CategoriesConfig',
     'products.apps.ProductsConfig',
