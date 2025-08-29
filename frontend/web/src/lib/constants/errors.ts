@@ -1,3 +1,5 @@
+export const FAILED_LOADING_ASSETS_ERROR =
+	'Failed to load assets. Please try again.'
 export const FAILED_LOADING_BRANDS_ERROR =
 	'Failed to load brands. Please try again.'
 export const FAILED_LOADING_CATEGORIES_ERROR =

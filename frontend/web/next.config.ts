@@ -2,7 +2,15 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
 	output: 'standalone',
-	/* config options here */
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				// Using a wildcard for the hostname allows images from any domain.
+				hostname: '**',
+			},
+		],
+	},
 }
 
 export default nextConfig

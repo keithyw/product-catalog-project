@@ -1,6 +1,7 @@
 export const LOGIN_URL = '/login'
 export const AI_TOOLS_URL = '/ai-tools'
 export const ASSETS_URL = '/assets'
+export const CREATE_ASSETS_URL = `${ASSETS_URL}/create`
 export const BRANDS_URL = '/brands'
 export const CREATE_BRANDS_URL = `${BRANDS_URL}/create`
 export const CATEGORIES_URL = '/categories'

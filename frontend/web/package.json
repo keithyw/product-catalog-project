@@ -21,6 +21,7 @@
 		"@storybook/addon-actions": "^9.0.8",
 		"axios": "^1.10.0",
 		"lodash": "^4.17.21",
+		"lucide-react": "^0.542.0",
 		"moment": "^2.30.1",
 		"next": "15.3.5",
 		"react": "^19.0.0",

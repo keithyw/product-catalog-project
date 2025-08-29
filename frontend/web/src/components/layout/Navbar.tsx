@@ -5,6 +5,7 @@ import ProfileDropdown from '@/components/layout/ProfileDropdown'
 import NavbarLink from '@/components/ui/NavbarLink'
 import {
 	AI_TOOLS_URL,
+	ASSETS_URL,
 	BRANDS_URL,
 	CATEGORIES_URL,
 	DASHBOARD_URL,
@@ -31,6 +32,7 @@ export default function Navbar() {
 						<>
 							<NavbarLink href={DASHBOARD_URL}>Dashboard</NavbarLink>
 							<NavbarLink href={AI_TOOLS_URL}>AI Tools</NavbarLink>
+							<NavbarLink href={ASSETS_URL}>Assets</NavbarLink>
 							<NavbarLink
 								href={BRANDS_URL}
 								permission={`${BRAND_PERMISSIONS.VIEW}`}

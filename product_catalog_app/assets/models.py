@@ -1,7 +1,7 @@
 from django.db import models
 
 class Asset(models.Model):
-    url = models.CharField(max_length=150, unique=True)
+    url = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=50, null=False)
     filepath = models.CharField(max_length=500, blank=True, null=True)
