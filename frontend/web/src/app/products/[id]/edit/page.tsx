@@ -30,6 +30,7 @@ export default function EditProductPage() {
 		clearDraft,
 		isCurrentStepValid,
 		isSubmitting,
+		setIsEditMode,
 		setProduct,
 	} = useProductStore()
 
@@ -40,6 +41,7 @@ export default function EditProductPage() {
 				try {
 					const res = await productService.get(parseInt(id as string))
 					setProduct(res)
+					setIsEditMode(true)
 				} catch (e: unknown) {
 					if (e instanceof Error) {
 						console.error(e.message)
@@ -52,7 +54,7 @@ export default function EditProductPage() {
 			}
 			fetchProduct()
 		}
-	}, [id, setProduct])
+	}, [id, router, setIsEditMode, setProduct])
 
 	const currentStepHandler = useRef<(() => Promise<boolean>) | null>(null)
 

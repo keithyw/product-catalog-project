@@ -63,7 +63,7 @@ export const createDynamicProductAttributeSchema = (
 				break
 
 			case 'number':
-				let numberSchema: z.ZodNumber = z.number()
+				let numberSchema: z.ZodNumber = z.coerce.number()
 				if (attr.validation_rules?.min !== undefined) {
 					numberSchema = numberSchema.min(
 						attr.validation_rules.min,

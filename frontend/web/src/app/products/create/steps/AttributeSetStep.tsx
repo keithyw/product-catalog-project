@@ -29,8 +29,14 @@ type AttributeSetRequest = {
 const AttributeSetStep: React.FC<StepComponentProps> = ({
 	setSubmitHandler,
 }) => {
-	const { product, setProduct, setIsCurrentStepValid, setIsSubmitting } =
-		useProductStore()
+	const {
+		isEditMode,
+		product,
+		setProduct,
+		setIsCurrentStepValid,
+		setIsEditMode,
+		setIsSubmitting,
+	} = useProductStore()
 	const selectedAttributeSetId = product?.attribute_set
 	const [fields, setFields] = useState<ProductAttribute[]>([])
 	const [isLoadingAttributes, setIsLoadingAttributes] = useState(false)
@@ -86,23 +92,42 @@ const AttributeSetStep: React.FC<StepComponentProps> = ({
 				const attributeSet = await productAttributeSetService.get(
 					selectedAttributeSetId,
 				)
+				const currentAttributesData = getValues('attributes_data') || {}
 				const fields = attributeSet.attributes_detail || []
 				setFields(fields)
 				const dynamicSchema = createDynamicProductAttributeSchema(fields)
 				setSchema(dynamicSchema)
 
-				const currentAttributesData = getValues('attributes_data') || {}
-				const newAttributesData = { ...currentAttributesData }
-				attributeSet.attributes_detail.forEach((attr) => {
-					if (
-						attr.default_value !== null &&
-						attr !== undefined &&
-						!(attr.code in newAttributesData)
-					) {
-						newAttributesData[attr.code] = attr.default_value
-					}
-				})
-				setValue('attributes_data', newAttributesData)
+				if (!isEditMode) {
+					const newAttributesData = { ...currentAttributesData }
+					attributeSet.attributes_detail.forEach((attr) => {
+						if (
+							attr.default_value !== null &&
+							attr !== undefined &&
+							!(attr.code in newAttributesData)
+						) {
+							newAttributesData[attr.code] = attr.default_value
+						}
+					})
+					setValue('attributes_data', newAttributesData)
+				} else {
+					const newAttributesData = { ...currentAttributesData }
+					fields.forEach((f) => {
+						if (currentAttributesData[f.name]) {
+							if (
+								['select', 'multiselect'].includes(f.type) &&
+								typeof currentAttributesData[f.name] === 'string'
+							) {
+								newAttributesData[f.code] = JSON.parse(
+									currentAttributesData[f.name],
+								)
+							} else {
+								newAttributesData[f.code] = currentAttributesData[f.name]
+							}
+						}
+					})
+					setValue('attributes_data', newAttributesData)
+				}
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					setErrorAttributes(e.message)
@@ -114,7 +139,7 @@ const AttributeSetStep: React.FC<StepComponentProps> = ({
 			}
 		}
 		fetchAttributes()
-	}, [getValues, setError, setValue, selectedAttributeSetId])
+	}, [getValues, isEditMode, setError, setValue, selectedAttributeSetId])
 
 	useEffect(() => {
 		const handleStepSubmit = async (): Promise<boolean> => {
@@ -131,6 +156,7 @@ const AttributeSetStep: React.FC<StepComponentProps> = ({
 				try {
 					const res = await productService.patch(parseInt(product.id), partial)
 					setProduct(res)
+					setIsEditMode(false)
 					toast.success(`Product ${res.name} attributes updated`)
 				} catch (e: unknown) {
 					handleFormErrors(e, setError, 'Failed to update attributes.')
@@ -153,6 +179,7 @@ const AttributeSetStep: React.FC<StepComponentProps> = ({
 		product,
 		setError,
 		setProduct,
+		setIsEditMode,
 		setIsSubmitting,
 		setSubmitHandler,
 		trigger,

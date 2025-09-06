@@ -7,6 +7,7 @@ interface ProductStore {
 	products: Product[]
 	currentStep: number
 	isCurrentStepValid: boolean
+	isEditMode: boolean
 	isSubmitting: boolean
 	error: string | null
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +16,7 @@ interface ProductStore {
 	setProducts: (products: Product[]) => void
 	setCurrentStep: (step: number) => void
 	setIsCurrentStepValid: (isValid: boolean) => void
+	setIsEditMode: (isEditting: boolean) => void
 	setIsSubmitting: (loading: boolean) => void
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	setDynamicAttributeSchema: (schema: z.ZodObject<any> | null) => void
@@ -26,6 +28,7 @@ const useProductStore = create<ProductStore>((set) => ({
 	products: [],
 	currentStep: 1,
 	isCurrentStepValid: false,
+	isEditMode: false,
 	isSubmitting: false,
 	error: null,
 	dynamicAttributeSchema: null,
@@ -35,6 +38,7 @@ const useProductStore = create<ProductStore>((set) => ({
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setIsCurrentStepValid: (isValid: boolean) =>
 		set({ isCurrentStepValid: isValid }),
+	setIsEditMode: (isEdit: boolean) => set({ isEditMode: isEdit }),
 	setIsSubmitting: (submitting: boolean) => set({ isSubmitting: submitting }),
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	setDynamicAttributeSchema: (schema: z.ZodObject<any> | null) =>
