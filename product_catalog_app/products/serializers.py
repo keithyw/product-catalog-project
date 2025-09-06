@@ -129,6 +129,11 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
             instance.product_type_brands.set(brands_data)
         return instance
 
+class AIImageProductGenerateRequestSerializer(serializers.Serializer):
+    prompt = serializers.CharField(max_length=5000)
+    product_type = serializers.CharField(max_length=150)
+    file = serializers.FileField()
+
 class AIProductGenerateRequestSeralizer(serializers.Serializer):
     prompt = serializers.CharField(max_length=5000)
     product_type = serializers.CharField(max_length=150)

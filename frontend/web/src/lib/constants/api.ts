@@ -15,5 +15,6 @@ export const API_PRODUCT_ATTRIBUTE_SETS_URL = '/product-attribute-sets/'
 export const API_PRODUCT_URL = '/products/'
 export const API_PRODUCTS_BULK_URL = `${API_PRODUCT_URL}bulk/`
 export const API_PRODUCTS_GENERATE_URL = `${API_PRODUCT_URL}generate/`
+export const API_PRODUCT_IMAGE_URL = '/product-image/'
 export const API_USERS_URL = '/users/'
 export const API_CURRENT_USER_URL = `${API_USERS_URL}me/`

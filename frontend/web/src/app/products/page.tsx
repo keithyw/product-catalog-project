@@ -9,6 +9,7 @@ import DataTable from '@/components/ui/DataTable'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
 	CREATE_PRODUCT_URL,
+	CREATE_PRODUCT_FROM_IMAGE_URL,
 	PRODUCTS_URL,
 	DEFAULT_PAGE_SIZE,
 } from '@/lib/constants'
@@ -131,12 +132,20 @@ export default function ProductsPage() {
 	return (
 		<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.VIEW}>
 			<h1>Products</h1>
-			<CreateItemSection
-				href={CREATE_PRODUCT_URL}
-				permission={PRODUCT_PERMISSIONS.ADD}
-			>
-				Create New Product
-			</CreateItemSection>
+			<div className='flex gap-4 justify-end'>
+				<CreateItemSection
+					href={CREATE_PRODUCT_URL}
+					permission={PRODUCT_PERMISSIONS.ADD}
+				>
+					Create New Product
+				</CreateItemSection>
+				<CreateItemSection
+					href={CREATE_PRODUCT_FROM_IMAGE_URL}
+					permission={PRODUCT_PERMISSIONS.ADD}
+				>
+					Create From Image
+				</CreateItemSection>
+			</div>
 			<DataTable
 				data={products}
 				columns={cols}

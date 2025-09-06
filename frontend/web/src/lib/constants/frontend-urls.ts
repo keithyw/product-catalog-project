@@ -9,6 +9,7 @@ export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
 export const PRODUCTS_URL = '/products'
 export const CREATE_PRODUCT_URL = `${PRODUCTS_URL}/create`
+export const CREATE_PRODUCT_FROM_IMAGE_URL = `${PRODUCTS_URL}/from-image`
 export const PRODUCTS_AI_TOOLS_URL = `${PRODUCTS_URL}/${AI_TOOLS_URL}`
 export const PRODUCT_ATTRIBUTES_URL = `${PRODUCTS_URL}/product-attributes`
 export const CREATE_PRODUCT_ATTRIBUTES_URL = `${PRODUCT_ATTRIBUTES_URL}/create`

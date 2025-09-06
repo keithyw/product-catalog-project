@@ -186,6 +186,7 @@ AUTH_USER_MODEL = 'users.User'
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 GEMINI_API_VERSION = 'v1alpha'
 GEMINI_MODEL = 'gemini-2.0-flash-001'
+GEMINI_SEARCH_MODEL = 'gemini-2.5-flash'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -230,3 +231,5 @@ LOGGING = {
         }
     },
 }
+
+FILE_UPLOAD_TEMP_DIR = '/tmp'

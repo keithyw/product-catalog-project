@@ -139,3 +139,9 @@ export interface GenerateProductBulkResponse {
 	product_type: string
 	data: SimpleProduct[]
 }
+
+export interface GeneratedProductResponse {
+	status: string
+	product_type: string
+	data: SimpleProduct
+}

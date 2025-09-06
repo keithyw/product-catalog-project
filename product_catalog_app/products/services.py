@@ -1,5 +1,7 @@
 import logging
+import io
 import json
+import magic
 import re
 from django.conf import settings
 from google.genai import types
@@ -20,7 +22,8 @@ class ProductAIGenerationService:
     def __init__(self):
         logger.info("Initializing ProductAIGenerationService")
         self.client = GeminiAIClient.get_client()
-        self.model_name = getattr(settings, 'GEMINI_MODEL')
+        # self.model_name = getattr(settings, 'GEMINI_MODEL')
+        self.model_name = getattr(settings, 'GEMINI_SEARCH_MODEL')
         self.product_attribute_set = None
         self.brands = None
         
@@ -51,17 +54,11 @@ class ProductAIGenerationService:
             top_five.extend(unordered_attributes[:remaining_slots])
 
         return top_five
-
-    def _generate_definition(self, product_type, product_attributes):
-        logger.info(f"Generating AI tool definition for product type: {product_type}")
+    
+    def _generate_attributes(self, product_type, gen_attributes: list):
         attributes = {}
         required_fields = []
-        unique_brands = [
-            b.name for b in self.brands if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True)
-        ]
-        product_type_brands = list(set(unique_brands))
-        gen_attributes = self._get_top_five_attributes(product_attributes.all())
-
+        logger.info(f"gen attributes: {gen_attributes}")
         for attr in gen_attributes:
             if attr.is_required:
                 required_fields.append(attr.name)
@@ -114,7 +111,35 @@ class ProductAIGenerationService:
                 
             attributes[attr.name] = property
             
-        schema = {
+        return attributes, required_fields
+    
+    def _generate_product_schema(self, attributes, required_fields):
+        return {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The product name",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "An optional product description",
+                },
+                "brand": {
+                    "type": "string",
+                    "description": "An optional product brand from the list of available brands.",
+                },
+                "attributes": {
+                    "type": "object",
+                    "properties": attributes,
+                    "required": required_fields,
+                },
+            },
+            "required": ["name", "attributes"],
+        }
+
+    def _generate_products_schema(self, product_type, product_type_brands, attributes, required_fields):
+        return {
             "type": "object",
             "properties": {
                 "products": {
@@ -148,7 +173,45 @@ class ProductAIGenerationService:
             },
             "required": ["products"],
         }
+
+    # this generates the definition for a single product
+    # we don't limit the number of attributes nor enforce brands
+    # since we want the gen ai to figure these out
+    def _generate_definition_for_product(self, product_type, product_attributes):
+        logger.info("trying to generate attributes")
+        attributes, required_fields = self._generate_attributes(product_type, product_attributes.all())
+        logger.info("generated attributes")
+        schema = self._generate_product_schema(
+            attributes,
+            required_fields,
+        )
         
+        logger.info(f"Generated product schema for { product_type}: {schema}")
+        return types.Tool(
+            function_declarations=[
+                types.FunctionDeclaration(
+                    name="identify_product_information_by_iamge_for_review",
+                    description=f"Using the image uploaded for {product_type}, fill in related attributes about the product when the user asks to generate the product based on the product type.",
+                    parameters=schema,
+                )
+            ]
+        )
+
+    # this handles multiple products
+    def _generate_definition(self, product_type, product_attributes):
+        logger.info(f"Generating AI tool definition for product type: {product_type}")
+        unique_brands = [
+            b.name for b in self.brands if b.id in self.product_attribute_set.product_type_brands.values_list('id', flat=True)
+        ]
+        product_type_brands = list(set(unique_brands))
+        gen_attributes = self._get_top_five_attributes(product_attributes.all())
+        attributes, required_fields = self._generate_attributes(product_type, gen_attributes)
+        schema = self._generate_products_schema(
+            product_type,
+            product_type_brands,
+            attributes,
+            required_fields,
+        )
         logger.info(f"Generated schema for {product_type}: {schema}")
         
         return types.Tool(
@@ -171,10 +234,62 @@ class ProductAIGenerationService:
                     new_attributes[cleaned_key] = val
                 p['attributes'] = new_attributes
         return products
+    
+    # might eventually convert this into a utility function
+    def _load_image(self, file: io.BufferedReader) -> tuple:
+        image_bytes = file.read()
+        mime_type = magic.from_buffer(image_bytes, mime=True)
+        file.seek(0)
+        return image_bytes, mime_type
+    
+    def generate_by_image(self, prompt: str, product_type: str, file) -> dict:
+        self._load_product_attribute_set(product_type)
+        tool = self._generate_definition_for_product(product_type, self.product_attribute_set.attributes)
+        logger.info(f"file: {file}")
+        file_content = file.read()        
+        img = io.BytesIO(file_content)
+        mime_type = magic.from_buffer(file_content, mime=True)
+        image = self.client.files.upload(file=img, config={'mime_type': mime_type})
+        try:
+            res = self.client.models.generate_content(
+                model=self.model_name,
+                contents=[
+                    image,                    
+                    types.Part.from_text(text=prompt),
+                ],
+                config=types.GenerateContentConfig(tools=[tool]),
+            )
+            logger.info(f"res {res}")
+            function_calls = res.candidates[0].content.parts[0].function_call
+            if function_calls:
+                content = function_calls.args
+                new_attributes = {}
+                for key, val in content['attributes'].items():
+                    cleaned_key = key.replace('___', ' - ')
+                    cleaned_key = cleaned_key.replace('_', ' ')
+                    new_attributes[cleaned_key] = val
+
+                content['attributes'] = new_attributes
+                logger.info(f"content: {content}")
+                return {
+                    "product_type": product_type,
+                    "data": content,
+                }
+            else:
+                raise ProductAIGenerationServiceError(
+                    message=f"Could not find any returned functions for {product_type}",
+                    defails={"original_error": str(res), "product_type": product_type},
+                )
+        except Exception as e:
+            logger.info(f"issue: {str(e)}")
+            raise ProductAIGenerationService(
+                message=f"An error occurred while generating content: {str(e)}",
+                details={"original_error": str(e), "product_type": product_type}
+            )
 
     def generate(self, prompt: str, product_type: str) -> dict:
         self._load_brands()
-        self._load_product_attribute_set(product_type)
+        self._load_product_attribute_set(product_type)        
         tool_object = self._generate_definition(product_type, self.product_attribute_set.attributes)
         try:
             res = self.client.models.generate_content(

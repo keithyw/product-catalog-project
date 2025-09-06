@@ -4,11 +4,13 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.text import slugify
 from .models import Product, ProductAttribute, ProductAttributeSet
-from .serializers import AIProductGenerateRequestSeralizer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
+from .serializers import AIProductGenerateRequestSeralizer, AIImageProductGenerateRequestSerializer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
 from .services import ProductAIGenerationService, ProductAIGenerationServiceError
 
 logger = logging.getLogger(__name__)
@@ -87,6 +89,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
+    # parser_classes = (MultiPartParser, FormParser,)
+    # parser_classes = (FileUploadParser, )
 
     @action(detail=False, methods=['post'], url_path='bulk')
     def bulk_create(self, request, *args, **kwargs):
@@ -150,3 +154,42 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "message": "An unexpected server error occurred",
                 "details": str(e),
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class ProductImageViewSet(APIView):
+    parser_classes = (MultiPartParser, FormParser,)
+    permission_classes = [permissions.IsAuthenticated]
+    
+    # @action(detail=False, methods=['post'], url_path='from-image')
+    def post(self, request, *args, **kwargs):
+        logger.info("received request for image id")
+        logger.info("data", request)
+        serializer = AIImageProductGenerateRequestSerializer(data=request.data)
+        logger.info("trying to validate data for image upload")
+        serializer.is_valid(raise_exception=True)
+        logger.info("data is valid for image upload")
+        prompt = serializer.validated_data['prompt']
+        product_type = serializer.validated_data['product_type']
+        image = serializer.validated_data['file']
+        try:
+            svc = ProductAIGenerationService()
+            content = svc.generate_by_image(prompt, product_type, image)
+            return Response({
+                "status": "success",
+                "product_type": product_type,
+                "data": content['data'],
+            })
+
+        except ProductAIGenerationServiceError as e:
+            logger.error(f"Product AI generation error for {product_type}, prompt={prompt[:50]}... {e.message} Details: {e.details}")
+            return Response({
+                "status": "error",
+                "message": str(e),
+                "details": e.details,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": "An unexpected server error occurred",
+                "details": str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
