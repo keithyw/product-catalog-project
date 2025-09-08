@@ -1,0 +1,8 @@
+{
+  "topics": [
+    {
+      "topic_id": "product-attribute-set-updates",
+      "subscriptions": ["product-attribute-set-updates-sub"]
+    }
+  ]
+}

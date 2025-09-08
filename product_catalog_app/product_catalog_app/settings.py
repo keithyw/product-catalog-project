@@ -188,6 +188,9 @@ GEMINI_API_VERSION = 'v1alpha'
 GEMINI_MODEL = 'gemini-2.0-flash-001'
 GEMINI_SEARCH_MODEL = 'gemini-2.5-flash'
 
+PUBSUB_EMULATOR_HOST = os.getenv('PUBSUB_EMULATOR_HOST', 'localhost:8085')
+PUBSUB_PROJECT_ID = os.getenv('PUBSUB_PROJECT_ID', 'my-project-id')
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

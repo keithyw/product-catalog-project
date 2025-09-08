@@ -1,5 +1,3 @@
-# print("--- db_router.py module is being imported ---")
-
 import os
 
 class UserRouter:
