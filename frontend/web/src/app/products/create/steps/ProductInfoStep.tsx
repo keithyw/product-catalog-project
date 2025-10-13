@@ -17,7 +17,11 @@ import {
 } from '@/schemas/productSchema'
 import useProductStore from '@/stores/useProductStore'
 import { FormField, OptionType } from '@/types/form'
-import { CreateProductRequest, ProductAttributeSet } from '@/types/product'
+import {
+	CreateProductRequest,
+	ProductAttributeSet,
+	VERIFICATION_STATUS_OPTIONS,
+} from '@/types/product'
 import { StepComponentProps } from '@/types/wizard'
 
 const fields: FormField<ProductCreateFormData>[] = [
@@ -35,6 +39,19 @@ const fields: FormField<ProductCreateFormData>[] = [
 		type: 'textarea',
 	},
 	{ name: 'is_active', label: 'Is Active', required: true, type: 'checkbox' },
+	{
+		name: 'is_ai_generated',
+		label: 'Is AI Generated',
+		required: false,
+		type: 'checkbox',
+	},
+	{
+		name: 'verification_status',
+		label: 'Verification Status',
+		required: false,
+		type: 'select',
+		options: VERIFICATION_STATUS_OPTIONS,
+	},
 ]
 
 const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
@@ -74,6 +91,8 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 			brand: product ? product.brand : null,
 			category: product ? product.category : null,
 			is_active: product ? product.is_active : false,
+			is_ai_generated: product ? product.is_ai_generated : false,
+			verification_status: product ? product.verification_status : null,
 		},
 		mode: 'onChange',
 	})
@@ -188,6 +207,8 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 						category: data.category,
 						attribute_set: data.attribute_set,
 						is_active: data.is_active,
+						is_ai_generated: data.is_ai_generated,
+						verification_status: data.verification_status || null,
 					}
 
 					const updatedProduct = product

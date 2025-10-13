@@ -127,6 +127,7 @@ class Product(models.Model):
     )
 
     is_active = models.BooleanField(default=True)
+    is_ai_generated = models.BooleanField(default=False)
 
     brand = models.ForeignKey(
         Brand,
@@ -151,6 +152,20 @@ class Product(models.Model):
     )
 
     attributes_data = models.JSONField(blank=True, null=True, default=dict)
+
+    VERIFICATION_CHOICES = (
+        ('PENDING', 'Pending Verification'),
+        ('VERIFIED', 'Verified'),
+        ('FAILED', 'Failed Verification'),
+        ('EXEMPT', 'Does not require verification')
+    )
+
+    verification_status = models.CharField(
+        max_length=25,
+        choices=VERIFICATION_CHOICES,
+        default='EXEMPT',
+        help_text="Status realted to AI generated product's that require verification",
+    )
 
     class Meta:
         verbose_name = 'Product'

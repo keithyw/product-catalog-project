@@ -11,6 +11,8 @@ export const productCreateSchema = z.object({
 			message: 'Attribute set is required',
 		}),
 	is_active: z.boolean().default(false).optional(),
+	is_ai_generated: z.boolean().default(false).optional(),
+	verification_status: z.string().nullable().optional(),
 })
 
 export type ProductCreateFormData = z.infer<typeof productCreateSchema>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
@@ -22,6 +22,10 @@ export default function CreateProductPage() {
 	const [isSubmitting] = useState(false)
 	const { currentStep, setCurrentStep, clearDraft, isCurrentStepValid } =
 		useProductStore()
+
+	useEffect(() => {
+		clearDraft()
+	}, [clearDraft])
 
 	const currentStepHandler = useRef<(() => Promise<boolean>) | null>(null)
 

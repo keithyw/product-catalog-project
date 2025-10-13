@@ -176,6 +176,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'attributes_data',
             'uuid',
             'is_active',
+            'is_ai_generated',
+            'verification_status',
             'created_at',
             'updated_at',
         ]

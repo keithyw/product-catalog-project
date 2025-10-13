@@ -53,8 +53,11 @@ export default function EditProductPage() {
 				}
 			}
 			fetchProduct()
+			return () => {
+				clearDraft()
+			}
 		}
-	}, [id, router, setIsEditMode, setProduct])
+	}, [id, router, setIsEditMode, setProduct, clearDraft])
 
 	const currentStepHandler = useRef<(() => Promise<boolean>) | null>(null)
 

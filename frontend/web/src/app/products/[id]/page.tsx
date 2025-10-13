@@ -72,7 +72,15 @@ export default function ProductDetailsPage() {
 					setDetails([
 						{ label: 'Name', value: res.name },
 						{ label: 'Description', value: res.description || '' },
-						{ label: 'Is Active', value: res.is_active ? 'Yes' : 'No ' },
+						{ label: 'Is Active', value: res.is_active ? 'Yes' : 'No' },
+						{
+							label: 'Is AI Generated',
+							value: res.is_ai_generated ? 'Yes' : 'No',
+						},
+						{
+							label: 'Verification Status',
+							value: res.verification_status || '',
+						},
 						{ label: 'Brand', value: res.brand_name || '' },
 						{ label: 'Category', value: res.category_name || '' },
 						...attributes,

@@ -12,6 +12,13 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
 	{ value: 'json', label: 'JSON (Raw)' },
 ]
 
+export const VERIFICATION_STATUS_OPTIONS = [
+	{ value: 'PENDING', label: 'Pending Verification' },
+	{ value: 'VERIFIED', label: 'Verified' },
+	{ value: 'FAILED', label: 'Failed Verification' },
+	{ value: 'EXEMPT', label: 'Does not require verification' },
+]
+
 export type ProductAttributeType =
 	| 'text'
 	| 'textarea'
@@ -105,6 +112,8 @@ export interface Product {
 	attributes_data: Record<string, any> | null
 	uuid: string
 	is_active: boolean
+	is_ai_generated: boolean
+	verification_status: string
 	created_at: string
 	updated_at: string
 }
@@ -118,6 +127,8 @@ export interface CreateProductRequest {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attributes_data?: Record<string, any> | null
 	is_active?: boolean
+	is_ai_generated?: boolean
+	verification_status?: string | null
 }
 
 export interface ProductsResponse {

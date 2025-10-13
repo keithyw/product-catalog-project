@@ -89,8 +89,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
-    # parser_classes = (MultiPartParser, FormParser,)
-    # parser_classes = (FileUploadParser, )
 
     @action(detail=False, methods=['post'], url_path='bulk')
     def bulk_create(self, request, *args, **kwargs):
@@ -111,6 +109,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                 name=p.get('name'),
                 description=p.get('description'),
                 is_active=p.get('is_active'),
+                is_ai_generated=p.get('is_ai_generated'),
+                verification_status=p.get('verification_status'),
                 brand=p.get('brand'),
                 category=p.get('category'),
                 attribute_set=p.get('attribute_set'),
@@ -159,7 +159,6 @@ class ProductImageViewSet(APIView):
     parser_classes = (MultiPartParser, FormParser,)
     permission_classes = [permissions.IsAuthenticated]
     
-    # @action(detail=False, methods=['post'], url_path='from-image')
     def post(self, request, *args, **kwargs):
         logger.info("received request for image id")
         logger.info("data", request)
