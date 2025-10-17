@@ -21,16 +21,27 @@ class AgentValidationCommand(AbstractAgentCommand):
     async def _pre_process(self):
         self._prompt_template = 'verification_agent.txt'
         model = self.container.get_model('product')
-        product_id = self.parameters.get_value('product_id')
-        self.container.logger.info(f"from _preprocess: {product_id}")
+        self.internal_data['model'] = model
         product = await sync_to_async(
             lambda: model.objects.get(pk=self.parameters.get_value('product_id'))
         )()
         self._prompt_data = { "product": product }
-        self._internal_data = { "product": product }
+        self._internal_data['product'] = product
         
     async def _handle(self) -> CommandResults:
         if 'discrepancies' in self._parsed_output and 'product_id' in self._parsed_output:
-            # don't do anything further for now
             return CommandResults(self._parsed_output)
+        elif 'product_id' in self._parsed_output and self._parsed_output['verification_status'] == 'PASS':
+            return CommandResults(None, None, True)
         return CommandResults(None, f"AI Parsing failed. Raw: {self._output}", False)
+
+    async def _post_process(self):
+        if self._results.success and not self._results.errors:
+            product = self._internal_data['product']
+            if 'discrepancies' in self._results.data:
+                product.suggested_corrections = self._results.data['discrepancies']
+                product.verification_status = 'FAILED'
+            else:
+                product.verification_status = 'VERIFIED'
+            await sync_to_async(lambda: product.save())()
+            self._internal_data['product'] = product

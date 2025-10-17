@@ -17,7 +17,7 @@ class AbstractAgentCommand(ABC):
         self._parameters = params
         self._agent = None
         # additional dict for maintaining other data
-        self._internal_data = None
+        self._internal_data = {}
         # the results of the agent run
         self._output = None
         # CommandResults that we might want to handle in the post process phase
@@ -118,13 +118,21 @@ class AbstractAgentCommand(ABC):
         if not self.parameters.validate():
             return CommandResults(None, "Parameter validation failed.", False)
         try:
+            self.container.logger.info("pre process")
             await self._pre_process()
+            self.container.logger.info("generate agent")
             self._generate_agent()
+            self.container.logger.info("gen session")
             await self._generate_session()
+            self.container.logger.info("generate runner")
             self._generate_runner()
+            self.container.logger.info("running")
             self._output = await self._runner.run(self._get_input_content())
+            self.container.logger.info("handle")
             self._results = await self._handle()
+            self.container.logger.info("post process")
             await self._post_process()
+            self.container.logger.info("returning")
             return self._results
         except Exception as e:
             self.container.logger.error(F"Command exception: {e}")
