@@ -22,7 +22,6 @@ class ProductAIGenerationService:
     def __init__(self):
         logger.info("Initializing ProductAIGenerationService")
         self.client = GeminiAIClient.get_client()
-        # self.model_name = getattr(settings, 'GEMINI_MODEL')
         self.model_name = getattr(settings, 'GEMINI_SEARCH_MODEL')
         self.product_attribute_set = None
         self.brands = None

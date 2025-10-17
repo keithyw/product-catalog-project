@@ -152,6 +152,7 @@ class Product(models.Model):
     )
 
     attributes_data = models.JSONField(blank=True, null=True, default=dict)
+    suggested_corrections = models.JSONField(blank=True, null=True, default=dict)
 
     VERIFICATION_CHOICES = (
         ('PENDING', 'Pending Verification'),

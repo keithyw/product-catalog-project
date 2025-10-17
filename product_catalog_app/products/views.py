@@ -116,6 +116,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 category=p.get('category'),
                 attribute_set=p.get('attribute_set'),
                 attributes_data=p.get('attributes_data'),
+                suggested_corrections=p.get('suggested_corrections'),
             )
             for p in serializer.validated_data
         ]

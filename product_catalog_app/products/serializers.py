@@ -174,6 +174,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'attribute_set',
             'attribute_set_name',
             'attributes_data',
+            'suggested_corrections',
             'uuid',
             'is_active',
             'is_ai_generated',
