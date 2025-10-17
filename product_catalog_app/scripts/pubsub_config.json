@@ -3,6 +3,10 @@
     {
       "topic_id": "product-attribute-set-updates",
       "subscriptions": ["product-attribute-set-updates-sub"]
+    },
+    {
+      "topic_id": "product-create",
+      "subscriptions": ["product-create-sub"]
     }
   ]
 }

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.text import slugify
+from .messaging import publish_validation_events
 from .models import Product, ProductAttribute, ProductAttributeSet
 from .serializers import AIProductGenerateRequestSeralizer, AIImageProductGenerateRequestSerializer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
 from .services import ProductAIGenerationService, ProductAIGenerationServiceError
@@ -121,6 +122,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         names = {p.name for p in products}
         Product.objects.bulk_create(products)
         created = Product.objects.filter(name__in=names)
+        product_ids = [p.id for p in created]
+        publish_validation_events(product_ids)
         response_serializer = self.get_serializer(created, many=True)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 

@@ -43,6 +43,8 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 						attribute_set: productAttributeSet?.id as number,
 						attributes_data: p.attributes,
 						is_active: false,
+						is_ai_generated: true,
+						verification_status: 'PENDING',
 					}
 				})
 				const res = await productService.bulk(req)
