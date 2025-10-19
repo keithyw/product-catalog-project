@@ -17,6 +17,8 @@ export const VERIFICATION_STATUS_OPTIONS = [
 	{ value: 'VERIFIED', label: 'Verified' },
 	{ value: 'FAILED', label: 'Failed Verification' },
 	{ value: 'EXEMPT', label: 'Does not require verification' },
+	{ value: 'REJECTED', label: 'Rejected' },
+	{ value: 'ACCEPTED', label: 'Accepted' },
 ]
 
 export type ProductAttributeType =
@@ -98,6 +100,12 @@ export interface CreateProductAttributeSetRequest {
 	product_type_brands?: number[] | null
 }
 
+export interface SuggestedCorrection {
+	field: string
+	source: string
+	original_value: string
+	corrected_value: string
+}
 export interface Product {
 	id: string
 	name: string
@@ -110,6 +118,7 @@ export interface Product {
 	attribute_set_name: string | null
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attributes_data: Record<string, any> | null
+	suggested_corrections: SuggestedCorrection[]
 	uuid: string
 	is_active: boolean
 	is_ai_generated: boolean

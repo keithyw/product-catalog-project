@@ -23,6 +23,7 @@ import { FilterParams, FilterOption } from '@/types/filters'
 import { Product } from '@/types/product'
 import { TableColumn, TableRowAction } from '@/types/table'
 import FilterModal from '@/app/products/FilterModal'
+import SuggestedCorrectionsModal from '@/app/products/SuggestedCorrectionsModal'
 
 const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 	{
@@ -61,6 +62,8 @@ const getActiveFilterTags = (
 		VERIFIED: 'Verified',
 		FAILED: 'Failed Verification',
 		EXEMPT: 'Exempt',
+		ACCEPTED: 'Accepted',
+		REJECTED: 'Rejected',
 	}
 	if (filters.is_ai_generated === true) {
 		tags.push({ key: 'is_ai_generated', label: 'AI Generated: Yes' })
@@ -80,8 +83,11 @@ export default function ProductsPage() {
 	const router = useRouter()
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
 	const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+	const [isCorrectionsModalOpen, setIsCorrectionsModalOpen] = useState(false)
 	const [filters, setFilters] = useState<FilterParams>({})
 	const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
+	const [generatedProduct, setGeneratedProduct] = useState<Product | null>(null)
+	const [isUpdating, setIsUpdating] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const {
 		data: products,
@@ -158,6 +164,54 @@ export default function ProductsPage() {
 		[handleFilters],
 	)
 
+	const handleAccept = async () => {
+		if (generatedProduct) {
+			setIsUpdating(true)
+			try {
+				const correctedAttributes = { ...generatedProduct.attributes_data }
+				generatedProduct.suggested_corrections.map((c) => {
+					correctedAttributes[c.field] = c.corrected_value
+				})
+				const payload = {
+					attributes_data: correctedAttributes,
+					verification_status: 'ACCEPTED',
+				}
+				await productService.patch(parseInt(generatedProduct.id), payload)
+				toast.success(`Product ${generatedProduct.name} corrections accepted`)
+			} catch (e: unknown) {
+				console.error(e)
+				toast.error(`Issue attempting to accept product: ${e}`)
+			} finally {
+				setIsUpdating(false)
+				setIsCorrectionsModalOpen(false)
+			}
+		}
+	}
+
+	const handleReject = async () => {
+		if (generatedProduct) {
+			setIsUpdating(true)
+			try {
+				await productService.patch(parseInt(generatedProduct.id), {
+					verification_status: 'REJECTED',
+				})
+				setGeneratedProduct({
+					...generatedProduct,
+					verification_status: 'REJECTED',
+				})
+				toast.success(
+					`Product ${generatedProduct.name} rejected for verification`,
+				)
+			} catch (e: unknown) {
+				console.error(e)
+				toast.error(`Product was not rejected ${e}`)
+			} finally {
+				setIsUpdating(false)
+				setIsCorrectionsModalOpen(false)
+			}
+		}
+	}
+
 	const openConfirmModal = (p: Product) => {
 		setDeleteProduct(p)
 		setIsConfirmModalOpen(true)
@@ -166,6 +220,11 @@ export default function ProductsPage() {
 	const closeConfirmModal = () => {
 		setIsConfirmModalOpen(false)
 		setDeleteProduct(null)
+	}
+
+	const openSuggestedCorrectionsModal = (p: Product) => {
+		setGeneratedProduct(p)
+		setIsCorrectionsModalOpen(true)
 	}
 
 	const handleDelete = async () => {
@@ -213,9 +272,7 @@ export default function ProductsPage() {
 		},
 		{
 			label: 'Corrections',
-			onClick: () => {
-				console.log('i opened')
-			},
+			onClick: openSuggestedCorrectionsModal,
 			actionType: 'view',
 			icon: <WrenchScrewdriverIcon className='w-5 h-5 mr-2 text-blue-600' />,
 			requiredPermission: PRODUCT_PERMISSIONS.CHANGE,
@@ -283,6 +340,14 @@ export default function ProductsPage() {
 				isOpen={isFilterModalOpen}
 				onApply={handleFilter}
 				onClose={() => setIsFilterModalOpen(false)}
+			/>
+			<SuggestedCorrectionsModal
+				product={generatedProduct as Product}
+				isOpen={isCorrectionsModalOpen}
+				isUpdating={isUpdating}
+				onClose={() => setIsCorrectionsModalOpen(false)}
+				onAccept={handleAccept}
+				onReject={handleReject}
 			/>
 		</PermissionGuard>
 	)

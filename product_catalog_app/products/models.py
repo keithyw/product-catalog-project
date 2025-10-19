@@ -158,7 +158,9 @@ class Product(models.Model):
         ('PENDING', 'Pending Verification'),
         ('VERIFIED', 'Verified'),
         ('FAILED', 'Failed Verification'),
-        ('EXEMPT', 'Does not require verification')
+        ('EXEMPT', 'Does not require verification'),
+        ('REJECTED', 'Rejected'),
+        ('ACCEPTED', 'Accepted'),
     )
 
     verification_status = models.CharField(
