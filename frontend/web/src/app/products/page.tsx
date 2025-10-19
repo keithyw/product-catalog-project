@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
-import { FunnelIcon } from '@heroicons/react/24/outline'
+import { WrenchScrewdriverIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
@@ -210,6 +210,17 @@ export default function ProductsPage() {
 			onClick: openConfirmModal,
 			actionType: 'delete',
 			requiredPermission: PRODUCT_PERMISSIONS.DELETE,
+		},
+		{
+			label: 'Corrections',
+			onClick: () => {
+				console.log('i opened')
+			},
+			actionType: 'view',
+			icon: <WrenchScrewdriverIcon className='w-5 h-5 mr-2 text-blue-600' />,
+			requiredPermission: PRODUCT_PERMISSIONS.CHANGE,
+			canDisplay: (p) =>
+				p.is_ai_generated === true && p.verification_status === 'FAILED',
 		},
 	]
 

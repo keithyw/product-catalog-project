@@ -48,6 +48,9 @@ export function RowActionsMenu<T>({
 
 	// Filter actions based on permissions
 	const filteredActions = actions.filter((action) => {
+		if (action.canDisplay && !action.canDisplay(row)) {
+			return false
+		}
 		// If no permission requirements, show the action
 		if (
 			!action.requiredPermission &&

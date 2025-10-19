@@ -25,6 +25,7 @@ export interface TableRowAction<T> {
 	actionType?: TableRowActionType // For default icon mapping
 	icon?: React.ReactNode // Optional explicit icon (Heroicon component)
 	className?: string
+	canDisplay?: (row: T) => boolean
 	// Permission requirements
 	requiredPermission?: string
 	requiredPermissions?: string[] // Requires ALL permissions
