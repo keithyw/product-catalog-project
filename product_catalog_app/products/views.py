@@ -72,7 +72,7 @@ class ProductAttributeSetViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filter_fields = ['name', 'is_active']
+    filterset_fields = ['name', 'is_active']
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']
@@ -86,7 +86,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filter_fields = ['name', 'description']
+    filterset_fields = ['name', 'description', 'is_ai_generated', 'verification_status']
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name']
     ordering = ['id']

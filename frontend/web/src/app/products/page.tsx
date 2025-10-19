@@ -3,9 +3,11 @@
 import React, { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import { FunnelIcon } from '@heroicons/react/24/outline'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
+import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
 	CREATE_PRODUCT_URL,
@@ -16,8 +18,10 @@ import {
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import productService from '@/lib/services/product'
+import { FilterParams } from '@/types/filters'
 import { Product } from '@/types/product'
 import { TableColumn, TableRowAction } from '@/types/table'
+import FilterModal from '@/app/products/FilterModal'
 
 const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 	{
@@ -50,6 +54,8 @@ const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 export default function ProductsPage() {
 	const router = useRouter()
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+	const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+	const [filters, setFilters] = useState<FilterParams>({})
 	const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const {
@@ -65,14 +71,35 @@ export default function ProductsPage() {
 		handlePageChange,
 		handlePageSizeChange,
 		handleSort,
+		handleFilters,
 		loadData,
 	} = useDataTableController({
 		initialSortField: 'name',
 		defaultPageSize: DEFAULT_PAGE_SIZE,
+		initialFilters: filters,
 		fetchData: productService.fetch,
 	})
 
 	const cols = useMemo(() => PRODUCT_COLUMNS, [])
+
+	const filterButton = useMemo(
+		() => (
+			<Button
+				actionType='dataTableControl'
+				icon={<FunnelIcon className='h-5 w-5' aria-hidden='true' />}
+				onClick={() => setIsFilterModalOpen(true)}
+			>
+				Filters
+			</Button>
+		),
+		[],
+	)
+
+	const handleFilter = async (params: FilterParams) => {
+		setFilters(params)
+		handleFilters(params)
+		await loadData()
+	}
 
 	const openConfirmModal = (p: Product) => {
 		setDeleteProduct(p)
@@ -162,6 +189,7 @@ export default function ProductsPage() {
 				currentSortField={sortField}
 				currentSortDirection={sortDirection}
 				isLoadingRows={isLoading}
+				filter={filterButton}
 			/>
 			<ConfirmationModal
 				isOpen={isConfirmModalOpen}
@@ -180,6 +208,11 @@ export default function ProductsPage() {
 						? 'bg-gray-300 text-gray-500 cursor-not-allowed'
 						: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500'
 				}
+			/>
+			<FilterModal
+				isOpen={isFilterModalOpen}
+				onApply={handleFilter}
+				onClose={() => setIsFilterModalOpen(false)}
 			/>
 		</PermissionGuard>
 	)

@@ -5,6 +5,7 @@ import SpinnerSection from '@/components/ui/SpinnerSection'
 import { TableColumn, TableRowAction } from '@/types/table'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
 
+type FilterComponent = React.ReactNode
 interface DataTableProps<T> {
 	data: T[]
 	columns: TableColumn<T>[]
@@ -14,6 +15,7 @@ interface DataTableProps<T> {
 	searchTerm?: string
 	onSearch?: (term: string) => void
 	searchPlaceholder?: string
+	filter?: FilterComponent
 
 	// pagination
 	currentPage?: number
@@ -41,6 +43,7 @@ function DataTableComponent<T extends Record<string, any>>({
 	searchTerm,
 	onSearch,
 	searchPlaceholder,
+	filter,
 
 	// pagination props
 	currentPage = 1,
@@ -82,14 +85,17 @@ function DataTableComponent<T extends Record<string, any>>({
 		<div className='shadow-md sm:rounded-lg'>
 			{(onSearch || onPageChange) && (
 				<div className='p-4 bg-white dark:bg-gray-800 rounded-t-lg border-b dark:border-gray-700 flex justify-between items-center'>
-					{onSearch && (
-						<SearchInput
-							value={searchTerm || ''}
-							onChange={onSearch}
-							placeholder={searchPlaceholder}
-							className='max-w-xs'
-						/>
-					)}
+					<div className='flex items-center space-x-4'>
+						{onSearch && (
+							<SearchInput
+								value={searchTerm || ''}
+								onChange={onSearch}
+								placeholder={searchPlaceholder}
+								className='max-w-xs'
+							/>
+						)}
+						{filter && <div className='relative'>{filter}</div>}
+					</div>
 					{onPageChange && (
 						<div className='flex items-center space-x-4'>
 							<span className='text-gray-700 dark:text-gray-300 text-sm'>

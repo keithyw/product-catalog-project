@@ -8,12 +8,14 @@ type ButtonActionType =
 	| 'neutral'
 	| 'submit'
 	| 'danger'
+	| 'dataTableControl'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	actionType: ButtonActionType
 	children: React.ReactNode
 	isLoading?: boolean
 	spinnerSize?: 'sm' | 'md' | 'lg'
+	icon?: React.ReactNode
 	className?: string
 }
 
@@ -22,6 +24,7 @@ const Button: React.FC<ButtonProps> = ({
 	children,
 	isLoading = false,
 	spinnerSize = 'sm',
+	icon,
 	className = '',
 	disabled,
 	...props
@@ -54,6 +57,9 @@ const Button: React.FC<ButtonProps> = ({
 			break
 		case 'danger':
 			colorClasses = 'bg-red-500 hover:bg-red-600 focus:ring-red-600'
+			break
+		case 'dataTableControl':
+			colorClasses = 'bg-slate-700 hover:bg-slate-600 focus:ring-slate-500'
 			break
 		case 'neutral':
 			colorClasses =
@@ -108,7 +114,10 @@ const Button: React.FC<ButtonProps> = ({
 			{isLoading ? (
 				<LoadingSpinner size={spinnerSize} message='' className='!p-0' />
 			) : (
-				children
+				<span className='flex items-center justify-center gap-2'>
+					{icon && <span>{icon}</span>}
+					<span>{children}</span>
+				</span>
 			)}
 		</button>
 	)

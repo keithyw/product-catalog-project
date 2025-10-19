@@ -6,6 +6,7 @@ import {
 	API_PRODUCTS_GENERATE_URL,
 } from '@/lib/constants'
 import { AIServiceException } from '@/lib/services/aiTools'
+import { FilterParams } from '@/types/filters'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 import {
@@ -23,6 +24,7 @@ interface ProductService {
 		pageSize?: number,
 		searchTerm?: string,
 		ordering?: string,
+		filters?: FilterParams,
 	) => Promise<ListResponse<Product>>
 	generate: (
 		productType: string,
@@ -51,10 +53,18 @@ const productService: ProductService = {
 		pageSize?: number,
 		searchTerm?: string,
 		ordering?: string,
+		filters?: FilterParams,
 	): Promise<ListResponse<Product>> => {
-		const params: PaginationParams = { page, page_size: pageSize }
+		const params: PaginationParams & FilterParams = {
+			page,
+			page_size: pageSize,
+			...(filters || {}),
+		}
 		if (searchTerm) params.search = searchTerm
 		if (ordering) params.ordering = ordering
+		Object.keys(params).forEach((k) =>
+			params[k] === undefined ? delete params[k] : {},
+		)
 		const r = await axiosClient.get<ListResponse<Product>>(API_PRODUCT_URL, {
 			params,
 		})

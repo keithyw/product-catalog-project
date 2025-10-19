@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
+import { FilterParams } from '@/types/filters'
 import { ListResponse } from '@/types/list'
 
 interface UseDataTableControllerProps<T> {
 	initialSortField?: string
 	initSortDirection?: 'asc' | 'desc'
 	defaultPageSize?: number
+	initialFilters?: FilterParams
 	fetchData: (
 		page: number,
 		pageSize: number,
 		searchTerm?: string,
 		orderBy?: string,
+		filters?: FilterParams,
 	) => Promise<ListResponse<T>>
 }
 
@@ -19,11 +22,13 @@ export function useDataTableController<T>({
 	initialSortField,
 	initSortDirection = 'asc',
 	defaultPageSize = DEFAULT_PAGE_SIZE,
+	initialFilters = {},
 	fetchData,
 }: UseDataTableControllerProps<T>) {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [currentPage, setCurrentPage] = useState(1)
 	const [pageSize, setPageSize] = useState(defaultPageSize)
+	const [filters, setFilters] = useState<FilterParams>(initialFilters)
 	const [totalCount, setTotalCount] = useState(0)
 	const [sortField, setSortField] = useState<string | undefined>(
 		initialSortField,
@@ -41,7 +46,13 @@ export function useDataTableController<T>({
 			if (sortField && sortDirection) {
 				orderBy = sortDirection === 'asc' ? sortField : `-${sortField}`
 			}
-			const res = await fetchData(currentPage, pageSize, searchTerm, orderBy)
+			const res = await fetchData(
+				currentPage,
+				pageSize,
+				searchTerm,
+				orderBy,
+				filters,
+			)
 			if (res) {
 				setData(res.results)
 				setTotalCount(res.count)
@@ -54,7 +65,15 @@ export function useDataTableController<T>({
 		} finally {
 			setIsLoading(false)
 		}
-	}, [currentPage, pageSize, searchTerm, sortField, sortDirection, fetchData])
+	}, [
+		currentPage,
+		pageSize,
+		searchTerm,
+		sortField,
+		sortDirection,
+		fetchData,
+		filters,
+	])
 
 	useEffect(() => {
 		void loadData()
@@ -87,6 +106,16 @@ export function useDataTableController<T>({
 		[sortField, sortDirection],
 	)
 
+	const handleFilters = useCallback(
+		(f: FilterParams) => {
+			if (JSON.stringify(f) !== JSON.stringify(filters)) {
+				setFilters(f)
+				setCurrentPage(1)
+			}
+		},
+		[filters],
+	)
+
 	return {
 		data,
 		isLoading,
@@ -100,6 +129,7 @@ export function useDataTableController<T>({
 		handlePageChange,
 		handlePageSizeChange,
 		handleSort,
+		handleFilters,
 		loadData,
 	}
 }
