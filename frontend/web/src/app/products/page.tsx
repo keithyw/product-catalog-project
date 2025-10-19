@@ -7,6 +7,7 @@ import { FunnelIcon } from '@heroicons/react/24/outline'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import DataTable from '@/components/ui/DataTable'
+import DataTableFilterChipContainer from '@/components/ui/DataTableFilterChipContainer'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
@@ -18,7 +19,7 @@ import {
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import productService from '@/lib/services/product'
-import { FilterParams } from '@/types/filters'
+import { FilterParams, FilterOption } from '@/types/filters'
 import { Product } from '@/types/product'
 import { TableColumn, TableRowAction } from '@/types/table'
 import FilterModal from '@/app/products/FilterModal'
@@ -51,6 +52,30 @@ const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 	},
 ]
 
+const getActiveFilterTags = (
+	filters: FilterParams,
+): { key: string; label: string }[] => {
+	const tags: { key: string; label: string }[] = []
+	const statusMap: Record<string, string> = {
+		PENDING: 'Pending Verification',
+		VERIFIED: 'Verified',
+		FAILED: 'Failed Verification',
+		EXEMPT: 'Exempt',
+	}
+	if (filters.is_ai_generated === true) {
+		tags.push({ key: 'is_ai_generated', label: 'AI Generated: Yes' })
+	}
+	if (
+		filters.verification_status &&
+		typeof filters.verification_status === 'string'
+	) {
+		const label =
+			statusMap[filters.verification_status] || filters.verification_status
+		tags.push({ key: 'verification_status', label: `Status: ${label}` })
+	}
+	return tags
+}
+
 export default function ProductsPage() {
 	const router = useRouter()
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
@@ -81,6 +106,7 @@ export default function ProductsPage() {
 	})
 
 	const cols = useMemo(() => PRODUCT_COLUMNS, [])
+	const tags = useMemo(() => getActiveFilterTags(filters), [filters])
 
 	const filterButton = useMemo(
 		() => (
@@ -95,11 +121,42 @@ export default function ProductsPage() {
 		[],
 	)
 
-	const handleFilter = async (params: FilterParams) => {
-		setFilters(params)
-		handleFilters(params)
-		await loadData()
-	}
+	const handleRemoveFilter = useMemo(
+		() => (f: FilterOption) => {
+			const newFilters = { ...filters }
+			delete newFilters[f.key]
+			setFilters(newFilters)
+			handleFilters(newFilters)
+		},
+		[filters, handleFilters],
+	)
+
+	const handleClearFilter = useMemo(
+		() => () => {
+			setFilters({})
+			handleFilters({})
+		},
+		[handleFilters],
+	)
+
+	const filterSection = useMemo(
+		() => (
+			<DataTableFilterChipContainer
+				tags={tags}
+				onRemove={handleRemoveFilter}
+				onClear={handleClearFilter}
+			/>
+		),
+		[handleRemoveFilter, handleClearFilter, tags],
+	)
+
+	const handleFilter = useMemo(
+		() => (params: FilterParams) => {
+			setFilters(params)
+			handleFilters(params)
+		},
+		[handleFilters],
+	)
 
 	const openConfirmModal = (p: Product) => {
 		setDeleteProduct(p)
@@ -190,6 +247,7 @@ export default function ProductsPage() {
 				currentSortDirection={sortDirection}
 				isLoadingRows={isLoading}
 				filter={filterButton}
+				filterSection={filterSection}
 			/>
 			<ConfirmationModal
 				isOpen={isConfirmModalOpen}
@@ -210,6 +268,7 @@ export default function ProductsPage() {
 				}
 			/>
 			<FilterModal
+				initialFilters={filters}
 				isOpen={isFilterModalOpen}
 				onApply={handleFilter}
 				onClose={() => setIsFilterModalOpen(false)}

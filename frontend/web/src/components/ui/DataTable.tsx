@@ -6,6 +6,8 @@ import { TableColumn, TableRowAction } from '@/types/table'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
 
 type FilterComponent = React.ReactNode
+type FilterSection = React.ReactNode
+
 interface DataTableProps<T> {
 	data: T[]
 	columns: TableColumn<T>[]
@@ -16,6 +18,7 @@ interface DataTableProps<T> {
 	onSearch?: (term: string) => void
 	searchPlaceholder?: string
 	filter?: FilterComponent
+	filterSection?: FilterSection
 
 	// pagination
 	currentPage?: number
@@ -44,6 +47,7 @@ function DataTableComponent<T extends Record<string, any>>({
 	onSearch,
 	searchPlaceholder,
 	filter,
+	filterSection,
 
 	// pagination props
 	currentPage = 1,
@@ -95,6 +99,7 @@ function DataTableComponent<T extends Record<string, any>>({
 							/>
 						)}
 						{filter && <div className='relative'>{filter}</div>}
+						{filterSection && <div className='relative'>{filterSection}</div>}
 					</div>
 					{onPageChange && (
 						<div className='flex items-center space-x-4'>

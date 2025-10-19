@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DialogTitle } from '@headlessui/react'
 import Button from '@/components/ui/form/Button'
 import SelectDropdown from '@/components/ui/form/SelectDropdown'
@@ -15,15 +15,35 @@ const statusOptions: OptionType[] = [
 ]
 
 interface FilterModalProps {
+	initialFilters: FilterParams
 	isOpen: boolean
 	onApply: (params: FilterParams) => void
 	onClose: () => void
 }
-const FilterModal = ({ isOpen, onApply, onClose }: FilterModalProps) => {
-	const [filters, setFilters] = useState({
+const FilterModal = ({
+	initialFilters,
+	isOpen,
+	onApply,
+	onClose,
+}: FilterModalProps) => {
+	const defaultFilters = {
 		is_ai_generated: false,
 		verification_status: '',
-	})
+	}
+
+	const [filters, setFilters] = useState(defaultFilters)
+
+	useEffect(() => {
+		if (isOpen) {
+			const f = {
+				is_ai_generated: !!initialFilters.is_ai_generated,
+				verification_status:
+					(initialFilters.verification_status as string) || '',
+			}
+			setFilters(f)
+		}
+	}, [isOpen, initialFilters])
+
 	const handleApplyFilters = () => {
 		const params: FilterParams = {}
 		Object.entries(filters).forEach(([k, v]) => {
