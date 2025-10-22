@@ -18,3 +18,16 @@ export interface CreateAssetRequest {
 	dimensions?: string | null
 	description?: string
 }
+
+export interface AssetAssociation {
+	id: number
+	asset: number
+	entity: string
+	entity_id: number
+}
+
+export interface CreateAssetAssociationRequest {
+	asset: number
+	entity: string
+	entity_id: number
+}

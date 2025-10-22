@@ -15,6 +15,7 @@ interface WizardStep {
 
 interface WizardLayoutProps {
 	title: string
+	finalButtonText?: string
 	steps: WizardStep[]
 	currentStepId: string
 	onNext: () => void
@@ -29,6 +30,7 @@ interface WizardLayoutProps {
 
 const WizardLayout: React.FC<WizardLayoutProps> = ({
 	title,
+	finalButtonText = 'Finish',
 	steps,
 	currentStepId,
 	onNext,
@@ -122,7 +124,7 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
 								isLoading={isSubmitting}
 							>
 								<span className='flex items-center'>
-									{isLastStep ? 'Finish' : 'Next'}
+									{isLastStep ? finalButtonText : 'Next'}
 									{!isLastStep && (
 										<ChevronRightIcon
 											className='-mr-1 ml-2 h-5 w-5'

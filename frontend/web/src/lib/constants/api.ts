@@ -3,6 +3,7 @@ export const API_REFRESH_URL = '/token/refresh/'
 
 export const API_AI_TOOLS_GENERATE_URL = '/ai/generate/'
 export const API_ASSETS_URL = '/assets/'
+export const API_ASSET_ASSOCIATIONS_URL = '/asset-associations/'
 export const API_BRANDS_URL = '/brands/'
 export const API_BRANDS_BULK_URL = `${API_BRANDS_URL}bulk/`
 export const API_CATEGORIES_URL = '/categories/'

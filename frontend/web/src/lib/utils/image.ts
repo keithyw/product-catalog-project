@@ -17,3 +17,13 @@ export const getImageDimensions = (url: string): Promise<string | null> => {
 		img.src = url
 	})
 }
+
+export const getExtension = (url: string): string => {
+	const path = url.split('?')[0].split('#')[0]
+	const lastDotIndex = path.lastIndexOf('.')
+	const extension =
+		lastDotIndex > 0 && lastDotIndex < path.length - 1
+			? path.substring(lastDotIndex + 1).toLowerCase()
+			: ''
+	return extension
+}

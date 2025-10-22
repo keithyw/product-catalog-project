@@ -40,9 +40,16 @@ class AssetAssociation(models.Model):
         if self.entity and self.entity_id:
             try:
                 from django.apps import apps
-                model_class = apps.get_model(self.entity)
+                label_map = {
+                    "Brand": "brands",
+                    "CategorySystem": "categories",
+                    "Category": "categories",
+                    "Product": "products",
+                    "User": "users",
+                }
+                model_class = apps.get_model(label_map[self.entity], self.entity)
                 return model_class.objects.get(pk=self.entity_id)
-            except (LookupError, model_class.DoesNotExist):
+            except:
                 return None
         return None
     

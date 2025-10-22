@@ -12,11 +12,17 @@ import productService from '@/lib/services/product'
 import useProductStore from '@/stores/useProductStore'
 import { WizardStepType } from '@/types/wizard'
 import AttributeSetStep from '@/app/products/create/steps/AttributeSetStep'
+import ImageAssociationStep from '@/app/products/create/steps/ImageAssociationStep'
 import ProductInfo from '@/app/products/create/steps/ProductInfoStep'
 
 const wizardSteps: WizardStepType[] = [
 	{ id: 'product', title: 'Product Info', component: ProductInfo },
 	{ id: 'attribute_set', title: 'Attribute Set', component: AttributeSetStep },
+	{
+		id: 'image_association',
+		title: 'Provide Images',
+		component: ImageAssociationStep,
+	},
 ]
 
 export default function EditProductPage() {
@@ -115,6 +121,7 @@ export default function EditProductPage() {
 		<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.CHANGE}>
 			<WizardLayout
 				title='Edit Product'
+				finalButtonText='Skip/Finish'
 				steps={steps}
 				currentStepId={wizardSteps[currentStep - 1].id}
 				onNext={handleNext}

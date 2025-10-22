@@ -30,6 +30,8 @@ class AssetAssociationViewSet(viewsets.ModelViewSet):
     serializer_class = AssetAssociationSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticated]    
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['entity', 'entity_id']
     ordering = ['id']
         
     

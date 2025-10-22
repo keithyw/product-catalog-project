@@ -10,11 +10,17 @@ import { PERMISSION_PERMISSIONS } from '@/lib/constants/permissions'
 import useProductStore from '@/stores/useProductStore'
 import { WizardStepType } from '@/types/wizard'
 import AttributeSetStep from '@/app/products/create/steps/AttributeSetStep'
+import ImageAssociationStep from '@/app/products/create/steps/ImageAssociationStep'
 import ProductInfo from '@/app/products/create/steps/ProductInfoStep'
 
 const wizardSteps: WizardStepType[] = [
 	{ id: 'product', title: 'Product Info', component: ProductInfo },
 	{ id: 'attribute_set', title: 'Attribute Set', component: AttributeSetStep },
+	{
+		id: 'image_association',
+		title: 'Provide Images',
+		component: ImageAssociationStep,
+	},
 ]
 
 export default function CreateProductPage() {
@@ -80,6 +86,7 @@ export default function CreateProductPage() {
 		<PermissionGuard requiredPermission={PERMISSION_PERMISSIONS.ADD}>
 			<WizardLayout
 				title='Create New Product'
+				finalButtonText='Skip/Finish'
 				steps={stepsForLayout}
 				currentStepId={wizardSteps[currentStep - 1].id}
 				onNext={handleNext}

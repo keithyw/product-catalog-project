@@ -1,8 +1,11 @@
 import { create } from 'zustand'
 import { z } from 'zod'
+import { Asset, AssetAssociation } from '@/types/asset'
 import { Product } from '@/types/product'
 
 interface ProductStore {
+	assets: Asset[]
+	assetAssociations: AssetAssociation[]
 	product: Product | null
 	products: Product[]
 	currentStep: number
@@ -12,6 +15,8 @@ interface ProductStore {
 	error: string | null
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	dynamicAttributeSchema: z.ZodObject<any> | null
+	setAssets: (assets: Asset[]) => void
+	setAssetAssociations: (assetAssociations: AssetAssociation[]) => void
 	setProduct: (p: Product) => void
 	setProducts: (products: Product[]) => void
 	setCurrentStep: (step: number) => void
@@ -24,6 +29,8 @@ interface ProductStore {
 }
 
 const useProductStore = create<ProductStore>((set) => ({
+	assets: [],
+	assetAssociations: [],
 	product: null,
 	products: [],
 	currentStep: 1,
@@ -32,6 +39,9 @@ const useProductStore = create<ProductStore>((set) => ({
 	isSubmitting: false,
 	error: null,
 	dynamicAttributeSchema: null,
+	setAssets: (assets: Asset[]) => set({ assets }),
+	setAssetAssociations: (assetAssociations: AssetAssociation[]) =>
+		set({ assetAssociations }),
 	setProduct: (p: Product) =>
 		set((state) => ({ product: { ...state.product, ...p } })),
 	setProducts: (products: Product[]) => set({ products }),
