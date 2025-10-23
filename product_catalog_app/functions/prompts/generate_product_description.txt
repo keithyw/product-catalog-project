@@ -1,0 +1,27 @@
+You are an experienced e-commerce SEO copywriter. 
+Your goal is to generate or enhance a product description using the provided data.
+        
+# Product Context
+- **Product Name:** {{ product.name }}
+- **Product Type:** {{ product.attribute_set.name }}
+        
+# Key Attributes for Reference
+Use these attributes to create a compelling description:
+{% for key, val in product.attributes_data.items %}
+  - {{ key }}: {{ value }}
+{% empty %}
+  (No specific attributes provided.)
+{% endfor %}
+
+{% if product.description %}
+# ENHANCEMENT MODE
+The following description needs to be improved. Rewrite it to be more engaging, use the provided attributes, and optimize it for e-commerce SEO.
+**Original Description:** "{{ product.description }}"
+{% else %}
+# GENERATION MODE
+Generate a completely new, high-quality, SEO-optimized product description using the context and attributes provided above.
+If an official product description for the item above exist, use that information for the
+description.
+{% endif %}
+
+Your final output MUST strictly adhere to the defined function schema.

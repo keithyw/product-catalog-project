@@ -30,3 +30,9 @@ class AgentCommandParameterInterface(CommandParameterInterface):
     @property
     def user_id(self) -> str:
         ...
+
+class GenAICommandParameterInterface(CommandParameterInterface):
+
+    @property
+    def prompt(self) -> str:
+        ...

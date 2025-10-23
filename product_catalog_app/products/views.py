@@ -9,6 +9,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.text import slugify
+from product_catalog_app.containers.django_container import DjangoContainer
+from product_catalog_app.products.commands.generate_description import GenerateDescriptionCommand
+from product_catalog_app.products.commands.params import GenerateDescriptionParams
 from .messaging import publish_validation_events
 from .models import Product, ProductAttribute, ProductAttributeSet
 from .serializers import AIProductGenerateRequestSeralizer, AIImageProductGenerateRequestSerializer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
@@ -158,7 +161,30 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "message": "An unexpected server error occurred",
                 "details": str(e),
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
+    @action(detail=True, methods=['post'], url_path='generate-description')
+    def generate_description(self, request, pk=None):
+        container = DjangoContainer.get_instance()
+        try:
+            params = GenerateDescriptionParams(request.data['prompt'], {
+                "product": self.get_object(),
+            })
+            cmd = GenerateDescriptionCommand(container, params)
+            res = cmd.execute()
+            if not res.success:
+                container.logger.error(f"Failed generating description: {res.errors}")
+                return Response({
+                    "detail": f"Failed generating description: {res.errors}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                "detail": res.data
+            })
+        except Exception as e:
+            return Response({
+                "detail": "Product not found",
+                "message": f"error details: {e}",
+            }, status=status.HTTP_404_NOT_FOUND)
+
 class ProductImageViewSet(APIView):
     parser_classes = (MultiPartParser, FormParser,)
     permission_classes = [permissions.IsAuthenticated]

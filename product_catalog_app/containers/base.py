@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from google.genai import Client
 from pubsub.base import AbstractPubSubClient
 
 class AbstractContainer(ABC):
@@ -42,7 +43,7 @@ class AbstractContainer(ABC):
         pass
     
     @property
-    def gen_client(self):
+    def gen_client(self) -> Client:
         return self._gen_client
 
     @property
