@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { WrenchScrewdriverIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
+import AssetPreview from '@/components/ui/AssetPreview'
 import DataTable from '@/components/ui/DataTable'
 import DataTableFilterChipContainer from '@/components/ui/DataTableFilterChipContainer'
 import Button from '@/components/ui/form/Button'
@@ -35,6 +36,19 @@ const PRODUCT_COLUMNS: TableColumn<Product>[] = [
 		header: 'Name',
 		accessor: 'name',
 		sortable: true,
+	},
+	{
+		header: 'Preview',
+		sortable: false,
+		render: (row: Product) => {
+			return row.assets.length > 0 ? (
+				<AssetPreview
+					url={row.assets[0].url}
+					type={row.assets[0].type}
+					alt={row.assets[0].name || 'Asset preview'}
+				/>
+			) : null
+		},
 	},
 	{
 		header: 'Product Type',

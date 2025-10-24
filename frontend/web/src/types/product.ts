@@ -1,3 +1,4 @@
+import { Asset } from '@/types/asset'
 import { SelectableItem } from '@/types/base'
 
 export const ATTRIBUTE_TYPE_OPTIONS = [
@@ -114,6 +115,7 @@ export interface Product {
 	brand_name: string | null
 	category: number | null
 	category_name: string | null
+	assets: Asset[] | []
 	attribute_set: number
 	attribute_set_name: string | null
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
