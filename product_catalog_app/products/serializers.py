@@ -2,6 +2,8 @@ import json
 from django.db import models
 from rest_framework import serializers
 from .models import Product, ProductAttribute, ProductAttributeSet
+from assets.models import Asset, AssetAssociation
+from assets.serializers import AssetSerializer
 from brands.models import Brand
 from categories.models import Category
 
@@ -160,6 +162,7 @@ class ProductSerializer(serializers.ModelSerializer):
     attribute_set = serializers.PrimaryKeyRelatedField(
         queryset=ProductAttributeSet.objects.all(),
     )
+    assets = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -171,6 +174,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'brand_name',
             'category',
             'category_name',
+            'assets',
             'attribute_set',
             'attribute_set_name',
             'attributes_data',
@@ -321,6 +325,17 @@ class ProductSerializer(serializers.ModelSerializer):
 
             # Return the validated data at the end
             return data
+
+    def get_assets(self, obj: Product) -> list:
+        ENTITY_TYPE = 'Product'
+        associations = AssetAssociation.objects.filter(
+            entity=ENTITY_TYPE,
+            entity_id=obj.pk,
+        ).select_related('asset')
+        ordered_assets = [
+            assoc.asset for assoc in associations if assoc.asset
+        ]
+        return AssetSerializer(ordered_assets, many=True).data
 
     def create(self, validated_data):
         return super().create(validated_data)

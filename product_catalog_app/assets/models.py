@@ -19,7 +19,7 @@ class Asset(models.Model):
     
 class AssetAssociation(models.Model):    
     asset = models.ForeignKey(
-        'Asset',
+        Asset,
         on_delete=models.CASCADE,
         related_name='asset_associations',
     )
