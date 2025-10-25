@@ -5,15 +5,19 @@ import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { upperFirst, toLower } from 'lodash'
 import PermissionGuard from '@/components/auth/PermissionGuard'
+import FloatingActionToolbar from '@/components/layout/FloatingActionToolbar'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
-import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import PageTitle from '@/components/ui/PageTitle'
+import ProductAttributesSection from '@/components/ui/ProductAttributesSection'
+import ProductImageSection from '@/components/ui/ProductImageSection'
+import ProductInfoSection from '@/components/ui/ProductInfoSection'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import { FAILED_LOADING_PRODUCT_ERROR, PRODUCTS_URL } from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import productService from '@/lib/services/product'
+import { Asset } from '@/types/asset'
 import { Product } from '@/types/product'
 
 export default function ProductDetailsPage() {
@@ -23,7 +27,7 @@ export default function ProductDetailsPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [product, setProduct] = useState<Product | null>(null)
 	const [error, setError] = useState<string | null>(null)
-	const [details, setDetails] = useState<DetailSectionRow[]>([])
+	const [attributes, setAttributes] = useState<Record<string, string>[]>([])
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 
 	const handleCloseDeleteModal = () => {
@@ -60,31 +64,12 @@ export default function ProductDetailsPage() {
 				try {
 					const res = await productService.get(parseInt(id as string))
 					setProduct(res)
-
-					const attributes = []
 					if (res.attributes_data) {
 						for (const [k, v] of Object.entries(res.attributes_data)) {
 							attributes.push({ label: upperFirst(toLower(k)), value: v })
 						}
+						setAttributes(attributes)
 					}
-
-					console.log('attributes ', attributes)
-					setDetails([
-						{ label: 'Name', value: res.name },
-						{ label: 'Description', value: res.description || '' },
-						{ label: 'Is Active', value: res.is_active ? 'Yes' : 'No' },
-						{
-							label: 'Is AI Generated',
-							value: res.is_ai_generated ? 'Yes' : 'No',
-						},
-						{
-							label: 'Verification Status',
-							value: res.verification_status || '',
-						},
-						{ label: 'Brand', value: res.brand_name || '' },
-						{ label: 'Category', value: res.category_name || '' },
-						...attributes,
-					])
 				} catch (e: unknown) {
 					if (e instanceof Error) {
 						setError(FAILED_LOADING_PRODUCT_ERROR)
@@ -96,7 +81,7 @@ export default function ProductDetailsPage() {
 			}
 			fetchData()
 		}
-	}, [id, router])
+	}, [attributes, id, router])
 
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading product...' />
@@ -107,19 +92,29 @@ export default function ProductDetailsPage() {
 	}
 
 	return (
-		<div className='container mx-auto p-4'>
-			<div className='bg-white p-8 shadow-md max-w-2xl mx-auto'>
+		<div className='container mx-auto p-4 sm:p-6 lg:p-8'>
+			<div className='bg-white rounded-xl shadow-lg p-6'>
 				<PageTitle>Product Details</PageTitle>
-				{product && <DetailSection rows={details} />}
-				<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.CHANGE}>
-					<div className='mt-6 flex justify-end space-x-3'>
-						<Button actionType='edit' onClick={handleEditClick}>
-							Edit Product
-						</Button>
-						<Button actionType='delete' onClick={handleDeleteClick}>
-							Delete Product
-						</Button>
+				<div className='min-h-screen pb-20'>
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12'>
+						<div>
+							<ProductImageSection assets={product?.assets as Asset[]} />
+						</div>
+						<div>
+							<ProductInfoSection product={product as Product} />
+						</div>
 					</div>
+					<ProductAttributesSection attributes={attributes} />
+				</div>
+				<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.CHANGE}>
+					<FloatingActionToolbar>
+						<Button actionType='neutral' onClick={handleEditClick}>
+							Edit
+						</Button>
+						<Button actionType='neutral' onClick={handleDeleteClick}>
+							Delete
+						</Button>
+					</FloatingActionToolbar>
 				</PermissionGuard>
 			</div>
 			<ConfirmationModal
