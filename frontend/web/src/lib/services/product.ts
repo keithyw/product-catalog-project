@@ -11,6 +11,7 @@ import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 import {
 	CreateProductRequest,
+	GeneratedDescriptionResponse,
 	GenerateProductBulkResponse,
 	Product,
 } from '@/types/product'
@@ -30,6 +31,10 @@ interface ProductService {
 		productType: string,
 		prompt: string,
 	) => Promise<GenerateProductBulkResponse>
+	generateDescription: (
+		productId: number,
+		prompt: string,
+	) => Promise<GeneratedDescriptionResponse>
 	get: (id: number) => Promise<Product>
 	patch: (id: number, data: Partial<CreateProductRequest>) => Promise<Product>
 	update: (id: number, data: CreateProductRequest) => Promise<Product>
@@ -94,6 +99,16 @@ const productService: ProductService = {
 			}
 		}
 		throw new AIServiceException('Unknown error', 500)
+	},
+	generateDescription: async (
+		productId: number,
+		prompt: string,
+	): Promise<GeneratedDescriptionResponse> => {
+		const res = await axiosClient.post<GeneratedDescriptionResponse>(
+			`${API_PRODUCT_URL}${productId}/generate-description/`,
+			{ prompt: prompt },
+		)
+		return res.data
 	},
 	get: async (id: number): Promise<Product> => {
 		const r = await axiosClient.get<Product>(`${API_PRODUCT_URL}${id}/`)

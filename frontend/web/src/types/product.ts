@@ -167,3 +167,7 @@ export interface GeneratedProductResponse {
 	product_type: string
 	data: SimpleProduct
 }
+
+export interface GeneratedDescriptionResponse {
+	detail: { description: string }
+}

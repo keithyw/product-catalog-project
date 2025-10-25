@@ -17,18 +17,22 @@ import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import { FAILED_LOADING_PRODUCT_ERROR, PRODUCTS_URL } from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import productService from '@/lib/services/product'
+import useProductStore from '@/stores/useProductStore'
 import { Asset } from '@/types/asset'
 import { Product } from '@/types/product'
+import GenAIDescriptionModal from '@/app/products/modals/GenAIDescriptionModal'
 
 export default function ProductDetailsPage() {
 	const router = useRouter()
 	const params = useParams()
 	const id = params.id
 	const [isLoading, setIsLoading] = useState(true)
-	const [product, setProduct] = useState<Product | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [attributes, setAttributes] = useState<Record<string, string>[]>([])
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+	const [showGenAIDescriptionModal, setShowGenAIDescriptionModal] =
+		useState(false)
+	const { product, setProduct } = useProductStore()
 
 	const handleCloseDeleteModal = () => {
 		setShowConfirmationModal(false)
@@ -81,7 +85,7 @@ export default function ProductDetailsPage() {
 			}
 			fetchData()
 		}
-	}, [attributes, id, router])
+	}, [attributes, id, router, setProduct])
 
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading product...' />
@@ -114,6 +118,12 @@ export default function ProductDetailsPage() {
 						<Button actionType='neutral' onClick={handleDeleteClick}>
 							Delete
 						</Button>
+						<Button
+							actionType='neutral'
+							onClick={() => setShowGenAIDescriptionModal(true)}
+						>
+							AI Description
+						</Button>
 					</FloatingActionToolbar>
 				</PermissionGuard>
 			</div>
@@ -123,6 +133,10 @@ export default function ProductDetailsPage() {
 				onConfirm={handleDeleteConfirm}
 				title='Confirm Delete Brand'
 				message={`Are you sure you want to delete ${product?.name}`}
+			/>
+			<GenAIDescriptionModal
+				isOpen={showGenAIDescriptionModal}
+				onClose={() => setShowGenAIDescriptionModal(false)}
 			/>
 		</div>
 	)
