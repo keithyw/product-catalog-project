@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
 				protocol: 'https',
 				// Using a wildcard for the hostname allows images from any domain.
 				hostname: '**',
+				port: '',
+			},
+			{
+				protocol: 'http',
+				hostname: '127.0.0.1',
+				port: '7000',
 			},
 		],
 	},

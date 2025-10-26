@@ -1,7 +1,9 @@
+from django.core.files.uploadedfile import UploadedFile
 from rest_framework import serializers
 from .models import Asset, AssetAssociation
 
 class AssetSerializer(serializers.ModelSerializer):
+    url = serializers.CharField(max_length=255, required=False)
     class Meta:
         model = Asset
         fields = [
@@ -18,6 +20,17 @@ class AssetSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at']
         
+    def validate(self, attrs):
+        request = self.context.get('request')
+        file = request and request.FILES.get('file')
+        url = attrs.get('url')
+        if request.method == 'POST':
+            if not file and not url:
+                raise serializers.ValidationError({"message": "Provide either an uploaded file or url"})
+        if file and 'url' in attrs:
+            del attrs['url']
+        return attrs
+
 class AssetAssociationSerializer(serializers.ModelSerializer):
     owner_details = serializers.SerializerMethodField()
     asset = serializers.PrimaryKeyRelatedField(queryset=Asset.objects.all())
