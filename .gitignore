@@ -43,5 +43,8 @@ next-env.d.ts
 *storybook.log
 storybook-static/
 
+# ignore directory since it's serving local file
+media/
+
 /product-db/
 __pycache__/
