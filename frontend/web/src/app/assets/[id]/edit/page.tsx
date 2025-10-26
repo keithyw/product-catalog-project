@@ -51,8 +51,16 @@ const fields: FormField<AssetCreateFormData>[] = [
 	},
 ]
 
+// const urlField: FormField<AssetCreateFormData> = {
+// 	name: 'url',
+// 	label: 'URL',
+// 	placeholder: 'Enter URL',
+// 	required: true,
+// }
+
 const EditAssetPage = () => {
 	const params = useParams()
+	// const [mode, setMode] = useState<'url' | 'file'>('url')
 
 	const {
 		data: asset,
@@ -87,15 +95,19 @@ const EditAssetPage = () => {
 		transformData: async (data) => {
 			let dimensions: string | null = null
 			if (data.type.toLowerCase() === 'image') {
-				dimensions = await getImageDimensions(data.url)
+				dimensions = await getImageDimensions(data.url as string)
 			}
 
-			const path = data.url.split('?')[0].split('#')[0]
-			const lastDotIndex = path.lastIndexOf('.')
-			const extension =
-				lastDotIndex > 0 && lastDotIndex < path.length - 1
-					? path.substring(lastDotIndex + 1).toLowerCase()
-					: ''
+			let extension = ''
+			if (data.url) {
+				const path = data.url.split('?')[0].split('#')[0]
+				const lastDotIndex = path.lastIndexOf('.')
+				extension =
+					lastDotIndex > 0 && lastDotIndex < path.length - 1
+						? path.substring(lastDotIndex + 1).toLowerCase()
+						: ''
+			}
+
 			const req: CreateAssetRequest = {
 				url: data.url,
 				name: data.name,
