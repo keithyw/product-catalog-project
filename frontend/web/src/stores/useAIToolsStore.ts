@@ -17,6 +17,7 @@ interface AIToolsStore {
 	productAttributeSet: ProductAttributeSet | null
 	productAttributeSetName: string
 	products: SimpleProduct[]
+	image: File | null
 	currentStep: number
 	hasPromptHint: boolean
 	isCurrentStepValid: boolean
@@ -32,6 +33,7 @@ interface AIToolsStore {
 	setProductAttributeSet(item: ProductAttributeSet): void
 	setProductAttributeSetName(name: string): void
 	setProducts(products: SimpleProduct[]): void
+	setImage(image: File): void
 	setCurrentStep(step: number): void
 	setHasPromptHint(hasHint: boolean): void
 	setIsCurrentStepValid(isValid: boolean): void
@@ -50,6 +52,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	productAttributeSet: null,
 	productAttributeSetName: '',
 	products: [],
+	image: null,
 	currentStep: 1,
 	hasPromptHint: false,
 	isCurrentStepValid: false,
@@ -83,6 +86,7 @@ const useAIToolsStore = create<AIToolsStore>((set) => ({
 	setProductAttributeSetName: (name: string) =>
 		set({ productAttributeSetName: name }),
 	setProducts: (p: Omit<SimpleProduct, 'id'>[]) => set({ products: p }),
+	setImage: (i: File) => set({ image: i }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setHasPromptHint: (hasHint: boolean) => set({ hasPromptHint: hasHint }),
 	setIsCurrentStepValid: (isValid: boolean) =>

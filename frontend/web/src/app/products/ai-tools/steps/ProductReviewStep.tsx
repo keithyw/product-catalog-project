@@ -4,9 +4,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { isArray } from 'lodash'
 import Chip from '@/components/ui/Chip'
 import Button from '@/components/ui/form/Button'
+import assetService from '@/lib/services/assets'
+import assetAssociationService from '@/lib/services/assetAssociation'
 import brandService from '@/lib/services/brand'
 import productService from '@/lib/services/product'
 import useAIToolsStore from '@/stores/useAIToolsStore'
+import {
+	CreateAssetFromFileRequest,
+	CreateAssetAssociationRequest,
+} from '@/types/asset'
 import { Brand, CreateBrandRequest } from '@/types/brand'
 import { CreateProductRequest, SimpleProduct } from '@/types/product'
 import { StepComponentProps } from '@/types/wizard'
@@ -27,6 +33,7 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 		setIsSubmitting,
 		setProducts,
 	} = useAIToolsStore()
+	const image = useAIToolsStore((state) => state.image)
 	const products = useAIToolsStore((state) => state.products)
 
 	const handleStepSubmit = useCallback(async (): Promise<boolean> => {
@@ -49,6 +56,21 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 				})
 				const res = await productService.bulk(req)
 				if (res) {
+					if (res[0] && image) {
+						const assetReq: CreateAssetFromFileRequest = {
+							file: image,
+							name: res[0].name,
+							description: res[0].description || '',
+							type: 'image',
+						}
+						const asset = await assetService.createWithFile(assetReq)
+						const assocReq: CreateAssetAssociationRequest = {
+							asset: asset.id,
+							entity: 'Product',
+							entity_id: parseInt(res[0].id),
+						}
+						await assetAssociationService.create(assocReq)
+					}
 					console.log(res)
 				}
 			} catch (e: unknown) {
@@ -59,7 +81,7 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 			}
 		}
 		return true
-	}, [brands, productAttributeSet, products, setIsSubmitting])
+	}, [brands, image, productAttributeSet, products, setIsSubmitting])
 
 	useEffect(() => {
 		const fetchBrands = async () => {

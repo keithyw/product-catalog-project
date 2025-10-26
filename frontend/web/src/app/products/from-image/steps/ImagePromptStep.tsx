@@ -27,6 +27,7 @@ const ImagePromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 		productAttributeSet,
 		isSubmitting,
 		setHasPromptHint,
+		setImage,
 		setIsCurrentStepValid,
 		setProducts,
 		setProductAttributeSet,
@@ -74,10 +75,16 @@ const ImagePromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 		URL.revokeObjectURL(previewImage as string)
 	}, [previewImage])
 
-	const handleImage = useCallback((acceptedFiles: Blob[]) => {
-		setFiles(acceptedFiles)
-		setPreviewImage(URL.createObjectURL(acceptedFiles[0]))
-	}, [])
+	const handleImage = useCallback(
+		(acceptedFiles: Blob[]) => {
+			setFiles(acceptedFiles)
+			setPreviewImage(URL.createObjectURL(acceptedFiles[0]))
+			const file = acceptedFiles[0] as File
+			const image = new File([acceptedFiles[0]], file.name, { type: file.type })
+			setImage(image)
+		},
+		[setImage],
+	)
 
 	const handleGenerate = useCallback(async (): Promise<boolean> => {
 		const res = await productImageService.generate(
@@ -85,7 +92,6 @@ const ImagePromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 			prompt,
 			files[0],
 		)
-		console.log('res: ', res)
 		setProducts([{ ...res.data, id: 1 }])
 		return true
 	}, [files, prompt, productAttributeSet, setProducts])
