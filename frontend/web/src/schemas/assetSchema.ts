@@ -1,13 +1,14 @@
 import { z } from 'zod'
 
 export const assetSchema = {
-	url: z.url(),
+	url: z.url().optional().or(z.literal('')),
 	name: z.string().optional().or(z.literal('')),
 	type: z.string(),
 	filepath: z.string().optional().or(z.literal('')),
 	extension: z.string().optional().or(z.literal('')),
 	dimensions: z.string().optional().or(z.literal('')),
 	description: z.string().optional().or(z.literal('')),
+	file: z.any().optional(),
 }
 
 export const imageSchema = {

@@ -10,13 +10,18 @@ export interface Asset {
 }
 
 export interface CreateAssetRequest {
-	url: string
+	url?: string
 	name?: string
 	type: string
 	filepath?: string
 	extension?: string
 	dimensions?: string | null
 	description?: string
+}
+
+export interface CreateAssetFromFileRequest
+	extends Omit<CreateAssetRequest, 'url' | 'extension' | 'dimension'> {
+	file: File
 }
 
 export interface AssetAssociation {

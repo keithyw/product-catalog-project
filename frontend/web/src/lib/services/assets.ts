@@ -1,11 +1,16 @@
 import axiosClient from '@/lib/clients/axiosClient'
 import { API_ASSETS_URL } from '@/lib/constants'
-import { Asset, CreateAssetRequest } from '@/types/asset'
+import {
+	Asset,
+	CreateAssetRequest,
+	CreateAssetFromFileRequest,
+} from '@/types/asset'
 import { ListResponse } from '@/types/list'
 import { PaginationParams } from '@/types/pagination'
 
 interface AssetService {
 	create: (data: CreateAssetRequest) => Promise<Asset>
+	createWithFile: (data: CreateAssetFromFileRequest) => Promise<Asset>
 	delete: (id: number) => Promise<void>
 	fetch: (
 		page?: number,
@@ -20,6 +25,19 @@ interface AssetService {
 const assetService: AssetService = {
 	create: async (data: CreateAssetRequest): Promise<Asset> => {
 		const res = await axiosClient.post<Asset>(API_ASSETS_URL, data)
+		return res.data || ({} as Asset)
+	},
+	createWithFile: async (data: CreateAssetFromFileRequest): Promise<Asset> => {
+		const formData = new FormData()
+		formData.append('file', data.file, data.file.name)
+		formData.append('type', data.type)
+		if (data.name) formData.append('name', data.name)
+		if (data.description) formData.append('description', data.description)
+		const res = await axiosClient.post<Asset>(API_ASSETS_URL, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		})
 		return res.data || ({} as Asset)
 	},
 	delete: async (id: number): Promise<void> => {
