@@ -179,6 +179,8 @@ os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"
 GEMINI_API_VERSION = 'v1alpha'
 GEMINI_MODEL = 'gemini-2.0-flash-001'
 GEMINI_SEARCH_MODEL = 'gemini-2.5-flash'
+GOOGLE_CLOUD_PROJECT = os.getenv('GOOGLE_CLOUD_PROJECT')
+GEMINI_PROJECT_ID = os.getenv('GEMINI_PROJECT_ID')
 
 MESSENGER_CLASS = 'messaging.google.GooglePubSubClient'
 

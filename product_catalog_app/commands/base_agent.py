@@ -1,6 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from google.genai import types
+from google.adk.tools import BaseTool
 from json.decoder import JSONDecodeError
 from pydantic import BaseModel
 from product_catalog_app.agents.factory import create_agent
@@ -25,7 +26,8 @@ class AbstractAgentCommand(ABC):
         self._runner = None
         self._session_manager = None
         self._prompt_template = None
-        self._prompt_data = None
+        self._prompt_data = {}
+        self._tools = []
 
     @property
     def container(self):
@@ -39,6 +41,10 @@ class AbstractAgentCommand(ABC):
     def parameters(self) -> AgentCommandParameterInterface:
         return self._parameters
     
+    @property
+    def tools(self) -> list[BaseTool]:
+        return self._tools
+
     @property
     def _parsed_output(self) -> dict:
         if not self._output:
@@ -77,13 +83,12 @@ class AbstractAgentCommand(ABC):
         pass
     
     def _generate_agent(self):
-        if not self._get_schema():
-            raise ValueError("schema not defined")
         self._agent = create_agent(
             self.parameters.agent_name,
             self.parameters.description,
             self._generate_prompt(),
             self._get_schema(),
+            self.tools,
         )
         return self._agent
 
@@ -106,8 +111,6 @@ class AbstractAgentCommand(ABC):
     def _generate_prompt(self) -> str:
         if not self._prompt_template:
             raise ValueError("prompt template not set")
-        if not self._prompt_data:
-            raise ValueError("prompt data not set")
         prompt = render(self._prompt_template, self._prompt_data)
         # temporary for debugging
         self.container.logger.info(f"prompt {prompt}")

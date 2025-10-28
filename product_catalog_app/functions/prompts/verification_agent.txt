@@ -1,4 +1,4 @@
-You are an Expert Product Data Verifier. Your task is to use Google Search to find
+You are an Expert Product Data Verifier. Your task is to use the 'google_search_tool' to find
 the official, correct specifications for the product named: "{{ product.name }}".
 
     Verification Rules

@@ -5,6 +5,7 @@ from google.genai import types
 from pydantic import BaseModel
 from product_catalog_app.commands.base_agent import AbstractAgentCommand
 from product_catalog_app.commands.results import CommandResults
+from .search_tool import create_search_tool
 from .schema import VerificationSchema
 
 class AgentValidationCommand(AbstractAgentCommand):
@@ -19,6 +20,7 @@ class AgentValidationCommand(AbstractAgentCommand):
         return VerificationSchema
     
     async def _pre_process(self):
+        self._tools = [create_search_tool()]
         self._prompt_template = 'verification_agent.txt'
         model = self.container.get_model('product')
         self.internal_data['model'] = model
@@ -29,16 +31,17 @@ class AgentValidationCommand(AbstractAgentCommand):
         self._internal_data['product'] = product
         
     async def _handle(self) -> CommandResults:
-        if 'discrepancies' in self._parsed_output and 'product_id' in self._parsed_output:
+        discrepancies = self._parsed_output.get('discrepancies', [])
+        if len(discrepancies) > 0 and 'product_id' in self._parsed_output:
             return CommandResults(self._parsed_output)
         elif 'product_id' in self._parsed_output and self._parsed_output['verification_status'] == 'PASS':
-            return CommandResults(None, None, True)
-        return CommandResults(None, f"AI Parsing failed. Raw: {self._output}", False)
+            return CommandResults({}, '', True)
+        return CommandResults({}, f"AI Parsing failed. Raw: {self._output}", False)
 
     async def _post_process(self):
         if self._results.success and not self._results.errors:
             product = self._internal_data['product']
-            if 'discrepancies' in self._results.data:
+            if 'discrepancies' in self._results.data:                
                 product.suggested_corrections = self._results.data['discrepancies']
                 product.verification_status = 'FAILED'
             else:

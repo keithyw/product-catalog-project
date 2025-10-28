@@ -1,5 +1,5 @@
 class CommandResults():
-    def __init__(self, data: dict=None, errors: str=None, success: bool=True):
+    def __init__(self, data: dict={}, errors: str=None, success: bool=True):
         self._data = data
         self._errors = errors
         self._success = success
