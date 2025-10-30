@@ -9,6 +9,7 @@ import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
 import MultiSelectManager from '@/components/ui/MultiSelectManager'
 import SpinnerSection from '@/components/ui/SpinnerSection'
+import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
 import {
 	FAILED_LOADING_PRODUCT_ATTRIBUTE_SET_ERROR,
@@ -32,6 +33,7 @@ import {
 	ProductAttribute,
 	ProductAttributeSet,
 } from '@/types/product'
+import LookupFieldModal from '@/app/products/modals/LookupFieldModal'
 
 const fields: FormField<ProductAttributeSetFormData>[] = [
 	{
@@ -64,6 +66,7 @@ export default function EditProductAttributeSetPage() {
 	const [attributeSet, setAttributeSet] = useState<ProductAttributeSet | null>(
 		null,
 	)
+	const [isLookupFieldModalOpen, setIsLookupFieldModalOpen] = useState(false)
 
 	const selectAttributeCallback = (updatedAttributes: ProductAttribute[]) => {
 		setAttributeSet({
@@ -211,6 +214,13 @@ export default function EditProductAttributeSetPage() {
 		fetchCategories()
 	}, [])
 
+	const onUpdateLookupField = (lookupField: ProductAttribute[]) => {
+		setAttributeSet({
+			...attributeSet!,
+			lookup_field: lookupField.map((f) => f.name),
+		})
+	}
+
 	const onSubmit = async (data: ProductAttributeSetFormData) => {
 		try {
 			const req: CreateProductAttributeSetRequest = {
@@ -221,6 +231,7 @@ export default function EditProductAttributeSetPage() {
 				category: data.category,
 				brand: data.brand,
 				product_type_brands: attributeSet?.product_type_brands || [],
+				lookup_field: attributeSet?.lookup_field || [],
 			}
 			const res = await productAttributeSetService.update(
 				parseInt(id as string),
@@ -262,6 +273,18 @@ export default function EditProductAttributeSetPage() {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
+				{attributeSet.lookup_field?.length > 0 && (
+					<div className='text-gray-900'>
+						Lookup Field: {attributeSet?.lookup_field?.join(', ') || ''}
+					</div>
+				)}
+				<Button
+					actionType='neutral'
+					type='button'
+					onClick={() => setIsLookupFieldModalOpen(true)}
+				>
+					Add Lookup Field
+				</Button>
 				<MultiSelectManager
 					title='Add Attributes'
 					itemName='attributes'
@@ -317,6 +340,12 @@ export default function EditProductAttributeSetPage() {
 					errorMessage={errors.category?.message as string}
 				/>
 			</CreateFormLayout>
+			<LookupFieldModal
+				attributes={selectedAttributes}
+				isOpen={isLookupFieldModalOpen}
+				onClose={() => setIsLookupFieldModalOpen(false)}
+				onUpdateLookupField={onUpdateLookupField}
+			/>
 		</PermissionGuard>
 	)
 }

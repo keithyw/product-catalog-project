@@ -92,6 +92,10 @@ export default function ProductAttributeSetPage() {
 				{ label: 'Is Active', value: res.is_active ? 'Yes' : 'No' },
 				{ label: 'Brand', value: res.brand_name || '' },
 				{ label: 'Category', value: res.category_name || '' },
+				{
+					label: 'Lookup Field',
+					value: res.lookup_field ? res.lookup_field.join(', ') : '',
+				},
 			])
 		}
 		fetchAttrSet()

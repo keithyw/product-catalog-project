@@ -91,6 +91,9 @@ class ProductAttributeSet(models.Model):
         related_name='attribute_sets',
     )
 
+    # this will serve as a composite key from the attributes. because
+    # attributes are dynamic, we can't easily create a normal key
+    lookup_field = models.JSONField(blank=True, null=True, default=list)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

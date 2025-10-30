@@ -27,7 +27,15 @@ class AgentValidationCommand(AbstractAgentCommand):
         product = await sync_to_async(
             lambda: model.objects.get(pk=self.parameters.get_value('product_id'))
         )()
-        self._prompt_data = { "product": product }
+        attribute_keys = getattr(product.attribute_set, 'lookup_field', [])
+        lookup = []
+        if attribute_keys and isinstance(product.attributes_data, dict):
+            for k in attribute_keys:
+                v = product.attributes_data.get(k)
+                if v:
+                   lookup.append(f"{k}: {v}")
+        lookup_key = ", ".join(lookup) if lookup else None
+        self._prompt_data = { "product": product, "lookup_key": lookup_key, }
         self._internal_data['product'] = product
         
     async def _handle(self) -> CommandResults:

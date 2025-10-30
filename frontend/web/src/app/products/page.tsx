@@ -183,12 +183,25 @@ export default function ProductsPage() {
 			setIsUpdating(true)
 			try {
 				const correctedAttributes = { ...generatedProduct.attributes_data }
-				generatedProduct.suggested_corrections.map((c) => {
-					correctedAttributes[c.field] = c.corrected_value
-				})
-				const payload = {
+				const payload: {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					attributes_data: Record<string, any>
+					verification_status: string
+					name?: string
+				} = {
 					attributes_data: correctedAttributes,
 					verification_status: 'ACCEPTED',
+				}
+				let productName: string | undefined
+				generatedProduct.suggested_corrections.map((c) => {
+					if (c.field === 'product_name') {
+						productName = c.corrected_value
+					} else {
+						correctedAttributes[c.field] = c.corrected_value
+					}
+				})
+				if (productName) {
+					payload.name = productName
 				}
 				await productService.patch(parseInt(generatedProduct.id), payload)
 				toast.success(`Product ${generatedProduct.name} corrections accepted`)

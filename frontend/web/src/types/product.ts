@@ -84,6 +84,7 @@ export interface ProductAttributeSet {
 	category_name: string | null
 	brand: number | null
 	brand_name: string | null
+	lookup_field: string[]
 	// this should be a number; will change later
 	product_type_brands?: number[] | null
 	is_active: boolean
@@ -99,6 +100,7 @@ export interface CreateProductAttributeSetRequest {
 	brand?: number | null
 	is_active?: boolean
 	product_type_brands?: number[] | null
+	lookup_field?: string[] | null
 }
 
 export interface SuggestedCorrection {

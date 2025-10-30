@@ -41,7 +41,7 @@ const SuggestedCorrectionsModal = ({
 								className='p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50/70'
 							>
 								<h3 className='text-md font-semibold text-gray-800 mb-2'>
-									{c.field}
+									{c.field === 'product_name' ? 'Product Name' : c.field}
 								</h3>
 								<div className='mb-2 p-2 bg-red-50 border-l-4 border-red-400 rounded'>
 									<p className='text-xs font-medium text-green-700'>

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
+import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
 import MultiSelectManager from '@/components/ui/MultiSelectManager'
 import { PRODUCT_ATTRIBUTE_SETS_URL } from '@/lib/constants'
@@ -27,6 +28,7 @@ import {
 	CreateProductAttributeSetRequest,
 	ProductAttribute,
 } from '@/types/product'
+import LookupFieldModal from '@/app/products/modals/LookupFieldModal'
 
 const fields: FormField<ProductAttributeSetFormData>[] = [
 	{
@@ -106,6 +108,8 @@ export default function CreateProductAttributeSetPage() {
 	const [errorCategories, setErrorCategories] = useState<string | null>(null)
 	const [brands, setBrands] = useState<OptionType[]>([])
 	const [productTypeBrands, setProductTypeBrands] = useState<number[]>([])
+	const [lookupField, setLookupField] = useState<string[]>([])
+	const [isLookupFieldModalOpen, setIsLookupFieldModalOpen] = useState(false)
 
 	useEffect(() => {
 		setBrands(allBrands.map((b) => ({ value: b.id, label: b.name })))
@@ -130,6 +134,10 @@ export default function CreateProductAttributeSetPage() {
 		fetchCategories()
 	}, [])
 
+	const onUpdateLookupField = (fieldParts: ProductAttribute[]) => {
+		setLookupField(fieldParts.map((f) => f.name))
+	}
+
 	const onSubmit = async (data: ProductAttributeSetFormData) => {
 		try {
 			const req: CreateProductAttributeSetRequest = {
@@ -140,6 +148,7 @@ export default function CreateProductAttributeSetPage() {
 				category: data.category,
 				brand: data.brand,
 				product_type_brands: productTypeBrands,
+				lookup_field: lookupField || [],
 			}
 			const res = await productAttributeSetService.create(req)
 			toast.success(`Attribute set ${res.name} created successfully!`)
@@ -172,6 +181,26 @@ export default function CreateProductAttributeSetPage() {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
+				{selectedAttributes.length > 0 ? (
+					<div className='py-2'>
+						{lookupField.length > 0 && (
+							<div className='text-gray-900 font-semibold'>
+								Lookup Field: {lookupField?.join(', ') || ''}
+							</div>
+						)}
+						<Button
+							actionType='neutral'
+							type='button'
+							onClick={() => setIsLookupFieldModalOpen(true)}
+						>
+							Add Lookup Field
+						</Button>
+					</div>
+				) : (
+					<div className='text-gray-900'>
+						Add Attributes to Create A Lookup Field
+					</div>
+				)}
 				<MultiSelectManager
 					title='Add Attributes'
 					itemName='attributes'
@@ -228,6 +257,12 @@ export default function CreateProductAttributeSetPage() {
 					errorMessage={errors.category?.message as string}
 				/>
 			</CreateFormLayout>
+			<LookupFieldModal
+				attributes={selectedAttributes}
+				isOpen={isLookupFieldModalOpen}
+				onClose={() => setIsLookupFieldModalOpen(false)}
+				onUpdateLookupField={onUpdateLookupField}
+			/>
 		</PermissionGuard>
 	)
 }
