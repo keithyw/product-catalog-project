@@ -20,6 +20,7 @@ import {
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import { useDataTableController } from '@/lib/hooks/useDataTableController'
 import productService from '@/lib/services/product'
+import productAttributeSetService from '@/lib/services/productAttributeSet'
 import { FilterParams, FilterOption } from '@/types/filters'
 import { Product } from '@/types/product'
 import { TableColumn, TableRowAction } from '@/types/table'
@@ -182,6 +183,10 @@ export default function ProductsPage() {
 		if (generatedProduct) {
 			setIsUpdating(true)
 			try {
+				const attributeSet = await productAttributeSetService.get(
+					generatedProduct.attribute_set,
+				)
+
 				const correctedAttributes = { ...generatedProduct.attributes_data }
 				const payload: {
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,7 +202,14 @@ export default function ProductsPage() {
 					if (c.field === 'product_name') {
 						productName = c.corrected_value
 					} else {
-						correctedAttributes[c.field] = c.corrected_value
+						const detail = attributeSet.attributes_detail.find(
+							(d) => d.name === c.field,
+						)
+						if (['multiselect', 'select'].includes(detail?.type as string)) {
+							correctedAttributes[c.field] = [c.corrected_value]
+						} else {
+							correctedAttributes[c.field] = c.corrected_value
+						}
 					}
 				})
 				if (productName) {

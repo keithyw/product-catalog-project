@@ -189,7 +189,7 @@ class ProductAIGenerationService:
         return types.Tool(
             function_declarations=[
                 types.FunctionDeclaration(
-                    name="identify_product_information_by_iamge_for_review",
+                    name="identify_product_information_by_image_for_review",
                     description=f"Using the image uploaded for {product_type}, fill in related attributes about the product when the user asks to generate the product based on the product type.",
                     parameters=schema,
                 )
