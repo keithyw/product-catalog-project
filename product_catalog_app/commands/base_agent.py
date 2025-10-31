@@ -106,6 +106,7 @@ class AbstractAgentCommand(ABC):
             self.parameters.agent_name,
             self.parameters.user_id,
             self._session_manager,
+            self._tools,
         )        
 
     def _generate_prompt(self) -> str:

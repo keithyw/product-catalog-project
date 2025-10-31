@@ -5,7 +5,7 @@ from google.genai import types
 from pydantic import BaseModel
 from product_catalog_app.commands.base_agent import AbstractAgentCommand
 from product_catalog_app.commands.results import CommandResults
-from .search_tool import create_search_tool
+from product_catalog_app.agent_tools.search_tool import create_search_tool
 from .schema import VerificationSchema
 
 class AgentValidationCommand(AbstractAgentCommand):

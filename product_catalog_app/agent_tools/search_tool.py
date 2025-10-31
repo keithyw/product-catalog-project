@@ -1,5 +1,5 @@
 from google.adk.tools import BaseTool, google_search
-from product_catalog_app.agent_tools.factory import create_tool
+from .factory import create_tool
 
 def create_search_tool() -> BaseTool:
     return create_tool(
