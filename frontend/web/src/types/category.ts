@@ -10,6 +10,8 @@ export interface Category {
 	meta_title?: string
 	meta_description?: string
 	meta_keywords?: string
+	is_ai_generated: boolean
+	verification_status: string
 	created_at: string
 	updated_at: string
 	parent: number | null
@@ -26,6 +28,8 @@ export interface CreateCategoryRequest {
 	description?: string
 	image_url?: string
 	banner_image_url?: string
+	is_ai_generated: boolean
+	verification_status: string
 	is_active: boolean
 	display_order: number
 	meta_title?: string
@@ -44,6 +48,8 @@ export interface SimpleCategoryRequest {
 	description?: string
 	category_system_id?: number
 	nested_children_data: SimpleCategoryRequest[]
+	is_ai_generated: boolean
+	verification_status: string
 }
 
 export interface CreateBulkCategoryResponse {

@@ -59,6 +59,8 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 					description: cat.description,
 					category_system_id: 3, // temp until we can get a category system id
 					nested_children_data: convertCategoriesToRequest(cat.children || []),
+					is_ai_generated: false,
+					verification_status: 'PENDING',
 				}
 			})
 		},
@@ -134,6 +136,8 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 							const req: CreateProductAttributeSetRequest = {
 								name: productAttributeSetName,
 								attributes: res.map((r: ProductAttribute) => r.id as number),
+								is_ai_generated: true,
+								verification_status: 'PENDING',
 							}
 							await productAttributeSetService.create(req)
 						}

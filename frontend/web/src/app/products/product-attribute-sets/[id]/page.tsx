@@ -96,6 +96,8 @@ export default function ProductAttributeSetPage() {
 					label: 'Lookup Field',
 					value: res.lookup_field ? res.lookup_field.join(', ') : '',
 				},
+				{ label: 'Is AI Generated', value: res.is_ai_generated ? 'Yes' : 'No' },
+				{ label: 'Verification Status', value: res.verification_status },
 			])
 		}
 		fetchAttrSet()

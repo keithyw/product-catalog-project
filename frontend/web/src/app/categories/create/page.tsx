@@ -160,7 +160,11 @@ export default function CreateCategoryPage() {
 
 	const onSubmit = async (data: CategoryCreateFormData) => {
 		try {
-			const res = await categoryService.create(data)
+			const res = await categoryService.create({
+				...data,
+				verification_status: 'EXEMPT',
+				is_ai_generated: false,
+			})
 			toast.success(`Category ${res.name} created successfully!`)
 			reset()
 			router.push(CATEGORIES_URL)

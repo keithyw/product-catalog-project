@@ -87,6 +87,8 @@ export interface ProductAttributeSet {
 	lookup_field: string[]
 	// this should be a number; will change later
 	product_type_brands?: number[] | null
+	is_ai_generated: boolean
+	verification_status: string
 	is_active: boolean
 	created_at: string
 	updated_at: string
@@ -101,6 +103,8 @@ export interface CreateProductAttributeSetRequest {
 	is_active?: boolean
 	product_type_brands?: number[] | null
 	lookup_field?: string[] | null
+	is_ai_generated?: boolean
+	verification_status?: string | null
 }
 
 export interface SuggestedCorrection {

@@ -64,6 +64,8 @@ class CategorySerializer(serializers.ModelSerializer):
             'meta_title',
             'meta_description',
             'meta_keywords',
+            'is_ai_generated',
+            'verification_status',
             'created_at',
             'updated_at',
             'parent',

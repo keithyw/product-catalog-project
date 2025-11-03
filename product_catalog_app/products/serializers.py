@@ -83,6 +83,8 @@ class ProductAttributeSetSerializer(serializers.ModelSerializer):
             'category_name',
             'lookup_field',
             'is_active',
+            'is_ai_generated',
+            'verification_status',
             'created_at',
             'updated_at',
         ]

@@ -197,10 +197,11 @@ const EditCategoryPage: React.FC = () => {
 
 	const onSubmit = async (data: CategoryCreateFormData) => {
 		try {
-			const res = await categoryService.update(
-				parseInt(categoryId as string),
-				data,
-			)
+			const res = await categoryService.update(parseInt(categoryId as string), {
+				...data,
+				verification_status: 'EXEMPT',
+				is_ai_generated: false,
+			})
 			toast.success(`Category ${res.name} updated successfully!`)
 			router.push(CATEGORIES_URL)
 		} catch (e: unknown) {

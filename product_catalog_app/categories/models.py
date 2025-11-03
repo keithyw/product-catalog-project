@@ -80,10 +80,26 @@ class Category(MP_Node):
     image_url = models.URLField(max_length=500, blank=True, null=True)
     banner_image_url = models.URLField(max_length=500, blank=True, null=True)
     is_active = models.BooleanField(default=True, db_index=True)
+    is_ai_generated = models.BooleanField(default=False)
     display_order = models.IntegerField(default = 0)
     meta_title = models.CharField(max_length=255, blank=True, null=True)
     meta_description = models.TextField(blank=True, null=True)
     meta_keywords = models.CharField(max_length=255, blank=True, null=True)
+    VERIFICATION_CHOICES = (
+        ('PENDING', 'Pending Verification'),
+        ('VERIFIED', 'Verified'),
+        ('FAILED', 'Failed Verification'),
+        ('EXEMPT', 'Does not require verification'),
+        ('REJECTED', 'Rejected'),
+        ('ACCEPTED', 'Accepted'),
+    )
+
+    verification_status = models.CharField(
+        max_length=25,
+        choices=VERIFICATION_CHOICES,
+        default='EXEMPT',
+        help_text="Status realted to AI generated product's that require verification",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

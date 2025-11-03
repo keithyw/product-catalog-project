@@ -91,10 +91,27 @@ class ProductAttributeSet(models.Model):
         related_name='attribute_sets',
     )
 
+    VERIFICATION_CHOICES = (
+        ('PENDING', 'Pending Verification'),
+        ('VERIFIED', 'Verified'),
+        ('FAILED', 'Failed Verification'),
+        ('EXEMPT', 'Does not require verification'),
+        ('REJECTED', 'Rejected'),
+        ('ACCEPTED', 'Accepted'),
+    )
+
+    verification_status = models.CharField(
+        max_length=25,
+        choices=VERIFICATION_CHOICES,
+        default='EXEMPT',
+        help_text="Status realted to AI generated product's that require verification",
+    )
+
     # this will serve as a composite key from the attributes. because
     # attributes are dynamic, we can't easily create a normal key
     lookup_field = models.JSONField(blank=True, null=True, default=list)
     is_active = models.BooleanField(default=True)
+    is_ai_generated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:

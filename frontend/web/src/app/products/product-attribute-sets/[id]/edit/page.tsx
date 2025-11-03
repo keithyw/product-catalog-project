@@ -232,6 +232,8 @@ export default function EditProductAttributeSetPage() {
 				brand: data.brand,
 				product_type_brands: attributeSet?.product_type_brands || [],
 				lookup_field: attributeSet?.lookup_field || [],
+				is_ai_generated: false,
+				verification_status: 'EXEMPT',
 			}
 			const res = await productAttributeSetService.update(
 				parseInt(id as string),

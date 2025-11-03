@@ -68,6 +68,11 @@ const CategoryDetailsPage: React.FC = () => {
 						{ label: 'Description', value: res.description || '' },
 						{ label: 'Image URL', value: res.image_url || '' },
 						{ label: 'Banner Image URL', value: res.banner_image_url || '' },
+						{
+							label: 'Is AI Generated',
+							value: res.is_ai_generated ? 'Yes' : 'No',
+						},
+						{ label: 'Verification Status', value: res.verification_status },
 						{ label: 'Is Active', value: res.is_active ? 'Yes' : 'No' },
 						{ label: 'Display Order', value: res.display_order.toString() },
 						{ label: 'Meta Title', value: res.meta_title || '' },

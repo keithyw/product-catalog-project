@@ -149,6 +149,8 @@ export default function CreateProductAttributeSetPage() {
 				brand: data.brand,
 				product_type_brands: productTypeBrands,
 				lookup_field: lookupField || [],
+				is_ai_generated: false,
+				verification_status: 'EXEMPT',
 			}
 			const res = await productAttributeSetService.create(req)
 			toast.success(`Attribute set ${res.name} created successfully!`)
