@@ -21,9 +21,7 @@ def process(cloud_event: CloudEvent) -> None:
             params={ "product_id": int(id) },
         )
     )
-    results: CommandResults = asyncio.run(cmd.execute())
-        
-        
-    
-        
-    
+    try:
+        results: CommandResults = asyncio.run(cmd.execute())
+    except Exception as e:
+        container.logger.info(f"execute failed: {e}")

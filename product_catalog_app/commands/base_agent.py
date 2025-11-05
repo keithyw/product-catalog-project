@@ -120,6 +120,7 @@ class AbstractAgentCommand(ABC):
     async def execute(self) -> CommandResults:
         """Dev calls this after instantiating command"""
         if not self.parameters.validate():
+            self.container.logger.info(f"parameter validation failed")
             return CommandResults(None, "Parameter validation failed.", False)
         try:
             self.container.logger.info("pre process")

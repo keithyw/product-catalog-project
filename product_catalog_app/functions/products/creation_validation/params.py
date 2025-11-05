@@ -2,6 +2,6 @@ from product_catalog_app.commands.agent_params import AbstractAgentCommandParame
 
 class ProductValidationAgentParams(AbstractAgentCommandParameters):
     def validate_params(self) -> bool:
-        if 'product_in' not in self.data:
+        if 'product_id' not in self.data:
             return False
         return True
