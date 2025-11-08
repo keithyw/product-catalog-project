@@ -61,7 +61,7 @@ class AbstractAgentCommand(ABC):
     
     @abstractmethod
     def _get_input_content(self) -> types.Content:
-        """Passes additional info to the agent when it runs"""
+        """Passes additional info (parameters) to the agent when it runs"""
         pass
     
     @abstractmethod
@@ -81,7 +81,7 @@ class AbstractAgentCommand(ABC):
     async def _handle(self) -> CommandResults:
         """Concrete logic will be processed here"""
         pass
-    
+
     def _generate_agent(self):
         self._agent = create_agent(
             self.parameters.agent_name,

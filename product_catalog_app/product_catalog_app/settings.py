@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'assets.apps.AssetsConfig',
     'brands.apps.BrandsConfig',
     'categories.apps.CategoriesConfig',
+    'prices.apps.PricesConfig',
     'products.apps.ProductsConfig',
     'users.apps.UsersConfig',
     'corsheaders',
