@@ -2,10 +2,12 @@ import json
 from django.db import models
 from rest_framework import serializers
 from .models import Product, ProductAttribute, ProductAttributeSet
-from assets.models import Asset, AssetAssociation
+from assets.models import AssetAssociation
 from assets.serializers import AssetSerializer
 from brands.models import Brand
 from categories.models import Category
+from prices.models import Price
+from prices.serializers import PriceSerializer
 
 class ProductAttributeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -145,9 +147,7 @@ class AIProductGenerateRequestSeralizer(serializers.Serializer):
 class ProductSerializer(serializers.ModelSerializer):
     name = serializers.CharField(min_length=3)
     description = serializers.CharField(required=False, allow_null=True)
-    
     uuid = serializers.UUIDField(read_only=True,)
-
     brand_name = serializers.CharField(source='brand.name', read_only=True, allow_null=True)
     category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
     attribute_set_name = serializers.CharField(source='attribute_set.name', read_only=True)
@@ -166,6 +166,7 @@ class ProductSerializer(serializers.ModelSerializer):
         queryset=ProductAttributeSet.objects.all(),
     )
     assets = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -181,6 +182,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'attribute_set',
             'attribute_set_name',
             'attributes_data',
+            'price',
             'suggested_corrections',
             'uuid',
             'is_active',
@@ -339,6 +341,18 @@ class ProductSerializer(serializers.ModelSerializer):
             assoc.asset for assoc in associations if assoc.asset
         ]
         return AssetSerializer(ordered_assets, many=True).data
+
+    def get_price(self, obj: Product):
+        try:
+            price = Price.objects.get(
+                product=obj,
+                is_active=True,
+            )
+            return PriceSerializer(price).data if price else None
+        except Price.DoesNotExist:
+            return None
+        except Exception:
+            return None
 
     def create(self, validated_data):
         return super().create(validated_data)

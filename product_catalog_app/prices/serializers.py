@@ -4,7 +4,6 @@ from .models import Price
 
 class PriceSerializer(serializers.ModelSerializer):
     product_price_name = serializers.CharField(source='product.name', read_only=True)
-    product_id = serializers.IntegerField(source='product.id', read_only=True)
     product = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(),
         allow_null=False,
@@ -19,7 +18,6 @@ class PriceSerializer(serializers.ModelSerializer):
             'currency_code',
             'region_code',
             'product',
-            'product_id',
             'product_price_name',
             'price_source',
             'is_active',
@@ -29,7 +27,6 @@ class PriceSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = [
-            'product_id',
             'product_price_name',
             'created_at',
             'updated_at',

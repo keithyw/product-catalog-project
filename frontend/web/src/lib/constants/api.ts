@@ -11,6 +11,7 @@ export const API_CATEGORIES_BULK_URL = `${API_CATEGORIES_URL}bulk/`
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
 export const API_PERMISSIONS_URL = '/permissions/'
+export const API_PRICE_URL = '/prices/'
 export const API_PRODUCT_ATTRIBUTES_URL = '/product-attributes/'
 export const API_PRODUCT_ATTRIBUTE_SETS_URL = '/product-attribute-sets/'
 export const API_PRODUCT_URL = '/products/'

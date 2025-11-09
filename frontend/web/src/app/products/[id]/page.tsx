@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { upperFirst, toLower } from 'lodash'
@@ -14,7 +15,11 @@ import ProductInfoSection from '@/components/ui/ProductInfoSection'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
-import { FAILED_LOADING_PRODUCT_ERROR, PRODUCTS_URL } from '@/lib/constants'
+import {
+	FAILED_LOADING_PRODUCT_ERROR,
+	PRICE_URL,
+	PRODUCTS_URL,
+} from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import productService from '@/lib/services/product'
 import useProductStore from '@/stores/useProductStore'
@@ -124,6 +129,11 @@ export default function ProductDetailsPage() {
 						>
 							AI Description
 						</Button>
+						<Link href={`${PRODUCTS_URL}/${id}/${PRICE_URL}`} passHref>
+							<Button actionType='neutral' type='button'>
+								Manage Pricing
+							</Button>
+						</Link>
 					</FloatingActionToolbar>
 				</PermissionGuard>
 			</div>

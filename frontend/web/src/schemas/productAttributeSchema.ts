@@ -1,5 +1,4 @@
 import { z } from 'zod'
-// import { ProductAttributeType } from '@/types/product'
 
 const attributeTypes = z.enum([
 	'text',

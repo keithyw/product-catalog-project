@@ -7,6 +7,7 @@ export const CREATE_BRANDS_URL = `${BRANDS_URL}/create`
 export const CATEGORIES_URL = '/categories'
 export const CREATE_CATEGORIES_URL = `${CATEGORIES_URL}/create`
 export const DASHBOARD_URL = '/dashboard'
+export const PRICE_URL = '/price'
 export const PRODUCTS_URL = '/products'
 export const CREATE_PRODUCT_URL = `${PRODUCTS_URL}/create`
 export const CREATE_PRODUCT_FROM_IMAGE_URL = `${PRODUCTS_URL}/from-image`

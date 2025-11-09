@@ -113,6 +113,28 @@ export interface SuggestedCorrection {
 	original_value: string
 	corrected_value: string
 }
+
+export interface Price {
+	id: number
+	price: number
+	currency_code: string | null
+	region_code: string | null
+	price_source: string | null
+	is_active: boolean
+	valid_from: string | null
+	valid_to: string | null
+	created_at: string
+	updated_at: string
+}
+export interface CreatePriceRequest {
+	price: number
+	currency_code?: string | null
+	region_code?: string | null
+	product: number
+	price_source?: string | null
+	valid_from?: string | null
+	valid_to?: string | null
+}
 export interface Product {
 	id: string
 	name: string
@@ -126,6 +148,7 @@ export interface Product {
 	attribute_set_name: string | null
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attributes_data: Record<string, any> | null
+	price: Price | null
 	suggested_corrections: SuggestedCorrection[]
 	uuid: string
 	is_active: boolean
