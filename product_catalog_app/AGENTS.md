@@ -17,3 +17,9 @@
 
 - **Non-Modification:** The Agent is strictly forbidden from changing the logic or implementation code of any function or class unless explicitly instructed otherwise in the prompt.
 - **Imports:** Do not modify, add, or remove existing import statements unless absolutely required to make a function work (e.g., for an exception type).
+
+## 🚧 Agent Safety and Constraints
+
+- **File Exclusion:** The Agent **MUST NOT** read, reference, or modify any files or directories listed in the project's `.gitignore` file, including files in `.vscode/` or `my_scratchpad_scripts/`.
+- **Commit Messages:** All generated commit messages must follow the Conventional Commits style (e.g., `refactor(docs): add docstrings to user services`).
+- **Confirmation:** Before executing any shell command, the Agent must present the command and seek user confirmation.
