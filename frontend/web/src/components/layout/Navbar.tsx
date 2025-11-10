@@ -11,6 +11,7 @@ import {
 	DASHBOARD_URL,
 	LOGIN_URL,
 	PRODUCTS_URL,
+	PRICING_URL,
 	USERS_URL,
 } from '@/lib/constants'
 import {
@@ -46,6 +47,7 @@ export default function Navbar() {
 								Categories
 							</NavbarLink>
 							<NavbarLink href={PRODUCTS_URL}>Products</NavbarLink>
+							<NavbarLink href={PRICING_URL}>Pricing</NavbarLink>
 							<NavbarLink
 								href={USERS_URL}
 								permission={`${USER_PERMISSIONS.VIEW}`}
