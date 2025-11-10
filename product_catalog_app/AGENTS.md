@@ -5,7 +5,7 @@
 ### Docstring Style Enforcement
 
 - **Style:** All function and class docstrings MUST be generated using the **Google Docstring Format** (e.g., Args:, Returns:, Raises:).
-- **Completeness:** Docstrings must describe all parameters, return values, and any exceptions that might be explicitly raised.
+- **Completeness:** Docstrings must describe all parameters, return values, and any exceptions that might be explicitly raised. **NOTE:** For `__init__` methods, use a brief summary and the `Args:` section (if applicable); the `Returns:` section is usually omitted.
 - **Tone:** The tone should be concise, professional, and clear.
 
 ### Code Quality & Standards

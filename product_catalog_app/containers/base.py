@@ -50,7 +50,17 @@ class AbstractContainer(ABC):
     
     @classmethod
     def get_instance(cls):
-        """Returns the singleton instance of the container."""
+        """Retrieves the singleton instance of the container.
+
+        Ensures only one instance of the container exists. If the instance does not exist,
+        it will be created upon the first call.
+
+        Returns:
+            AbstractContainer: The singleton instance of the container.
+
+        Example:
+            container = MyContainer.get_instance()
+        """
         if not hasattr(cls, '_instance'):
             print("creating new instance")
             cls._instance = cls()
@@ -110,7 +120,20 @@ class AbstractContainer(ABC):
     
     @abstractmethod
     def get_config_property(self, property):
-        """Handles the way a property is extracted from the config"""
+        """Extracts a specific property from the container's configuration.
+
+        This method should be implemented by subclasses to define how a particular
+        property is retrieved from the configuration object or structure.
+
+        Args:
+            property (str): The name or key of the configuration property to retrieve.
+
+        Returns:
+            Any: The value of the requested configuration property.
+
+        Raises:
+            NotImplementedError: If not implemented by a subclass.
+        """
         pass
     
     def get_model(self, model):
