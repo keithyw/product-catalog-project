@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from categories.models import Category
-from products.models import Product, ProductAttribute
+from products.models import Product, ProductAttribute, ProductAttributeSet
 from .models import Price, PriceModifier
 
 class PriceSerializer(serializers.ModelSerializer):
@@ -46,6 +46,13 @@ class PriceModifierSerializer(serializers.ModelSerializer):
         allow_null=True,
         required=False,
     )
+    
+    product_attribute_set_name = serializers.CharField(source='product_attribute_set.name', read_only=True)
+    product_attribute_set = serializers.PrimaryKeyRelatedField(
+        queryset=ProductAttributeSet.objects.all(),
+        allow_null=True,
+        required=False,
+    )
 
     class Meta:
         model = PriceModifier
@@ -57,7 +64,10 @@ class PriceModifierSerializer(serializers.ModelSerializer):
             'category',
             'category_name',
             'product_attribute',
+            'product_attribute_value',
             'product_attribute_name',
+            'product_attribute_set',
+            'product_attribute_set_name',
             'type',
             'priority',
             'is_active',
@@ -67,6 +77,7 @@ class PriceModifierSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'category_name',
             'product_attribute_name',
+            'product_attribute_set_name',
             'created_at',
             'updated_at',
         ]

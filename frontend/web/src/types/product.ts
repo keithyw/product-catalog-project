@@ -22,6 +22,12 @@ export const VERIFICATION_STATUS_OPTIONS = [
 	{ value: 'ACCEPTED', label: 'Accepted' },
 ]
 
+export const PRICE_MODIFIER_TYPES = [
+	{ value: 'flat_amount', label: 'Flat Amount' },
+	{ value: 'percentage', label: 'Percentage' },
+	{ value: 'fixed_price', label: 'Fixed Price' },
+]
+
 export type ProductAttributeType =
 	| 'text'
 	| 'textarea'
@@ -134,6 +140,38 @@ export interface CreatePriceRequest {
 	price_source?: string | null
 	valid_from?: string | null
 	valid_to?: string | null
+}
+
+export interface PriceModifier {
+	id: number
+	name: string
+	description: string | null
+	amount: number
+	category: number | null
+	category_name: string | null
+	product_attribute: number | null
+	product_attribute_value: string | null
+	product_attribute_name: string | null
+	product_attribute_set: number | null
+	product_attribute_set_name: string | null
+	type: string
+	priority: number
+	is_active: boolean
+	created_at: string
+	updated_at: string
+}
+
+export interface CreatePriceModifierRequest {
+	name: string
+	description?: string | null
+	amount: number
+	category?: number | null
+	product_attribute?: number | null
+	product_attribute_value?: string | null
+	product_attribute_set?: number | null
+	type: string
+	priority: number
+	is_active?: boolean
 }
 export interface Product {
 	id: string

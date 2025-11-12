@@ -1,5 +1,5 @@
 from django.db import models
-from products.models import Product
+from products.models import Product, ProductAttributeSet
 
 class Price(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=20, default=0.0)
@@ -38,6 +38,14 @@ class PriceModifier(models.Model):
         related_name='price_modifiers',
     )
     
+    product_attribute_set = models.ForeignKey(
+        ProductAttributeSet,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='price_modifiers',
+    )
+    
     product_attribute = models.ForeignKey(
         'products.ProductAttribute',
         on_delete=models.SET_NULL,
@@ -45,7 +53,9 @@ class PriceModifier(models.Model):
         blank=True,
         related_name='price_modifiers',
     )
-    
+
+    product_attribute_value = models.CharField(max_length=255, blank=True, null=True)
+
     MODIFIER_TYPES = (
         ('flat_amount', 'Flat Amount'),
         ('percentage', 'Percentage'),
