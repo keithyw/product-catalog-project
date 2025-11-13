@@ -70,3 +70,44 @@ class PriceModifier(models.Model):
         verbose_name = 'Price Modifier'
         verbose_name_plural = 'Price Modifiers'
         ordering = ['priority']
+        
+class PriceRule(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    rule_type = models.CharField(max_length=255, blank=True, null=True)
+    rule_config = models.JSONField(blank=True, null=True, default=dict)
+    active_from = models.DateTimeField(blank=True, null=True)
+    active_to = models.DateTimeField(blank=True, null=True)
+    # probably just a name; having code inside the db sounds really bad
+    callback_function = models.CharField(max_length=255, blank=True, null=True)
+    priority = models.PositiveSmallIntegerField(default=1)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Price Rule'
+        verbose_name_plural = 'Price Rules'
+        ordering = ['priority']
+        
+class PriceModifierRule(models.Model):
+    """Link table to allow modifiers to have multiple rules
+
+    Args:
+        models (models.Model): A Djangoo model
+    """
+    price_modifier = models.ForeignKey(
+        PriceModifier,
+        on_delete=models.CASCADE,
+        related_name='price_modifier_rules',
+    )
+
+    price_rule = models.ForeignKey(
+        PriceRule,
+        on_delete=models.CASCADE,
+        related_name='price_modifier_rules',
+    )
+
+    class Meta:
+        verbose_name = 'Price Modifier Rule'
+        verbose_name_plural = 'Price Modifier Rules'

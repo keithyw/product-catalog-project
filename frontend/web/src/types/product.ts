@@ -173,6 +173,35 @@ export interface CreatePriceModifierRequest {
 	priority: number
 	is_active?: boolean
 }
+
+export interface PriceRule {
+	id: number
+	name: string
+	description: string | null
+	rule_type: string
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	rule_config: Record<string, any> | null
+	active_from: string | null
+	active_to: string | null
+	callback_function: string | null
+	priority: number
+	is_active: boolean
+	created_at: string
+	updated_at: string
+}
+
+export interface CreatePriceRuleRequest {
+	name: string
+	description: string | null
+	rule_type: string
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	rule_config: Record<string, any> | null
+	active_from: string | null
+	active_to: string | null
+	callback_function: string | null
+	priority: number
+	is_active: boolean
+}
 export interface Product {
 	id: string
 	name: string

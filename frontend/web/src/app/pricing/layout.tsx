@@ -1,7 +1,7 @@
 import React from 'react'
 import CrudLayout from '@/components/layout/CrudLayout'
 import { SubnavBarLink } from '@/components/layout/Subnavbar'
-import { PRICING_MODIFIERS_URL } from '@/lib/constants'
+import { PRICING_MODIFIERS_URL, PRICING_RULES_URL } from '@/lib/constants'
 
 const PricingLayout = ({
 	children,
@@ -10,6 +10,10 @@ const PricingLayout = ({
 		{
 			href: `${PRICING_MODIFIERS_URL}`,
 			label: 'Modifiers',
+		},
+		{
+			href: `${PRICING_RULES_URL}`,
+			label: 'Rules',
 		},
 	]
 	return (

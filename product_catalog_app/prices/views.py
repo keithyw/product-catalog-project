@@ -2,20 +2,20 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Price, PriceModifier
-from .serializers import PriceSerializer, PriceModifierSerializer
+from .models import Price, PriceModifier, PriceRule
+from .serializers import PriceSerializer, PriceModifierSerializer, PriceRuleSerializer
 
-class PriceViewSet(viewsets.ModelViewSet):
+class PriceRuleViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for viewing and editing price instances.
+    API endpoint for viewing and editing price rule instances.
     """
-    queryset = Price.objects.all()
-    serializer_class = PriceSerializer
+    queryset = PriceRule.objects.all()
+    serializer_class = PriceRuleSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['price', 'currency_code', 'region_code', 'is_active']
-    search_fields = ['price', 'currency_code', 'region_code']
-    ordering_fields = ['id', 'price']
+    filterset_fields = ['name', 'description', 'is_active']
+    search_fields = ['name', 'description']
+    ordering_fields = ['id', 'name', 'priority']
     ordering = ['id']
     
 class PriceModifierViewSet(viewsets.ModelViewSet):
@@ -30,5 +30,15 @@ class PriceModifierViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['id', 'name', 'priority']
     ordering = ['id']
-    
-    
+class PriceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for viewing and editing price instances.
+    """
+    queryset = Price.objects.all()
+    serializer_class = PriceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['price', 'currency_code', 'region_code', 'is_active']
+    search_fields = ['price', 'currency_code', 'region_code']
+    ordering_fields = ['id', 'price']
+    ordering = ['id']
