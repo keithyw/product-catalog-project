@@ -35,8 +35,6 @@ const LookupFieldModal = ({
 		.sort((a, b) => a.name.localeCompare(b.name))
 
 	const onSave = () => {
-		console.log('lookup')
-		console.log(lookupField)
 		onUpdateLookupField(lookupField)
 		onClose()
 	}

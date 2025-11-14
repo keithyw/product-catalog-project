@@ -28,6 +28,22 @@ export const PRICE_MODIFIER_TYPES = [
 	{ value: 'fixed_price', label: 'Fixed Price' },
 ]
 
+export const RULE_TYPES = [
+	{ value: 'always_true', label: 'Always True' },
+	{ value: 'date_comparison', label: 'Date Comparison' },
+	{ value: 'time_comparison', label: 'Time Comparison' },
+	{ value: 'attribute_comparison', label: 'Attribute Comparison' },
+]
+
+export const COMPARISON_OPERATORS = [
+	{ value: '=', label: '=' },
+	{ value: '!=', label: '!=' },
+	{ value: '>', label: '>' },
+	{ value: '>=', label: '>=' },
+	{ value: '<', label: '<' },
+	{ value: '<=', label: '<=' },
+]
+
 export type ProductAttributeType =
 	| 'text'
 	| 'textarea'

@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
+import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
 import { PRICING_RULES_URL, PRODUCT_PERMISSIONS } from '@/lib/constants'
 import priceRulesService from '@/lib/services/priceRules'
@@ -16,7 +17,8 @@ import {
 	PriceRuleCreateFormData,
 } from '@/schemas/priceRuleSchema'
 import { FormField } from '@/types/form'
-import { CreatePriceRuleRequest } from '@/types/product'
+import { RULE_TYPES, CreatePriceRuleRequest } from '@/types/product'
+import RulesConfigModal from '@/app/pricing/rules/modals/RulesConfigModal'
 
 const fields: FormField<PriceRuleCreateFormData>[] = [
 	{
@@ -29,19 +31,6 @@ const fields: FormField<PriceRuleCreateFormData>[] = [
 		name: 'description',
 		label: 'Description',
 		placeholder: 'Enter rule description',
-		required: false,
-		type: 'textarea',
-	},
-	{
-		name: 'rule_type',
-		label: 'Type',
-		placeholder: 'Select a rule type',
-		required: true,
-	},
-	{
-		name: 'rule_config',
-		label: 'Rule Config',
-		placeholder: 'Enter rule config',
 		required: false,
 		type: 'textarea',
 	},
@@ -62,6 +51,7 @@ const fields: FormField<PriceRuleCreateFormData>[] = [
 
 const PriceRulesCreatePage = () => {
 	const router = useRouter()
+	const [isRulesConfigModalOpen, setIsRuleConfigModalOpen] = useState(false)
 	const {
 		register,
 		control,
@@ -69,6 +59,8 @@ const PriceRulesCreatePage = () => {
 		setError,
 		formState: { errors, isSubmitting },
 		reset,
+		setValue,
+		watch,
 	} = useForm<PriceRuleCreateFormData>({
 		resolver: zodResolver(priceRuleCreateSchema),
 		defaultValues: {
@@ -80,6 +72,14 @@ const PriceRulesCreatePage = () => {
 			priority: 1,
 		},
 	})
+
+	const watchedRuleType = watch('rule_type')
+	const watchedRuleConfig = watch('rule_config')
+
+	const handleRuleConfigUpdate = (type: string, config: string) => {
+		setValue('rule_type', type)
+		setValue('rule_config', config)
+	}
 
 	const onSubmit = async (data: PriceRuleCreateFormData) => {
 		const req: CreatePriceRuleRequest = {
@@ -124,7 +124,36 @@ const PriceRulesCreatePage = () => {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
+				<div className='my-4 pt-4 text-gray-700'>
+					<h3 className='text-lg font-semibold mb-2'>Rule Configuration</h3>
+					<div className='mb-2 text-sm font-medium'>
+						Current Type:{' '}
+						<span className='font-semibold text-indigo-600'>
+							{RULE_TYPES.find((t) => t.value === watchedRuleType)?.label ||
+								'Not Set'}
+						</span>
+					</div>
+					<div className='mb-2 text-sm font-medium'>
+						Current Config:{' '}
+						<span className='font-semibold text-indigo-600'>
+							{watchedRuleConfig}
+						</span>
+					</div>
+					<Button
+						actionType='view'
+						type='button'
+						onClick={() => setIsRuleConfigModalOpen(true)}
+					>
+						Click to Edit Rule Config
+					</Button>
+				</div>
 			</CreateFormLayout>
+			<RulesConfigModal
+				initialRuleType={watchedRuleType}
+				isOpen={isRulesConfigModalOpen}
+				onClose={() => setIsRuleConfigModalOpen(false)}
+				onUpdate={handleRuleConfigUpdate}
+			/>
 		</PermissionGuard>
 	)
 }

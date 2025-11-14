@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
+import Button from '@/components/ui/form/Button'
 import FormInput from '@/components/ui/form/FormInput'
 import SpinnerSection from '@/components/ui/SpinnerSection'
 import { PRICING_RULES_URL, PRODUCT_PERMISSIONS } from '@/lib/constants'
@@ -17,7 +18,8 @@ import {
 	PriceRuleCreateFormData,
 } from '@/schemas/priceRuleSchema'
 import { FormField } from '@/types/form'
-import { CreatePriceRuleRequest, PriceRule } from '@/types/product'
+import { RULE_TYPES, CreatePriceRuleRequest, PriceRule } from '@/types/product'
+import RulesConfigModal from '@/app/pricing/rules/modals/RulesConfigModal'
 
 const fields: FormField<PriceRuleCreateFormData>[] = [
 	{
@@ -33,19 +35,19 @@ const fields: FormField<PriceRuleCreateFormData>[] = [
 		required: false,
 		type: 'textarea',
 	},
-	{
-		name: 'rule_type',
-		label: 'Type',
-		placeholder: 'Select a rule type',
-		required: true,
-	},
-	{
-		name: 'rule_config',
-		label: 'Rule Config',
-		placeholder: 'Enter rule config',
-		required: false,
-		type: 'textarea',
-	},
+	// {
+	// 	name: 'rule_type',
+	// 	label: 'Type',
+	// 	placeholder: 'Select a rule type',
+	// 	required: true,
+	// },
+	// {
+	// 	name: 'rule_config',
+	// 	label: 'Rule Config',
+	// 	placeholder: 'Enter rule config',
+	// 	required: false,
+	// 	type: 'textarea',
+	// },
 	{
 		name: 'callback_function',
 		label: 'Callback Function',
@@ -67,6 +69,7 @@ const EditPriceRulesPage = () => {
 	const pricingRuleId = params.id
 	const [isLoading, setIsLoading] = useState(true)
 	const [pricingRule, setPricingRule] = useState<PriceRule | null>(null)
+	const [isRulesConfigModalOpen, setIsRuleConfigModalOpen] = useState(false)
 	const {
 		register,
 		handleSubmit,
@@ -74,10 +77,22 @@ const EditPriceRulesPage = () => {
 		reset,
 		control,
 		formState: { errors, isSubmitting },
+		setValue,
+		watch,
 	} = useForm<PriceRuleCreateFormData>({
 		resolver: zodResolver(priceRuleCreateSchema),
-		defaultValues: {},
+		defaultValues: {
+			name: '',
+			description: '',
+			rule_type: '',
+			rule_config: '',
+			callback_function: '',
+			priority: 0,
+		},
 	})
+
+	const watchedRuleType = watch('rule_type')
+	const watchedRuleConfig = watch('rule_config')
 
 	useEffect(() => {
 		if (!pricingRuleId) return
@@ -111,6 +126,11 @@ const EditPriceRulesPage = () => {
 		}
 		fetchData()
 	}, [pricingRuleId, reset, router, setError])
+
+	const handleRuleConfigUpdate = (type: string, config: string) => {
+		setValue('rule_type', type)
+		setValue('rule_config', config)
+	}
 
 	const onSubmit = async (data: PriceRuleCreateFormData) => {
 		const req: CreatePriceRuleRequest = {
@@ -167,7 +187,36 @@ const EditPriceRulesPage = () => {
 						errorMessage={errors[f.name]?.message as string}
 					/>
 				))}
+				<div className='my-4 pt-4 text-gray-700'>
+					<h3 className='text-lg font-semibold mb-2'>Rule Configuration</h3>
+					<div className='mb-2 text-sm font-medium'>
+						Current Type:{' '}
+						<span className='font-semibold text-indigo-600'>
+							{RULE_TYPES.find((t) => t.value === watchedRuleType)?.label ||
+								'Not Set'}
+						</span>
+					</div>
+					<div className='mb-2 text-sm font-medium'>
+						Current Config:{' '}
+						<span className='font-semibold text-indigo-600'>
+							{watchedRuleConfig}
+						</span>
+					</div>
+					<Button
+						actionType='view'
+						type='button'
+						onClick={() => setIsRuleConfigModalOpen(true)}
+					>
+						Click to Edit Rule Config
+					</Button>
+				</div>
 			</CreateFormLayout>
+			<RulesConfigModal
+				initialRuleType={watchedRuleType}
+				isOpen={isRulesConfigModalOpen}
+				onClose={() => setIsRuleConfigModalOpen(false)}
+				onUpdate={handleRuleConfigUpdate}
+			/>
 		</PermissionGuard>
 	)
 }
