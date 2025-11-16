@@ -1,17 +1,45 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import DetailsContainer from '@/components/ui/DetailsContainer'
 import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
+import ViewDetailsTable from '@/components/ui/ViewDetailsTable'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import { PRODUCT_PERMISSIONS, PRICING_MODIFIERS_URL } from '@/lib/constants'
 import priceModifiersService from '@/lib/services/priceModifiers'
 import priceRuleService from '@/lib/services/priceRules'
 import { PriceModifier, PriceRule } from '@/types/product'
+import { TableColumn } from '@/types/table'
 import RuleModifiersDrawer from './RuleModifiersDrawer'
+
+const COLS: TableColumn<PriceRule>[] = [
+	{
+		header: 'ID',
+		accessor: 'id',
+		sortable: true,
+	},
+	{
+		header: 'Name',
+		accessor: 'name',
+		sortable: true,
+	},
+	{
+		header: 'Type',
+		accessor: 'rule_type',
+		sortable: false,
+	},
+	{
+		header: 'Rule Configuration',
+		accessor: 'rule_config',
+		render: (row) => {
+			return <span>{JSON.stringify(row.rule_config)}</span>
+		},
+		sortable: false,
+	},
+]
 
 const PricingModifiersDetailsPage = () => {
 	const router = useRouter()
@@ -25,6 +53,8 @@ const PricingModifiersDetailsPage = () => {
 	const [modifier, setModifier] = useState<PriceModifier | null>(null)
 	const [details, setDetails] = useState<DetailSectionRow[]>([])
 	const [priceRules, setPriceRules] = useState<PriceRule[]>([])
+
+	const cols = useMemo(() => COLS, [])
 
 	useEffect(() => {
 		if (modifierId) {
@@ -134,6 +164,16 @@ const PricingModifiersDetailsPage = () => {
 			confirmationModel={confirmationModal}
 		>
 			{modifier && <DetailSection rows={details} />}
+			<div className='mt-8'>
+				<h2 className='text-xl font-semibold text-gray-900 mb-4 border-b pb-2'>
+					Price Rules
+				</h2>
+				<ViewDetailsTable
+					data={modifier?.price_rules_output || []}
+					columns={cols}
+					rowKey='id'
+				/>
+			</div>
 			<RuleModifiersDrawer
 				modifier={modifier as PriceModifier}
 				priceRules={priceRules}
