@@ -9,7 +9,9 @@ import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import { PRODUCT_PERMISSIONS, PRICING_MODIFIERS_URL } from '@/lib/constants'
 import priceModifiersService from '@/lib/services/priceModifiers'
-import { PriceModifier } from '@/types/product'
+import priceRuleService from '@/lib/services/priceRules'
+import { PriceModifier, PriceRule } from '@/types/product'
+import RuleModifiersDrawer from './RuleModifiersDrawer'
 
 const PricingModifiersDetailsPage = () => {
 	const router = useRouter()
@@ -17,9 +19,12 @@ const PricingModifiersDetailsPage = () => {
 	const modifierId = params.id
 	const [isLoading, setIsLoading] = useState(false)
 	const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false)
+	const [isModiferRulesDrawerOpen, setIsModiferRulesDrawerOpen] =
+		useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [modifier, setModifier] = useState<PriceModifier | null>(null)
 	const [details, setDetails] = useState<DetailSectionRow[]>([])
+	const [priceRules, setPriceRules] = useState<PriceRule[]>([])
 
 	useEffect(() => {
 		if (modifierId) {
@@ -50,6 +55,8 @@ const PricingModifiersDetailsPage = () => {
 							value: res.product_attribute_value || '',
 						},
 					])
+					const priceRulesRes = await priceRuleService.fetch()
+					setPriceRules(priceRulesRes.results)
 				} catch (e: unknown) {
 					if (e instanceof Error) {
 						setError(e.message)
@@ -77,8 +84,19 @@ const PricingModifiersDetailsPage = () => {
 		}
 	}
 
+	const onUpdate = (updatedModifier: PriceModifier) => {
+		setModifier(updatedModifier)
+	}
+
 	const buttons = (
 		<>
+			<Button
+				actionType='view'
+				type='button'
+				onClick={() => setIsModiferRulesDrawerOpen(true)}
+			>
+				Manage Modifier Rules
+			</Button>
 			<Button
 				actionType='edit'
 				onClick={() =>
@@ -116,6 +134,14 @@ const PricingModifiersDetailsPage = () => {
 			confirmationModel={confirmationModal}
 		>
 			{modifier && <DetailSection rows={details} />}
+			<RuleModifiersDrawer
+				modifier={modifier as PriceModifier}
+				priceRules={priceRules}
+				removablePriceRules={modifier?.price_rules_output || []}
+				isOpen={isModiferRulesDrawerOpen}
+				onClose={() => setIsModiferRulesDrawerOpen(false)}
+				onUpdate={onUpdate}
+			/>
 		</DetailsContainer>
 	)
 }

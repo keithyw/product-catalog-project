@@ -103,11 +103,11 @@ const Button: React.FC<ButtonProps> = ({
 	return (
 		<button
 			className={`
-        ${baseStyles}
-        ${colorClasses}
-        ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}
-        ${className}
-      `}
+				${baseStyles}
+				${colorClasses}
+				${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+				${className}
+			`}
 			disabled={disabled || isLoading}
 			{...props}
 		>

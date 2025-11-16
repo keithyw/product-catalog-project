@@ -56,6 +56,11 @@ class PriceModifier(models.Model):
 
     product_attribute_value = models.CharField(max_length=255, blank=True, null=True)
 
+    price_rules = models.ManyToManyField(
+        'PriceRule',
+        related_name='price_modifiers', # Using your consistent name
+    )
+
     MODIFIER_TYPES = (
         ('flat_amount', 'Flat Amount'),
         ('percentage', 'Percentage'),
@@ -89,25 +94,3 @@ class PriceRule(models.Model):
         verbose_name = 'Price Rule'
         verbose_name_plural = 'Price Rules'
         ordering = ['priority']
-        
-class PriceModifierRule(models.Model):
-    """Link table to allow modifiers to have multiple rules
-
-    Args:
-        models (models.Model): A Djangoo model
-    """
-    price_modifier = models.ForeignKey(
-        PriceModifier,
-        on_delete=models.CASCADE,
-        related_name='price_modifier_rules',
-    )
-
-    price_rule = models.ForeignKey(
-        PriceRule,
-        on_delete=models.CASCADE,
-        related_name='price_modifier_rules',
-    )
-
-    class Meta:
-        verbose_name = 'Price Modifier Rule'
-        verbose_name_plural = 'Price Modifier Rules'

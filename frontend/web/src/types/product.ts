@@ -171,6 +171,8 @@ export interface PriceModifier {
 	product_attribute_set: number | null
 	product_attribute_set_name: string | null
 	type: string
+	price_rules: number[]
+	price_rules_output: PriceRule[]
 	priority: number
 	is_active: boolean
 	created_at: string
@@ -185,6 +187,7 @@ export interface CreatePriceModifierRequest {
 	product_attribute?: number | null
 	product_attribute_value?: string | null
 	product_attribute_set?: number | null
+	price_rules?: number[]
 	type: string
 	priority: number
 	is_active?: boolean

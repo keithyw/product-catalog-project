@@ -45,8 +45,19 @@ class PriceModifierSerializer(serializers.ModelSerializer):
         allow_null=True,
         required=False,
     )
-    
-    price_rules = PriceRuleSerializer(many=True, read_only=True)
+
+    price_rules_output = PriceRuleSerializer(
+        source='price_rules',
+        many=True,
+        read_only=True,
+    )
+
+    price_rules = serializers.PrimaryKeyRelatedField(
+        queryset=PriceRule.objects.all(),
+        many=True,
+        required=False,
+        write_only=True,
+    )
     class Meta:
         model = PriceModifier
         fields = [
@@ -57,6 +68,7 @@ class PriceModifierSerializer(serializers.ModelSerializer):
             'category',
             'category_name',
             'price_rules',
+            'price_rules_output',
             'product_attribute',
             'product_attribute_value',
             'product_attribute_name',
@@ -70,7 +82,6 @@ class PriceModifierSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'category_name',
-            'price_rules',
             'product_attribute_name',
             'product_attribute_set_name',
             'created_at',
