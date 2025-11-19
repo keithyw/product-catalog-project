@@ -145,6 +145,7 @@ export interface Price {
 	is_active: boolean
 	valid_from: string | null
 	valid_to: string | null
+	price_modifiers_output: PriceModifier[]
 	created_at: string
 	updated_at: string
 }
@@ -156,6 +157,7 @@ export interface CreatePriceRequest {
 	price_source?: string | null
 	valid_from?: string | null
 	valid_to?: string | null
+	price_modifiers?: number[] | null
 }
 
 export interface PriceModifier {

@@ -85,7 +85,7 @@ const PricingModifiersDetailsPage = () => {
 							value: res.product_attribute_value || '',
 						},
 					])
-					const priceRulesRes = await priceRuleService.fetch()
+					const priceRulesRes = await priceRuleService.fetch(1, 1000)
 					setPriceRules(priceRulesRes.results)
 				} catch (e: unknown) {
 					if (e instanceof Error) {

@@ -95,6 +95,19 @@ class PriceSerializer(serializers.ModelSerializer):
         required=True,
     )
     
+    price_modifiers = serializers.PrimaryKeyRelatedField(
+        queryset=PriceModifier.objects.all(),
+        many=True,
+        required=False,
+        write_only=True,
+    )
+    
+    price_modifiers_output = PriceModifierSerializer(
+        source='price_modifiers',
+        many=True,
+        read_only=True,
+    )
+    
     class Meta:
         model = Price
         fields = [
@@ -108,6 +121,8 @@ class PriceSerializer(serializers.ModelSerializer):
             'is_active',
             'valid_from',
             'valid_to',
+            'price_modifiers',
+            'price_modifiers_output',
             'created_at',
             'updated_at',
         ]

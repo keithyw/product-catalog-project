@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import CreateFormLayout from '@/components/layout/CreateFormLayout'
@@ -17,9 +17,8 @@ import priceService from '@/lib/services/price'
 import productService from '@/lib/services/product'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import { priceCreateSchema, PriceCreateFormData } from '@/schemas/priceSchema'
-import useProductStore from '@/stores/useProductStore'
 import { FormField } from '@/types/form'
-import { CreatePriceRequest } from '@/types/product'
+import { CreatePriceRequest, Price, Product } from '@/types/product'
 
 const formFields: FormField<PriceCreateFormData>[] = [
 	{
@@ -30,12 +29,13 @@ const formFields: FormField<PriceCreateFormData>[] = [
 	},
 ]
 
-const PricePage = () => {
+const EditPricePage = () => {
 	const router = useRouter()
 	const params = useParams()
-	const id = params.id
+	const priceId = params.priceId
 	const [isLoading, setIsLoading] = useState(false)
-	const { product, setProduct } = useProductStore()
+	const [product, setProduct] = useState<Product | null>(null)
+
 	const {
 		register,
 		handleSubmit,
@@ -50,34 +50,30 @@ const PricePage = () => {
 	})
 
 	useEffect(() => {
-		if (id) {
+		if (!priceId) return
+		const fetchData = async () => {
 			setIsLoading(true)
-			const fetchData = async () => {
-				try {
-					const res = await productService.get(parseInt(id as string))
-					setProduct(res)
-					if (res.price) {
-						reset({
-							price: res.price.price.toString(),
-						})
-					}
-				} catch (e: unknown) {
-					if (e instanceof Error) {
-						console.error('Failed loading product: ', e)
-						setError('root.serverError', {
-							type: 'server',
-							message: FAILED_LOADING_PRODUCT_ERROR,
-						})
-						toast.error(FAILED_LOADING_PRODUCT_ERROR)
-						router.push(PRODUCTS_URL)
-					}
-				} finally {
-					setIsLoading(false)
+			try {
+				const product = await productService.get(parseInt(params.id as string))
+				setProduct(product)
+				if (product.price) {
+					reset({
+						price: product.price.price.toString(),
+					})
 				}
+
+			} catch (e: unknown) {
+				if (e instanceof Error) {
+					console.error(e.message)
+					toast.error(FAILED_LOADING_PRODUCT_ERROR)
+					router.push(PRODUCTS_URL)
+				}
+			} finally {
+				setIsLoading(false)
 			}
-			fetchData()
 		}
-	}, [id, reset, router, setError, setProduct])
+		fetchData()
+	}, [priceId, router])
 
 	const onSubmit = async (data: PriceCreateFormData) => {
 		try {
@@ -88,7 +84,7 @@ const PricePage = () => {
 				price_source: 'manual',
 				product: parseInt(product?.id as string),
 			}
-			const res = await priceService.create(priceData)
+			const res = await priceService.patch(parseInt(priceId as string), priceData)
 			toast.success(
 				`Price "${res.price}" for ${product?.name} saved successfully!`,
 			)
@@ -103,19 +99,15 @@ const PricePage = () => {
 	}
 
 	if (isLoading) {
-		return <SpinnerSection spinnerMessage='Loading price...' />
-	}
-
-	if (!product) {
-		return <div>No product found</div>
+		return <SpinnerSection spinnerMessage='loading...' />
 	}
 
 	return (
 		<CreateFormLayout
-			title={`Manage Price for ${product.name} #${product.id}`}
+			title={`Edit Price for ${product?.name as string}`}
 			isSubmitting={isSubmitting}
-			submitText='Modify Price'
-			submittingText='Saving...'
+			submitText='Update Price'
+			submittingText='Updating...'
 			handleSubmit={handleSubmit(onSubmit)}
 		>
 			{formFields.map((f, idx) => (
@@ -130,4 +122,4 @@ const PricePage = () => {
 	)
 }
 
-export default PricePage
+export default EditPricePage

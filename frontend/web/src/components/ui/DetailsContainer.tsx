@@ -17,7 +17,7 @@ interface DetailsContainerProps {
 	// but i want flexibility and to have
 	// the main page control what goes in here.
 	buttonsChildren: React.ReactNode
-	confirmationModel: React.ReactNode
+	confirmationModel?: React.ReactNode
 }
 
 const DetailsContainer = ({

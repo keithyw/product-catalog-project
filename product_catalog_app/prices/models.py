@@ -13,6 +13,13 @@ class Price(models.Model):
         related_name='products',
         on_delete=models.CASCADE,
     )
+    
+    price_modifiers = models.ManyToManyField(
+        'PriceModifier',
+        related_name='prices',
+        blank=True,
+    )
+
     # easier than enum; manual, import, api, calculated etc
     price_source = models.CharField(max_length=100, blank=True, null=True)
     is_active = models.BooleanField(default=True)

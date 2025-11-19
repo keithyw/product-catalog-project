@@ -129,7 +129,14 @@ export default function ProductDetailsPage() {
 						>
 							AI Description
 						</Button>
-						<Link href={`${PRODUCTS_URL}/${id}/${PRICE_URL}`} passHref>
+						<Link
+							href={
+								product?.price
+									? `${PRODUCTS_URL}/${id}${PRICE_URL}/${product?.price.id}`
+									: `${PRODUCTS_URL}/${id}${PRICE_URL}`
+							}
+							passHref
+						>
 							<Button actionType='neutral' type='button'>
 								Manage Pricing
 							</Button>
