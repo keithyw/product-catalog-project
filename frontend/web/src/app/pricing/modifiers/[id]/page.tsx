@@ -8,7 +8,11 @@ import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import ViewDetailsTable from '@/components/ui/ViewDetailsTable'
 import Button from '@/components/ui/form/Button'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
-import { PRODUCT_PERMISSIONS, PRICING_MODIFIERS_URL } from '@/lib/constants'
+import {
+	PRODUCT_PERMISSIONS,
+	PRICING_MODIFIERS_URL,
+	PRICING_RULES_URL,
+} from '@/lib/constants'
 import priceModifiersService from '@/lib/services/priceModifiers'
 import priceRuleService from '@/lib/services/priceRules'
 import { PriceModifier, PriceRule } from '@/types/product'
@@ -172,6 +176,7 @@ const PricingModifiersDetailsPage = () => {
 					data={modifier?.price_rules_output || []}
 					columns={cols}
 					rowKey='id'
+					getRowHref={(row) => `${PRICING_RULES_URL}/${row.id}`}
 				/>
 			</div>
 			<RuleModifiersDrawer

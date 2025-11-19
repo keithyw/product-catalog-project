@@ -6,7 +6,12 @@ import DetailsContainer from '@/components/ui/DetailsContainer'
 import DetailSection, { DetailSectionRow } from '@/components/ui/DetailSection'
 import ViewDetailsTable from '@/components/ui/ViewDetailsTable'
 import Button from '@/components/ui/form/Button'
-import { PRODUCT_PERMISSIONS, PRICE_URL, PRODUCTS_URL } from '@/lib/constants'
+import {
+	PRODUCT_PERMISSIONS,
+	PRICE_URL,
+	PRODUCTS_URL,
+	PRICING_MODIFIERS_URL,
+} from '@/lib/constants'
 import priceModifiersService from '@/lib/services/priceModifiers'
 import productService from '@/lib/services/product'
 import { PriceModifier, Product } from '@/types/product'
@@ -144,6 +149,7 @@ const PriceDetailsPage = () => {
 					data={product?.price?.price_modifiers_output || []}
 					columns={cols}
 					rowKey='id'
+					getRowHref={(row) => `${PRICING_MODIFIERS_URL}/${row.id}`}
 				/>
 			</div>
 			<PriceModifiersDrawer

@@ -1,10 +1,12 @@
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { TableColumn } from '@/types/table'
 
-interface ViewDetailsTableProps<T> {
+export interface ViewDetailsTableProps<T> {
 	data: T[]
 	columns: TableColumn<T>[]
 	rowKey: keyof T
+	getRowHref?: (row: T) => string
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,7 +14,10 @@ const ViewDetailsTable = <T extends Record<string, any>>({
 	data,
 	columns,
 	rowKey,
+	getRowHref,
 }: ViewDetailsTableProps<T>) => {
+	const router = useRouter()
+
 	if (data.length === 0) {
 		return (
 			<p className='text-gray-500 p-4 border rounded-md bg-gray-50'>
@@ -40,7 +45,19 @@ const ViewDetailsTable = <T extends Record<string, any>>({
 						</thead>
 						<tbody className='divide-y divide-gray-200 bg-white'>
 							{data.map((row) => (
-								<tr key={String(row[rowKey])}>
+								<tr
+									key={String(row[rowKey])}
+									onClick={() => {
+										if (getRowHref) {
+											router.push(getRowHref(row))
+										}
+									}}
+									className={
+										getRowHref
+											? 'cursor-pointer hover:bg-gray-50 transition-colors'
+											: ''
+									}
+								>
 									{columns.map((col, colIndex) => (
 										<td
 											key={String(row[rowKey]) + '-' + colIndex}
