@@ -24,7 +24,7 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 	const [brands, setBrands] = useState<Brand[]>([])
 	const [newBrands, setNewBrands] = useState<string[]>([])
 	const [isSavingNewBrands, setIsSavingNewBrands] = useState(false)
-	const [ignoreNewBrands, setIgnoreNewBrands] = useState(true)
+	const [ignoreNewBrands, setIgnoreNewBrands] = useState(false)
 	// this will be for the edit modal
 	const [editProduct, setEditProduct] = useState<SimpleProduct | null>(null)
 	const {
