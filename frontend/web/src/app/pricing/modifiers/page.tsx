@@ -7,6 +7,7 @@ import PermissionGuard from '@/components/auth/PermissionGuard'
 import CreateItemSection from '@/components/layout/CreateItemSection'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import DataTable from '@/components/ui/DataTable'
+import PageTitle from '@/components/ui/PageTitle'
 import {
 	CREATE_PRICING_MODIFIERS_URL,
 	PRICING_MODIFIERS_URL,
@@ -128,7 +129,9 @@ const ModifiersPage = () => {
 
 	return (
 		<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.VIEW}>
-			<h1>Price Modifiers</h1>
+			<PageTitle>
+				Price Modifiers
+			</PageTitle>
 			<CreateItemSection
 				permission={PRODUCT_PERMISSIONS.ADD}
 				href={CREATE_PRICING_MODIFIERS_URL}
