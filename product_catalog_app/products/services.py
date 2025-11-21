@@ -277,7 +277,7 @@ class ProductAIGenerationService:
             else:
                 raise ProductAIGenerationServiceError(
                     message=f"Could not find any returned functions for {product_type}",
-                    defails={"original_error": str(res), "product_type": product_type},
+                    details={"original_error": str(res), "product_type": product_type},
                 )
         except Exception as e:
             logger.info(f"issue: {str(e)}")

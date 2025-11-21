@@ -110,8 +110,9 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 				.filter((p) => !brandNames.includes(p.brand.toLowerCase()))
 				.map((p) => p.brand) || []
 		setNewBrands(hasNewBrands)
-		setIsCurrentStepValid(hasNewBrands.length === 0 && ignoreNewBrands)
-	}, [brands, ignoreNewBrands, products, setIsCurrentStepValid])
+		setIgnoreNewBrands(hasNewBrands.length === 0)
+		setIsCurrentStepValid(hasNewBrands.length === 0)
+	}, [brands, products, setIsCurrentStepValid])
 
 	const onEditProduct = (p: SimpleProduct) => {
 		setEditProduct(p)
