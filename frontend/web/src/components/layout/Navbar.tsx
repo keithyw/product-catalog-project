@@ -10,6 +10,7 @@ import {
 	CATEGORIES_URL,
 	DASHBOARD_URL,
 	LOGIN_URL,
+	INVENTORY_URL,
 	PRODUCTS_URL,
 	PRICING_URL,
 	USERS_URL,
@@ -46,6 +47,7 @@ export default function Navbar() {
 							>
 								Categories
 							</NavbarLink>
+							<NavbarLink href={INVENTORY_URL}>Inventory</NavbarLink>
 							<NavbarLink href={PRODUCTS_URL}>Products</NavbarLink>
 							<NavbarLink href={PRICING_URL}>Pricing</NavbarLink>
 							<NavbarLink

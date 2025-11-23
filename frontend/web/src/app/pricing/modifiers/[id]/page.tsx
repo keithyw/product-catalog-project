@@ -165,7 +165,7 @@ const PricingModifiersDetailsPage = () => {
 			isLoading={isLoading}
 			error={error}
 			buttonsChildren={buttons}
-			confirmationModel={confirmationModal}
+			confirmationModal={confirmationModal}
 		>
 			{modifier && <DetailSection rows={details} />}
 			<div className='mt-8'>

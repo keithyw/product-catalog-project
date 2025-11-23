@@ -17,7 +17,7 @@ interface DetailsContainerProps {
 	// but i want flexibility and to have
 	// the main page control what goes in here.
 	buttonsChildren: React.ReactNode
-	confirmationModel?: React.ReactNode
+	confirmationModal?: React.ReactNode
 }
 
 const DetailsContainer = ({
@@ -27,7 +27,7 @@ const DetailsContainer = ({
 	error,
 	children,
 	buttonsChildren,
-	confirmationModel,
+	confirmationModal,
 }: DetailsContainerProps) => {
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading...' />
@@ -48,7 +48,7 @@ const DetailsContainer = ({
 					</div>
 				</PermissionGuard>
 			</div>
-			{confirmationModel}
+			{confirmationModal}
 		</div>
 	)
 }

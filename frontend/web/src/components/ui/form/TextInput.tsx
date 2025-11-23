@@ -11,7 +11,7 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	({ id, label, type = 'text', className = '', readOnly, ...rest }, ref) => {
 		return (
-			<div className='mb-4'>
+			<div className='mb-4 relative'>
 				<label
 					htmlFor={id}
 					className='block text-gray-700 text-sm font-bold mb-2'

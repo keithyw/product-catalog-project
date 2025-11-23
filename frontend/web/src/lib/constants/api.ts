@@ -10,6 +10,7 @@ export const API_CATEGORIES_URL = '/categories/'
 export const API_CATEGORIES_BULK_URL = `${API_CATEGORIES_URL}bulk/`
 export const API_CATEGORY_SYSTEMS_URL = '/category-systems/'
 export const API_GROUPS_URL = '/groups/'
+export const API_INVENTORY_URL = '/inventory/'
 export const API_PERMISSIONS_URL = '/permissions/'
 export const API_PRICE_URL = '/prices/'
 export const API_PRICE_MODIFIERS_URL = '/price-modifiers/'

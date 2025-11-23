@@ -102,7 +102,7 @@ const PriceRulesDetailsPage = () => {
 			isLoading={isLoading}
 			error={error}
 			buttonsChildren={buttons}
-			confirmationModel={confirmationModal}
+			confirmationModal={confirmationModal}
 		>
 			{rule && <DetailSection rows={details} />}
 		</DetailsContainer>
