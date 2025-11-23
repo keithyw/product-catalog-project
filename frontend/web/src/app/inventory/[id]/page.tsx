@@ -114,7 +114,6 @@ const InventoryPage = () => {
 			confirmationModal={confirmationModal}
 		>
 			{inventory && <DetailSection rows={details} />}
-			{/* need to add a view details table for attributes */}
 			{inventory?.attributes_data && (
 				<ViewDetailsTable
 					data={Object.keys(inventory?.attributes_data || {}).map((key) => ({

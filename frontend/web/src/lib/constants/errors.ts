@@ -20,3 +20,5 @@ export const GENERIC_SERVER_ERROR =
 	'Network error or request failed. Please try again.'
 export const UNEXPECTED_SERVER_ERROR =
 	'Unexpected server error. Please try again.'
+export const FAILED_LOADING_INVENTORY_ERROR =
+	'Failed to load inventory. Please try again.'
