@@ -25,7 +25,7 @@
     - utils - miscellaneous functions that don't fall into any other category
   - schemas - Zod 4 schemas for data validation
   - stores - Zustand stores for state management
-  - stories - Support functions for storybook
+  - stories - Support functions/components for storybook. Not the actual storybook files for components.
   - types - TypeScript types
 
 ## Styling & Tooling
@@ -46,21 +46,39 @@ This projet utilizes the following major libraries/frameworks/tools:
 - eslint
 - prettier
 
-## Testing Conventions under the frontend/web/src/lib directory
+### Style highlights (from eslint-config-godaddy and Biome configs)
+
+- Tab indentation
+- Single quotes
+- Semicolons disabled
+- Max line width ~130
+- Long Tailwind classes need to be on new lines for readability
+
+### Naming and structure
+
+- File and directory names: kebab-case (per CONTRIBUTING.md)
+- Variables/functions: camelCase; Types/Interfaces: PascalCase
+- React components: PascalCase
+- Exports: packages use "exports" map and typesVersions as needed; keep public API stable
+
+## Testing
+
+### Testing Conventions under the frontend/web/src/lib directory
 
 - All tests MUST be written using the **`jest`** framework for .ts files
-- Typescript files should be in the same directory as the file being tested
+- Typescript files should be in the same directory as the file being tested (Colocation)
 - The test file should be named like the file being tested with the suffix .test.ts (e.g. auth.ts should have a corresponding auth.test.ts)
-- Directories that should have tests under lib are:
-  - hooks
-  - services
-  - utils
+- Directories that **MUST** have tests under lib are:
+  - **lib/hooks**
+  - **lib/services**
+  - **lib/utils**
 - Use mock objects for external dependencies (e.g., axios calls, database calls, external APIs)
 - Tests should be against logical branches and include exceptions that are thrown to ensure coverage.
 - Tests should be updated when the code being tested is updated.
 
-## Storybook Conventions
+### Storybook
 
-- Each component in the components directory should have a corresponding story in the stories directory
-- The stories should be named like the component with the suffix .stories.tsx (e.g. auth.ts should have a corresponding auth.stories.tsx)
-- The stories should be updated when the component is updated.
+- Each component in the components directory should have a corresponding storybook file
+- The storybook file should be named like the component with the suffix .stories.tsx (e.g. auth.ts should have a corresponding auth.stories.tsx)
+- The storybook file should be in the same directory as the component being tested (Colocation)
+- The storybook file should be updated when the component is updated.
