@@ -42,6 +42,9 @@ module.exports = {
 		'object-shorthand': ['warn', 'always'], // Enforces object shorthand syntax
 		'quote-props': ['warn', 'as-needed'], // Requires quotes around object literal property names only when necessary
 		semi: ['error', 'never'], // Enforce no semicolons (Prettier will handle this due to 'plugin:prettier/recommended')
+		quotes: ['error', 'single'], // Enforce single quotes
+		trailingComma: ['error', 'all'], // Enforce trailing commas in object and array literals
+		'comma-dangle': ['error', 'always-multiline'], // Enforce trailing commas in multiline object and array literals
 
 		// TypeScript Specific Rules
 		'@typescript-eslint/no-explicit-any': 'off', // Allows `any` for flexibility

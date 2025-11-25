@@ -1,4 +1,4 @@
-# Project Conventions for Cursor AI Agents
+# Project Conventions for AI Agents
 
 ## Python Documentation Rules
 
