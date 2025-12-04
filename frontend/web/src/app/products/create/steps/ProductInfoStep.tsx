@@ -111,7 +111,12 @@ const ProductInfo: React.FC<StepComponentProps> = ({ setSubmitHandler }) => {
 				setLoadingBrands(true)
 				const brands = await brandService.fetch(1, 200)
 				if (brands.count > 0) {
-					setBrands(brands.results.map((b) => ({ value: b.id, label: b.name })))
+					setBrands(
+						brands.results.map((b) => ({
+							value: b.id as number,
+							label: b.name,
+						})),
+					)
 				}
 			} catch (e: unknown) {
 				if (e instanceof Error) {

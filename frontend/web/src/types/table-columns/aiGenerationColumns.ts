@@ -1,7 +1,8 @@
-import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
+import { SimpleCategory, SimpleProductAttribute } from '@/types/ai'
+import { Brand } from '@/types/brand'
 import { TableColumn } from '@/types/table'
 
-export const BRAND_COLUMNS: TableColumn<SimpleBrand>[] = [
+export const BRAND_COLUMNS: TableColumn<Brand>[] = [
 	{
 		header: 'ID',
 		accessor: 'id',

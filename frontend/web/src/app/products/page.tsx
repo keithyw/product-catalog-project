@@ -322,7 +322,6 @@ export default function ProductsPage() {
 
 	return (
 		<PermissionGuard requiredPermission={PRODUCT_PERMISSIONS.VIEW}>
-			<h1>Products</h1>
 			<div className='flex gap-4 justify-end'>
 				<CreateItemSection
 					href={CREATE_PRODUCT_URL}

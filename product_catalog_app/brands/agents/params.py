@@ -2,8 +2,8 @@ from product_catalog_app.commands.agent_params import AbstractAgentCommandParame
 
 class BrandCheckAgentParams(AbstractAgentCommandParameters):
     def validate_params(self) -> bool:
-        if 'category' not in self.data:
+        if 'category_id' not in self.data:
             return False
-        if 'product_type' not in self.data:
+        if 'product_attribute_set_id' not in self.data:
             return False
         return True

@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from pydantic import BaseModel, Field
 from typing import List
 from google.genai import types
@@ -10,12 +11,12 @@ class BrandDetails(BaseModel):
     """Brand model schema"""
     name: str = Field(description="The brand name")
     description: str = Field(description="Contains info about the product line for the brand")
-    logo_url: str = Field(description="The official logo image URL. If not use a substitute if a brand no longer exist")
-    website_url: str = Field(description="The official homepage URL. If the brand no longer exist, use a wikipedia entry URL.")
+    logo_url: str = Field(description="The official logo image URL. If not use a substitute if a brand no longer exist. Should be properly formatted as a URL with https:// prefix")
+    website_url: str = Field(description="The official homepage URL. If the brand no longer exist, use a wikipedia entry URL. Should be properly formatted as a URL with https:// prefix")
 
 class BrandCheckOutput(BaseModel):
     brands: List[BrandDetails] = Field(description="A list of brand names that are missing from the system")
-    summary: str = Field(description="A brief summary of the external search results to confirm market viability and lack of major conflicts.")
+    summary: str = Field(description="A brief summary of the external search results.")
 
 class BrandCheckCommand(AbstractAgentCommand):
 
@@ -29,8 +30,12 @@ class BrandCheckCommand(AbstractAgentCommand):
         return BrandCheckOutput
 
     async def _pre_process(self):
-        self._internal_data['category'] = self.parameters.get_value('category')
-        self._internal_data['product_type'] = self.parameters.get_value('product_type')
+        self._internal_data['category'] = await sync_to_async(
+            lambda: self.container.get_model('category').objects.get(pk=self.parameters.get_value('category_id'))
+        )()
+        self._internal_data['product_type'] = await sync_to_async(
+            lambda: self.container.get_model('product_attribute_set').objects.get(pk=self.parameters.get_value('product_attribute_set_id'))
+        )()
         self._prompt_template = 'brand_check.txt'
         # being super lazy lulz
         self._prompt_data = self._internal_data
@@ -38,7 +43,7 @@ class BrandCheckCommand(AbstractAgentCommand):
         
     async def _handle(self) -> CommandResults:
         if self._parsed_output:
-            return CommandResults(self._parsed_output, None, True)
+            return CommandResults(self._parsed_output['brands'], None, True)
         return CommandResults(None, "No output from agent", False)
         
     

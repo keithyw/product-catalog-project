@@ -118,6 +118,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'product_catalog_app.wsgi.application'
 
+ASGI_APPLICATION = 'product_catalog_app.asgi.application'
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',

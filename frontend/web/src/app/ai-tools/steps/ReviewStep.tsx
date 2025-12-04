@@ -13,8 +13,8 @@ import categoryService from '@/lib/services/category'
 import productAttributeService from '@/lib/services/productAttribute'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
 import useAIToolsStore from '@/stores/useAIToolsStore'
-import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
-import { CreateBrandRequest } from '@/types/brand'
+import { SimpleCategory, SimpleProductAttribute } from '@/types/ai'
+import { Brand, CreateBrandRequest } from '@/types/brand'
 import { SimpleCategoryRequest } from '@/types/category'
 import {
 	CreateProductAttributeRequest,
@@ -80,7 +80,7 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 				[ENTITY_PRODUCT_ATTRIBUTE]: productAttributes,
 			},
 			filters: {
-				[ENTITY_BRAND]: (items: SimpleBrand[], id: number) =>
+				[ENTITY_BRAND]: (items: Brand[], id: number) =>
 					items.filter((item) => item.id !== id),
 				[ENTITY_CATEGORY]: (items: SimpleCategory[], id: number) =>
 					removeCategoryAndChildren(items, id),
@@ -92,7 +92,7 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 			},
 			bulkSave: {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				[ENTITY_BRAND]: async (items: SimpleBrand[]): Promise<any> => {
+				[ENTITY_BRAND]: async (items: Brand[]): Promise<any> => {
 					if (isArray(items) && items.length > 0) {
 						const req: CreateBrandRequest[] = items.map((b) => {
 							return {
@@ -158,7 +158,7 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 	return (
 		<>
 			{entityType === ENTITY_BRAND && (
-				<AIReviewStep<SimpleBrand>
+				<AIReviewStep<Brand>
 					columns={entityMap.columns[entityType]}
 					data={entityMap.data[entityType]}
 					isNested={false}

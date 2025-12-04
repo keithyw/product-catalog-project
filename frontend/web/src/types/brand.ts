@@ -1,5 +1,5 @@
 export interface Brand {
-	id: number
+	id?: number
 	name: string
 	description?: string
 	logo_url?: string
@@ -10,8 +10,8 @@ export interface Brand {
 export interface CreateBrandRequest {
 	name: string
 	description?: string
-	logo_url?: string
-	website_url?: string
+	logo_url?: string | null
+	website_url?: string | null
 	contact_email?: string
 }
 

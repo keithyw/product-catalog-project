@@ -15,6 +15,10 @@ interface BrandService {
 		ordering?: string,
 	) => Promise<ListResponse<Brand>>
 	get: (id: number) => Promise<Brand>
+	generate: (
+		categoryId: number,
+		productAttributeSetId: number,
+	) => Promise<Brand[]>
 	update: (id: number, data: CreateBrandRequest) => Promise<Brand>
 }
 
@@ -44,6 +48,22 @@ const brandService: BrandService = {
 			params,
 		})
 		return r.data || { results: [], count: 0, next: null, previous: null }
+	},
+	generate: async (
+		categoryId: number,
+		productAttributeSetId: number,
+	): Promise<Brand[]> => {
+		const r = await axiosClient.post<Brand[]>(
+			`${API_BRANDS_URL}generate/`,
+			{
+				category_id: categoryId,
+				product_attribute_set_id: productAttributeSetId,
+			},
+			{
+				timeout: 60000,
+			},
+		)
+		return r.data || ([] as Brand[])
 	},
 	get: async (id: number): Promise<Brand> => {
 		const r = await axiosClient.get<Brand>(`${API_BRANDS_URL}${id}/`)

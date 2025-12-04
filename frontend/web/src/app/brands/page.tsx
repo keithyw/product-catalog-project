@@ -8,6 +8,7 @@ import DataTable from '@/components/ui/DataTable'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import ConfirmationModal from '@/components/ui/modals/ConfirmationModal'
 import {
+	BULK_CREATE_BRANDS_URL,
 	BRANDS_URL,
 	CREATE_BRANDS_URL,
 	DEFAULT_PAGE_SIZE,
@@ -73,7 +74,7 @@ export default function BrandsPage() {
 		if (deleteBrand) {
 			try {
 				setIsDeleting(true)
-				await brandService.delete(deleteBrand.id)
+				await brandService.delete(deleteBrand.id as number)
 				toast.success(`Brand ${deleteBrand.name} deleted successfully`)
 				loadData()
 				closeConfirmModal()
@@ -116,13 +117,20 @@ export default function BrandsPage() {
 
 	return (
 		<PermissionGuard requiredPermission={BRAND_PERMISSIONS.VIEW}>
-			<h1>Brands</h1>
-			<CreateItemSection
-				href={CREATE_BRANDS_URL}
-				permission={BRAND_PERMISSIONS.ADD}
-			>
-				Create New Brand
-			</CreateItemSection>
+			<div className='flex gap-4 justify-end'>
+				<CreateItemSection
+					href={CREATE_BRANDS_URL}
+					permission={BRAND_PERMISSIONS.ADD}
+				>
+					Create New Brand
+				</CreateItemSection>
+				<CreateItemSection
+					href={BULK_CREATE_BRANDS_URL}
+					permission={BRAND_PERMISSIONS.ADD}
+				>
+					Bulk Generate
+				</CreateItemSection>
+			</div>
 			<DataTable
 				data={brands}
 				columns={cols}
