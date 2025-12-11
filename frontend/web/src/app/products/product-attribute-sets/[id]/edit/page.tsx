@@ -90,7 +90,7 @@ export default function EditProductAttributeSetPage() {
 	})
 
 	const selectBrandCallback = (updatedBrands: Brand[]) => {
-		const ids = updatedBrands.map((b) => b.id)
+		const ids = updatedBrands.map((b) => b.id as number)
 		setAttributeSet({
 			...attributeSet!,
 			product_type_brands: ids,
@@ -117,7 +117,7 @@ export default function EditProductAttributeSetPage() {
 	const [errorCategories, setErrorCategories] = useState<string | null>(null)
 
 	useEffect(() => {
-		setBrands(allBrands.map((b) => ({ value: b.id, label: b.name })))
+		setBrands(allBrands.map((b) => ({ value: b.id as number, label: b.name })))
 	}, [allBrands, setBrands])
 
 	const {
@@ -180,7 +180,9 @@ export default function EditProductAttributeSetPage() {
 
 	useEffect(() => {
 		const associatedBrandIds = new Set(attributeSet?.product_type_brands || [])
-		setSelectedBrands(allBrands.filter((b) => associatedBrandIds.has(b.id)))
+		setSelectedBrands(
+			allBrands.filter((b) => associatedBrandIds.has(b.id as number)),
+		)
 		const associatedAttributeIds = new Set(attributeSet?.attributes || [])
 		setSelectedAttributes(
 			allAttributes.filter((a) =>

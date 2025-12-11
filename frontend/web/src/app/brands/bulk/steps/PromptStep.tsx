@@ -5,7 +5,6 @@ import brandService from '@/lib/services/brand'
 import categoryService from '@/lib/services/category'
 import productAttributeSetService from '@/lib/services/productAttributeSet'
 import useAIToolsStore from '@/stores/useAIToolsStore'
-// import useBrandStore from '@/stores/useBrandStore'
 import { OptionType } from '@/types/form'
 import { StepComponentProps } from '@/types/wizard'
 
@@ -68,7 +67,7 @@ const PromptStep = ({ setSubmitHandler }: StepComponentProps) => {
 					res.length > 0
 						? res.map((b, idx) => ({
 								...b,
-								id: idx + 1,
+								id: (idx + 1) as number,
 							}))
 						: [],
 				)

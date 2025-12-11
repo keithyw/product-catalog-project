@@ -20,11 +20,12 @@ class BrandCheckOutput(BaseModel):
 
 class BrandCheckCommand(AbstractAgentCommand):
 
-    def _generate_session_key(self):
+    def _generate_session_key(self) -> str:
         return f"brand_check_{self.internal_data['category']}"
 
-    def _get_input_content(self):
-        return types.Content(role='user', parts=[types.Part(text=f"Generate and validate a brand names for the '{self._prompt_data['category']}' category.")])
+    def _get_input_content(self) -> types.Content:
+        # return types.Content(role='user', parts=[types.Part(text=json.dumps(product))])
+        return types.Content(role='user', parts=[types.Part(text=f"Generate and validate a brand names for the '{self._prompt_data['category'].name}' category.")])
 
     def _get_schema(self) -> BaseModel:
         return BrandCheckOutput

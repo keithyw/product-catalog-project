@@ -5,15 +5,14 @@ import {
 	ENTITY_PRODUCT,
 	ENTITY_PRODUCT_ATTRIBUTE,
 } from '@/lib/constants'
-import { SimpleCategory, SimpleProductAttribute } from '@/types/ai'
-import { Brand } from '@/types/brand'
+import { SimpleBrand, SimpleCategory, SimpleProductAttribute } from '@/types/ai'
 import { ProductAttributeSet, SimpleProduct } from '@/types/product'
 import { WizardSlice, createWizardSlice } from './wizardStoreSlice'
 
 interface AITools {
 	prompt: string
 	entityType: string
-	brands: Brand[]
+	brands: SimpleBrand[]
 	categories: SimpleCategory[]
 	productAttributes: SimpleProductAttribute[]
 	productAttributeSet: ProductAttributeSet | null
@@ -29,7 +28,7 @@ interface AITools {
 	setPrompt(prompt: string): void
 	setEntityData: <T>(data: T[], entityType: string) => void
 	setEntityType(type: string): void
-	setBrands(brands: Brand[]): void
+	setBrands(brands: SimpleBrand[]): void
 	setCategories(categories: SimpleCategory[]): void
 	setProductAttributes(productAttributes: SimpleProductAttribute[]): void
 	setProductAttributeSet(item: ProductAttributeSet): void
@@ -73,7 +72,7 @@ const useAIToolsStore = create<AIToolsStore>()((set, get) => ({
 	setEntityData: <T>(data: T[], entityType: string) => {
 		switch (entityType) {
 			case ENTITY_BRAND:
-				set({ brands: data as Brand[] })
+				set({ brands: data as SimpleBrand[] })
 				break
 			case ENTITY_CATEGORY:
 				set({ categories: data as SimpleCategory[] })
@@ -87,7 +86,7 @@ const useAIToolsStore = create<AIToolsStore>()((set, get) => ({
 		}
 	},
 	setEntityType: (type: string) => set({ entityType: type }),
-	setBrands: (b: Omit<Brand, 'id'>[]) => set({ brands: b }),
+	setBrands: (b: Omit<SimpleBrand, 'id'>[]) => set({ brands: b }),
 	setCategories: (c: SimpleCategory[]) => set({ categories: c }),
 	setProductAttributes: (p: Omit<SimpleProductAttribute, 'id'>[]) =>
 		set({ productAttributes: p }),

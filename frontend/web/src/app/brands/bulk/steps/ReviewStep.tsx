@@ -66,10 +66,10 @@ const BulkBrandReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 		<>
 			<AIReviewStep<Brand>
 				columns={cols}
-				data={brands}
+				data={brands as Brand[]}
 				isNested={false}
 				filterFn={filter}
-				onSave={() => save(brands)}
+				onSave={() => save(brands as Brand[])}
 				setSubmitHandler={setSubmitHandler}
 			/>
 		</>

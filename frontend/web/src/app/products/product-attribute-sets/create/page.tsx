@@ -74,7 +74,7 @@ export default function CreateProductAttributeSetPage() {
 	})
 
 	const onBrandCallback = (updatedBrands: Brand[]) => {
-		const ids = updatedBrands.map((b) => b.id)
+		const ids = updatedBrands.map((b) => b.id as number)
 		setProductTypeBrands(ids)
 	}
 

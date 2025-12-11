@@ -36,7 +36,7 @@ const BrandDetailsPage: React.FC = () => {
 	const handleDeleteConfirm = async () => {
 		if (brand) {
 			try {
-				await brandService.delete(brand.id)
+				await brandService.delete(brand.id as number)
 				toast.success(`Brand ${brand.name} deleted successfully`)
 				router.push(BRANDS_URL)
 			} catch (e: unknown) {

@@ -18,7 +18,7 @@ import productService from '@/lib/services/product'
 import { handleFormErrors } from '@/lib/utils/errorHandler'
 import { priceCreateSchema, PriceCreateFormData } from '@/schemas/priceSchema'
 import { FormField } from '@/types/form'
-import { CreatePriceRequest, Price, Product } from '@/types/product'
+import { CreatePriceRequest, Product } from '@/types/product'
 
 const formFields: FormField<PriceCreateFormData>[] = [
 	{
@@ -61,7 +61,6 @@ const EditPricePage = () => {
 						price: product.price.price.toString(),
 					})
 				}
-
 			} catch (e: unknown) {
 				if (e instanceof Error) {
 					console.error(e.message)
@@ -73,7 +72,7 @@ const EditPricePage = () => {
 			}
 		}
 		fetchData()
-	}, [priceId, router])
+	}, [params, priceId, reset, router])
 
 	const onSubmit = async (data: PriceCreateFormData) => {
 		try {
@@ -84,7 +83,10 @@ const EditPricePage = () => {
 				price_source: 'manual',
 				product: parseInt(product?.id as string),
 			}
-			const res = await priceService.patch(parseInt(priceId as string), priceData)
+			const res = await priceService.patch(
+				parseInt(priceId as string),
+				priceData,
+			)
 			toast.success(
 				`Price "${res.price}" for ${product?.name} saved successfully!`,
 			)

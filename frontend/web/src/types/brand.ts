@@ -1,5 +1,5 @@
 export interface Brand {
-	id?: number
+	id: string | number
 	name: string
 	description?: string
 	logo_url?: string

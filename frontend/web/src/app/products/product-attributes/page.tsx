@@ -79,7 +79,9 @@ export default function ProductAttributesPage() {
 		if (deleteProductAttribute) {
 			try {
 				setIsDeleting(true)
-				await productAttributeService.delete(deleteProductAttribute.id)
+				await productAttributeService.delete(
+					deleteProductAttribute.id as number,
+				)
 				toast.success(
 					`Product Attribute ${deleteProductAttribute.name} deleted successfully`,
 				)

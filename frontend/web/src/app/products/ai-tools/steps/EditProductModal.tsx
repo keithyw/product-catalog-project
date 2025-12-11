@@ -69,13 +69,13 @@ const EditProductModal = ({
 				productAttributeSet.product_type_brands.length > 0
 				? brands
 						.filter((b) =>
-							productAttributeSet.product_type_brands?.includes(b.id),
+							productAttributeSet.product_type_brands?.includes(b.id as number),
 						)
 						.map((o) => {
-							return { value: o.id, label: o.name }
+							return { value: o.id as number, label: o.name }
 						})
 				: brands.map((o) => {
-						return { value: o.id, label: o.name }
+						return { value: o.id as number, label: o.name }
 					}),
 		)
 	}, [brands, productAttributeSet])

@@ -1,5 +1,6 @@
 import inspect
 from google.adk.agents import Agent
+from google.adk.artifacts import BaseArtifactService
 from google.adk.runners import Runner
 from google.adk.tools import BaseTool, FunctionTool
 from google.genai import types
@@ -25,8 +26,11 @@ class RunnerService:
         }
 
     @property
-    def runner(self):
+    def runner(self) -> Runner:
         return self._runner
+    
+    def artifact_service(self) -> BaseArtifactService:
+        return self._runner.artifact_service
 
     async def _execute_tool_function(self, function_call: types.FunctionCall) -> Dict:
         tool_name = function_call.name

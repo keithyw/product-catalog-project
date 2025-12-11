@@ -53,7 +53,7 @@ listeners/
 media/
 
 # temporary until we can flesh out these agents
-product_catalog_app/products/agents/
+product_catalog_app/products/agents/product_type_correction
 
 # throwaway scripts
 product_catalog_app/scripts/agents/

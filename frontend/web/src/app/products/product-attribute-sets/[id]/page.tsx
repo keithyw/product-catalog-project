@@ -104,7 +104,7 @@ export default function ProductAttributeSetPage() {
 	}, [id])
 
 	const availableBrands = brands.filter((brand) =>
-		attributeSet?.product_type_brands?.includes(brand.id),
+		attributeSet?.product_type_brands?.includes(brand.id as number),
 	)
 
 	if (isLoading) {

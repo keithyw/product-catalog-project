@@ -1,4 +1,5 @@
 import logging
+from asgiref.sync import async_to_sync
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -10,6 +11,8 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.text import slugify
 from product_catalog_app.containers.django_container import DjangoContainer
+from product_catalog_app.products.agents.generate_from_image.command import GenerateProductFromImageCommand
+from product_catalog_app.products.agents.generate_from_image.params import GenerateProductFromImageParams
 from product_catalog_app.products.commands.generate_description import GenerateDescriptionCommand
 from product_catalog_app.products.commands.params import GenerateDescriptionParams
 from .messaging import publish_validation_events
@@ -190,6 +193,42 @@ class ProductImageViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request, *args, **kwargs):
+        serializer = AIImageProductGenerateRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            product_type = serializer.validated_data['product_type']
+            params = GenerateProductFromImageParams(
+                'agents',
+                'An agent that identifies product information from an image',
+                'generate_product_from_image_user',
+                {
+                    'image': serializer.validated_data['file'],
+                    'product_type': product_type,
+                },
+            )
+            container = DjangoContainer.get_instance()
+            cmd = GenerateProductFromImageCommand(container, params)
+            async def async_cmd():
+                return await cmd.execute()
+            res = async_to_sync(async_cmd)()
+            if res.success:
+                return Response({
+                    "status": "success",
+                    "product_type": product_type,
+                    "data": res.data,
+                })
+            else:
+                return Response({
+                    "details": "No product generated",
+                    "message": f"error details: {res.errors}",
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "details": str(e),
+                "message": "An unexpected server error occurred",
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        
+    def put(self, request, *args, **kwargs):
         logger.info("received request for image id")
         logger.info("data", request)
         serializer = AIImageProductGenerateRequestSerializer(data=request.data)

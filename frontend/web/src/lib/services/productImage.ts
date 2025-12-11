@@ -27,6 +27,7 @@ const productImageService: ProductImageService = {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},
+				timeout: 60000,
 			})
 			return res.data || ({} as GeneratedProductResponse)
 		} catch (e: unknown) {

@@ -19,15 +19,23 @@ class DjangoContainer(AbstractContainer):
                 "product_catalog_app.settings",
             )
             django.setup()
+        from assets.models import Asset
         from brands.models import Brand
         from categories.models import Category
+        from inventory.models import InventoryItem
+        from prices.models import Price, PriceModifier, PriceRule
         from products.models import Product, ProductAttribute, ProductAttributeSet
         from users.models import User
         self._gen_client = GeminiAIClient.get_client()
         self._pubsub_client = get_pubsub_client("google", self)
         self._models = {
+            "asset": Asset,
             "brand": Brand,
             "category": Category,
+            "inventory_item": InventoryItem,
+            "price": Price,
+            "price_modifier": PriceModifier,
+            "price_rule": PriceRule,
             "product": Product,
             "product_attribute": ProductAttribute,
             "product_attribute_set": ProductAttributeSet,

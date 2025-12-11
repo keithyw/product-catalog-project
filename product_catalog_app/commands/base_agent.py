@@ -1,6 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from google.genai import types
+from google.adk.artifacts import BaseArtifactService
 from google.adk.tools import BaseTool
 from json.decoder import JSONDecodeError
 from pydantic import BaseModel
@@ -30,6 +31,7 @@ class AbstractAgentCommand(ABC):
         self._container = container
         self._parameters = params
         self._agent = None
+        self._artifact_service = None
         # additional dict for maintaining other data
         self._internal_data = {}
         # the results of the agent run
@@ -39,6 +41,7 @@ class AbstractAgentCommand(ABC):
         self._runner = None
         self._session_manager = None
         self._prompt_template = None
+        self._disallow_transfer = False
         self._prompt_data = {}
         self._tools = []
 
@@ -50,6 +53,10 @@ class AbstractAgentCommand(ABC):
             The AbstractContainer instance providing services.
         """
         return self._container
+    
+    @property
+    def artifact_service(self) -> BaseArtifactService:
+        return self._artifact_service
     
     @property
     def internal_data(self) -> dict:
@@ -161,6 +168,7 @@ class AbstractAgentCommand(ABC):
         Returns:
             The configured agent instance.
         """
+        self.container.logger.info("creating agent")
         self._agent = create_agent(
             self.parameters.agent_name,
             self.parameters.description,
@@ -168,6 +176,9 @@ class AbstractAgentCommand(ABC):
             self._get_schema(),
             self.tools,
         )
+        if self._disallow_transfer:
+            self._agent.disallow_transfer_to_parent = True
+            self._agent.disallow_transfer_to_peers = True
         return self._agent
 
     async def _generate_session(self):
@@ -195,7 +206,9 @@ class AbstractAgentCommand(ABC):
             self.parameters.user_id,
             self._session_manager,
             self._tools,
-        )        
+        )
+        if self._artifact_service:
+            self._runner.artifact_service = self._artifact_service
 
     def _generate_prompt(self) -> str:
         """Generate the prompt from the template and data.
@@ -211,6 +224,7 @@ class AbstractAgentCommand(ABC):
         """
         if not self._prompt_template:
             raise ValueError("prompt template not set")
+        self.container.logger.info("trying to render prompt")
         prompt = render(self._prompt_template, self._prompt_data)
         # temporary for debugging
         self.container.logger.info(f"prompt {prompt}")

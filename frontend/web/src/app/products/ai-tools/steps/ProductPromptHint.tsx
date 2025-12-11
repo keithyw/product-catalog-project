@@ -64,7 +64,9 @@ const ProductPromptHint = ({ onHandleSubmit }: ProductPromptHintProps) => {
 					setAllowedBrands(
 						res.results
 							.filter((b) =>
-								productAttributeSet.product_type_brands?.includes(b.id),
+								productAttributeSet.product_type_brands?.includes(
+									b.id as number,
+								),
 							)
 							.map((b) => b.name)
 							.join(', '),

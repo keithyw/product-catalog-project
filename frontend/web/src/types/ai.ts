@@ -3,7 +3,10 @@ import { ProductAttributeType } from '@/types/product'
 export interface SimpleBrand {
 	id?: number
 	name: string
-	description: string
+	description?: string
+	logo_url?: string
+	website_url?: string
+	contact_email?: string
 }
 
 export interface GeneratedResponse<T> {

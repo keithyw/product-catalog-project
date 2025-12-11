@@ -45,8 +45,9 @@ const ProductReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 						name: p.name,
 						brand:
 							(brands.length > 0 &&
-								brands.find((b) => b.name === p.brand)?.id) ||
+								(brands.find((b) => b.name === p.brand)?.id as number)) ||
 							null,
+						description: p.description || '',
 						attribute_set: productAttributeSet?.id as number,
 						attributes_data: p.attributes,
 						is_active: false,

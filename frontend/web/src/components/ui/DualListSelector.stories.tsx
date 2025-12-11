@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs'
 import DualListSelector from './DualListSelector'
 import { OptionType } from '@/types/form'
 

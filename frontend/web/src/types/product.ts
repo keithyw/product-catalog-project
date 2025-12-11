@@ -270,6 +270,7 @@ export interface SimpleProduct {
 	id?: number
 	name: string
 	brand: string
+	description: string
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attributes: Record<string, any>
 }

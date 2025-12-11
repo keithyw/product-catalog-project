@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs'
 import AutocompleteInput from './AutocompleteInput'
 import { OptionType } from '@/types/form'
 

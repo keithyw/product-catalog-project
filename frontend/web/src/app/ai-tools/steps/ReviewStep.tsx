@@ -160,11 +160,13 @@ const ReviewStep = ({ setSubmitHandler }: StepComponentProps) => {
 			{entityType === ENTITY_BRAND && (
 				<AIReviewStep<Brand>
 					columns={entityMap.columns[entityType]}
-					data={entityMap.data[entityType]}
+					data={entityMap.data[entityType] as Brand[]}
 					isNested={false}
 					filterFn={entityMap.filters[entityType]}
 					onSave={() =>
-						entityMap.bulkSave[entityType](entityMap.data[entityType])
+						entityMap.bulkSave[entityType](
+							entityMap.data[entityType] as Brand[],
+						)
 					}
 					setSubmitHandler={setSubmitHandler}
 				/>
