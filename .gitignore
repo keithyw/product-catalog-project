@@ -57,6 +57,7 @@ product_catalog_app/products/agents/product_type_correction
 
 # throwaway scripts
 product_catalog_app/scripts/agents/
+product_catalog_app/scripts/bin/
 product_catalog_app/scripts/tests/
 
 /product-db/

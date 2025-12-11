@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Squares2X2Icon } from '@heroicons/react/24/outline'
+import useProductStore from '@/stores/useProductStore'
 
 interface ProductAttributesSectionProps {
 	attributes: Record<string, string>[]
@@ -8,6 +9,14 @@ interface ProductAttributesSectionProps {
 const ProductAttributesSection = ({
 	attributes,
 }: ProductAttributesSectionProps) => {
+	const { productAttributeSet } = useProductStore()
+	const fieldMap = useMemo(() => {
+		const fields: Record<string, string> = {}
+		productAttributeSet?.attributes_detail.forEach((f) => {
+			fields[f.code] = f.name
+		})
+		return fields
+	}, [productAttributeSet])
 	if (attributes.length === 0) {
 		return (
 			<div className='p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center text-gray-500'>
@@ -29,7 +38,7 @@ const ProductAttributesSection = ({
 						className='flex flex-col p-3 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition duration-150'
 					>
 						<dt className='text-xs font-semibold tracking-wide text-gray-500 truncate'>
-							{attr.label}
+							{fieldMap[attr.label]}
 						</dt>
 						<dd className='mt-1 text-base font-medium text-gray-900 whitespace-normal break-words'>
 							{attr.value}

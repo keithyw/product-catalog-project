@@ -1,13 +1,14 @@
 import { create } from 'zustand'
 import { z } from 'zod'
 import { Asset, AssetAssociation } from '@/types/asset'
-import { Product } from '@/types/product'
+import { Product, ProductAttributeSet } from '@/types/product'
 
 interface ProductStore {
 	assets: Asset[]
 	assetAssociations: AssetAssociation[]
 	product: Product | null
 	products: Product[]
+	productAttributeSet: ProductAttributeSet | null
 	currentStep: number
 	isCurrentStepValid: boolean
 	isEditMode: boolean
@@ -19,6 +20,7 @@ interface ProductStore {
 	setAssetAssociations: (assetAssociations: AssetAssociation[]) => void
 	setProduct: (p: Product) => void
 	setProducts: (products: Product[]) => void
+	setProductAttributeSet: (productAttributeSet: ProductAttributeSet) => void
 	setCurrentStep: (step: number) => void
 	setIsCurrentStepValid: (isValid: boolean) => void
 	setIsEditMode: (isEditting: boolean) => void
@@ -33,6 +35,7 @@ const useProductStore = create<ProductStore>((set) => ({
 	assetAssociations: [],
 	product: null,
 	products: [],
+	productAttributeSet: null,
 	currentStep: 1,
 	isCurrentStepValid: false,
 	isEditMode: false,
@@ -45,6 +48,8 @@ const useProductStore = create<ProductStore>((set) => ({
 	setProduct: (p: Product) =>
 		set((state) => ({ product: { ...state.product, ...p } })),
 	setProducts: (products: Product[]) => set({ products }),
+	setProductAttributeSet: (s: ProductAttributeSet) =>
+		set({ productAttributeSet: s }),
 	setCurrentStep: (step: number) => set({ currentStep: step }),
 	setIsCurrentStepValid: (isValid: boolean) =>
 		set({ isCurrentStepValid: isValid }),

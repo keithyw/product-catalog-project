@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
-import { upperFirst, toLower } from 'lodash'
 import PermissionGuard from '@/components/auth/PermissionGuard'
 import FloatingActionToolbar from '@/components/layout/FloatingActionToolbar'
 import ServerErrorMessages from '@/components/layout/ServerErrorMessages'
@@ -22,6 +21,7 @@ import {
 } from '@/lib/constants'
 import { PRODUCT_PERMISSIONS } from '@/lib/constants/permissions'
 import productService from '@/lib/services/product'
+import productAttributeSetService from '@/lib/services/productAttributeSet'
 import useProductStore from '@/stores/useProductStore'
 import { Asset } from '@/types/asset'
 import { Product } from '@/types/product'
@@ -37,7 +37,7 @@ export default function ProductDetailsPage() {
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 	const [showGenAIDescriptionModal, setShowGenAIDescriptionModal] =
 		useState(false)
-	const { product, setProduct } = useProductStore()
+	const { product, setProduct, setProductAttributeSet } = useProductStore()
 
 	const handleCloseDeleteModal = () => {
 		setShowConfirmationModal(false)
@@ -75,10 +75,14 @@ export default function ProductDetailsPage() {
 					setProduct(res)
 					if (res.attributes_data) {
 						for (const [k, v] of Object.entries(res.attributes_data)) {
-							attributes.push({ label: upperFirst(toLower(k)), value: v })
+							attributes.push({ label: k, value: v })
 						}
 						setAttributes(attributes)
 					}
+					const productAttributeSet = await productAttributeSetService.get(
+						res.attribute_set,
+					)
+					setProductAttributeSet(productAttributeSet)
 				} catch (e: unknown) {
 					if (e instanceof Error) {
 						setError(FAILED_LOADING_PRODUCT_ERROR)
@@ -90,7 +94,7 @@ export default function ProductDetailsPage() {
 			}
 			fetchData()
 		}
-	}, [attributes, id, router, setProduct])
+	}, [attributes, id, router, setProduct, setProductAttributeSet])
 
 	if (isLoading) {
 		return <SpinnerSection spinnerMessage='Loading product...' />
