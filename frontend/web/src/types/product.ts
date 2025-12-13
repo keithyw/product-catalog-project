@@ -289,3 +289,19 @@ export interface GeneratedProductResponse {
 export interface GeneratedDescriptionResponse {
 	detail: { description: string }
 }
+
+export interface ProductMonitorJob {
+	id: number
+	product: number
+	target_price: number
+	frequency: string
+	is_active: boolean
+	job_id: string
+}
+
+export interface CreateProductMonitorJobRequest {
+	product: number
+	target_price: number
+	frequency: string
+	is_active: boolean
+}

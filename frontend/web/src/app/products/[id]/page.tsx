@@ -26,6 +26,7 @@ import useProductStore from '@/stores/useProductStore'
 import { Asset } from '@/types/asset'
 import { Product } from '@/types/product'
 import GenAIDescriptionModal from '@/app/products/modals/GenAIDescriptionModal'
+import JobMonitorModal from '@/app/products/modals/JobMonitorModal'
 
 export default function ProductDetailsPage() {
 	const router = useRouter()
@@ -37,6 +38,7 @@ export default function ProductDetailsPage() {
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 	const [showGenAIDescriptionModal, setShowGenAIDescriptionModal] =
 		useState(false)
+	const [showJobMonitorModal, setShowJobMonitorModal] = useState(false)
 	const { product, setProduct, setProductAttributeSet } = useProductStore()
 
 	const handleCloseDeleteModal = () => {
@@ -133,6 +135,12 @@ export default function ProductDetailsPage() {
 						>
 							AI Description
 						</Button>
+						<Button
+							actionType='neutral'
+							onClick={() => setShowJobMonitorModal(true)}
+						>
+							Monitor Product
+						</Button>
 						<Link
 							href={
 								product?.price
@@ -158,6 +166,10 @@ export default function ProductDetailsPage() {
 			<GenAIDescriptionModal
 				isOpen={showGenAIDescriptionModal}
 				onClose={() => setShowGenAIDescriptionModal(false)}
+			/>
+			<JobMonitorModal
+				isOpen={showJobMonitorModal}
+				onClose={() => setShowJobMonitorModal(false)}
 			/>
 		</div>
 	)

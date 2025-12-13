@@ -371,7 +371,6 @@ class ProductMonitorJobSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'product',
-            'user_id',
             'target_price',
             'frequency',
             'is_active',

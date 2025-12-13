@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -271,3 +271,21 @@ class ProductMonitorJobViewSet(viewsets.ModelViewSet):
     filterset_fields = ['product', 'user_id']
     ordering_fields = ['id']
     ordering = ['id']
+    
+    def get_queryset(self):
+        user_id = getattr(self.request.user, 'pk', None)
+        if user_id is None:
+            return ProductMonitorJob.objects.none()
+        return self.queryset.filter(user_id=user_id)
+    
+    def perform_create(self, serializer):
+        user_id = getattr(self.request.user, 'pk', None)
+        if not user_id:
+            raise Exception("User is not authenticated")
+        serializer.save(user_id=user_id)
+        
+    def perform_update(self, serializer):
+        user_id = getattr(self.request.user, 'pk', None)
+        if not user_id:
+            raise Exception("User is not authenticated")
+        serializer.save(user_id=user_id)
