@@ -16,8 +16,8 @@ from product_catalog_app.products.agents.generate_from_image.params import Gener
 from product_catalog_app.products.commands.generate_description import GenerateDescriptionCommand
 from product_catalog_app.products.commands.params import GenerateDescriptionParams
 from .messaging import publish_validation_events
-from .models import Product, ProductAttribute, ProductAttributeSet
-from .serializers import AIProductGenerateRequestSeralizer, AIImageProductGenerateRequestSerializer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer
+from .models import Product, ProductAttribute, ProductAttributeSet, ProductMonitorJob
+from .serializers import AIProductGenerateRequestSeralizer, AIImageProductGenerateRequestSerializer, ProductSerializer, ProductAttributeSerializer, ProductAttributeSetSerializer, ProductMonitorJobSerializer
 from .services import ProductAIGenerationService, ProductAIGenerationServiceError
 
 logger = logging.getLogger(__name__)
@@ -260,4 +260,14 @@ class ProductImageViewSet(APIView):
                 "status": "error",
                 "message": "An unexpected server error occurred",
                 "details": str(e),
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class ProductMonitorJobViewSet(viewsets.ModelViewSet):
+    queryset = ProductMonitorJob.objects.all()
+    serializer_class = ProductMonitorJobSerializer
+    pagination_class = StandardResultsSetPagination
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['product', 'user_id']
+    ordering_fields = ['id']
+    ordering = ['id']

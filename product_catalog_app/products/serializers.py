@@ -1,7 +1,7 @@
 import json
 from django.db import models
 from rest_framework import serializers
-from .models import Product, ProductAttribute, ProductAttributeSet
+from .models import Product, ProductAttribute, ProductAttributeSet, ProductMonitorJob
 from assets.models import AssetAssociation
 from assets.serializers import AssetSerializer
 from brands.models import Brand
@@ -359,3 +359,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+    
+class ProductMonitorJobSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        allow_null=False,
+        required=True,
+    )
+    class Meta:
+        model = ProductMonitorJob
+        fields = [
+            'id',
+            'product',
+            'user_id',
+            'target_price',
+            'frequency',
+            'is_active',
+            'job_id',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = [
+            'created_at',
+            'updated_at',
+        ]
